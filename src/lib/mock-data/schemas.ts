@@ -45,6 +45,8 @@ export const OrderSchema = z.object({
 });
 export type Order = z.infer<typeof OrderSchema>;
 
+export const OrderListSchema = z.array(OrderSchema);
+
 export const DatasetSchema = z.object({
     products: z.array(ProductSchema),
     customers: z.array(CustomerSchema),
