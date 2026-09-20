@@ -3,6 +3,7 @@ import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardConte
 import { PageTitle } from '../../components/ui/PageTitle';
 import { Revenue } from '../../components/dashboard/Revenue';
 import { TotalOrders } from '../../components/dashboard/TotalOrders';
+import { AverageOrderValue } from '../../components/dashboard/AverageOrderValue';
 
 export default function DashboardPage() {
     return (
@@ -25,7 +26,9 @@ export default function DashboardPage() {
                     </Card>
                     <Card>
                         <CardTitle>Panier moyen</CardTitle>
-                        <CardContent>75 €</CardContent>
+                        <CardContent>
+                            <AverageOrderValue></AverageOrderValue>
+                        </CardContent>
                     </Card>
                     <Card>
                         <CardTitle>Taux de conversion</CardTitle>
