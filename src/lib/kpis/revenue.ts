@@ -5,5 +5,5 @@ export function calculateRevenue(orders: Order[]): number {
         .filter((order) => order.status === 'completed')
         .reduce((acc, order) => acc + order.totalAmount, 0);
 
-    return Number(revenue.toFixed(2));
+    return Math.round(revenue);
 }
