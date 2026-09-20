@@ -48,11 +48,11 @@ export default function DashboardPage() {
                         <CardTitle>Produits en baisse</CardTitle>
                         <CardContent>
                             <ul>
-                                <li>1. Produit V -25%</li>
-                                <li>2. Produit W -20%</li>
-                                <li>3. Produit X -15%</li>
-                                <li>4. Produit Y -10%</li>
-                                <li>5. Produit Z -5%</li>
+                                <li>1. Produit V <span className="text-danger">-25%</span></li>
+                                <li>2. Produit W <span className="text-danger">-20%</span></li>
+                                <li>3. Produit X <span className="text-danger">-15%</span></li>
+                                <li>4. Produit Y <span className="text-danger">-10%</span></li>
+                                <li>5. Produit Z <span className="text-danger">-5%</span></li>
                             </ul>
                         </CardContent>
                     </Card>

@@ -1,6 +1,6 @@
 export function Card({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col gap-4 rounded-2xl p-4 bg-linear-to-br from-violet-500/5 to-violet-500/25 border border-violet-500/25">
+        <div className="flex flex-col gap-4 rounded-2xl p-4 bg-surface hover:bg-surface-hover border border-border hover:border-secondary-500/40 transition-colors">
             {children}
         </div>
     );
@@ -26,7 +26,7 @@ export function CardGroup({ children }: { children: React.ReactNode }) {
 
 export function CardGroupTitle({ children }: { children: React.ReactNode }) {
     return (
-        <h2 className="text-2xl">{children}</h2>
+        <h2 className="text-2xl border-l-4 border-secondary-500 pl-3">{children}</h2>
     );
 }
 
