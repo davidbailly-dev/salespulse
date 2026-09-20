@@ -33,7 +33,7 @@ export default function DashboardPage() {
                     <Card>
                         <CardTitle>Taux de conversion</CardTitle>
                         <CardContent>
-                            <ScoreGauge value={25}></ScoreGauge>
+                            <ScoreGauge value={25} unit="%"></ScoreGauge>
                         </CardContent>
                     </Card>
                 </CardGroupContent>
@@ -88,7 +88,9 @@ export default function DashboardPage() {
                     </Card>
                     <Card>
                         <CardTitle>Paniers abandonnés</CardTitle>
-                        <CardContent>15%</CardContent>
+                        <CardContent>
+                            <ScoreGauge value={14} unit="%"></ScoreGauge>
+                        </CardContent>
                     </Card>
                 </CardGroupContent>
             </CardGroup>

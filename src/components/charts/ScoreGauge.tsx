@@ -6,13 +6,14 @@ type ScoreGaugeProps = {
     value: number;
     min?: number;
     max?: number;
+    unit?: string;
 };
 
 function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-export function ScoreGauge({ value, min = 0, max = 100 }: ScoreGaugeProps) {
+export function ScoreGauge({ value, min = 0, max = 100, unit }: ScoreGaugeProps) {
     const clampedValue = clamp(value, min, max);
     const data = [{ value: clampedValue }];
 
@@ -45,8 +46,11 @@ export function ScoreGauge({ value, min = 0, max = 100 }: ScoreGaugeProps) {
                 />
             </RadialBarChart>
 
-            <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">
-                {clampedValue}
+            <div className="absolute inset-0 flex items-center justify-center text-white">
+                <div>
+                    <span className="text-3xl font-bold mr-1">{clampedValue}</span>
+                    <span>{unit}</span>
+                </div>
             </div>
         </div>
     );
