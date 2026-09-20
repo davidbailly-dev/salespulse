@@ -8,16 +8,20 @@
     "test": "npm test"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.103.1",
     "next": "^16.3.5",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-is": "^19.3.0",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "26.6.2",
     "@types/react": "^19.3.0",
+    "msw": "^2.15.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
   }
