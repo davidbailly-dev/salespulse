@@ -37,3 +37,6 @@ yarn-error.log*
 
 # Documentation locale
 /docs
+
+# Agents IA
+CLAUDE.md
