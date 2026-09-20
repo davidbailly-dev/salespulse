@@ -2,6 +2,7 @@
 
 import { calculateTotalOrders } from '../../lib/kpis/totalOrders';
 import { useOrders } from '../../lib/queries/useOrders';
+import { KpiValue } from './KpiValue';
 
 export function TotalOrders() {
     const {data: orders, isLoading, isError} = useOrders();
@@ -12,6 +13,6 @@ export function TotalOrders() {
     const totalOrders = calculateTotalOrders(orders);
 
     return (
-        <p>{totalOrders} commande(s)</p>
+        <KpiValue value={totalOrders} />
     )
 }
