@@ -2,6 +2,7 @@ import { ScoreGauge } from '../../components/charts/ScoreGauge';
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from '../../components/ui/Card';
 import { PageTitle } from '../../components/ui/PageTitle';
 import { Revenue } from '../../components/dashboard/Revenue';
+import { TotalOrders } from '../../components/dashboard/TotalOrders';
 
 export default function DashboardPage() {
     return (
@@ -18,7 +19,9 @@ export default function DashboardPage() {
                     </Card>
                     <Card>
                         <CardTitle>Commandes</CardTitle>
-                        <CardContent>750 commandes</CardContent>
+                        <CardContent>
+                            <TotalOrders />
+                        </CardContent>
                     </Card>
                     <Card>
                         <CardTitle>Panier moyen</CardTitle>
