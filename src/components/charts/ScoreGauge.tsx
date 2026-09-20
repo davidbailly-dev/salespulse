@@ -10,8 +10,8 @@ export function ScoreGauge({ value }: { value: number }) {
       <svg width={0} height={0}>
         <defs>
           <linearGradient id="scoreGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#3b82f6" />
+            <stop offset="0%" stopColor="var(--color-secondary-400)" />
+            <stop offset="100%" stopColor="var(--color-primary-600)" />
           </linearGradient>
         </defs>
       </svg>
@@ -30,7 +30,7 @@ export function ScoreGauge({ value }: { value: number }) {
           dataKey="value"
           cornerRadius={999}
           fill="url(#scoreGradient)"
-          background={{ fill: '#1e1b3a' }}
+          background={{ fill: 'var(--color-surface)' }}
         />
       </RadialBarChart>
 
