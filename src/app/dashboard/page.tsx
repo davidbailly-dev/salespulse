@@ -5,6 +5,7 @@ import { Revenue } from '../../components/dashboard/Revenue';
 import { TotalOrders } from '../../components/dashboard/TotalOrders';
 import { AverageOrderValue } from '../../components/dashboard/AverageOrderValue';
 import { TopProducts } from '../../components/dashboard/TopProducts';
+import { TopCategories } from '../../components/dashboard/TopCategories';
 
 export default function DashboardPage() {
     return (
@@ -63,13 +64,7 @@ export default function DashboardPage() {
                     <Card>
                         <CardTitle>Top catégories</CardTitle>
                         <CardContent>
-                            <ul>
-                                <li>1. Catégorie A | 17 000 €</li>
-                                <li>2. Catégorie B | 12 000 €</li>
-                                <li>3. Catégorie C | 10 000 €</li>
-                                <li>4. Catégorie D | 9000 €</li>
-                                <li>5. Catégorie F | 7500 €</li>
-                            </ul>
+                            <TopCategories />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
