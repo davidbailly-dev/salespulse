@@ -1,6 +1,7 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
+import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 
 export default function SalesPage() {
     return (
@@ -13,6 +14,12 @@ export default function SalesPage() {
                         <CardTitle>Taux de remboursement</CardTitle>
                         <CardContent>
                             <RefundRate />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>CA perdu en remboursements</CardTitle>
+                        <CardContent>
+                            <RefundedRevenue />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
