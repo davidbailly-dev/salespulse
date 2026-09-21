@@ -19,11 +19,11 @@ export function RecurringCustomers() {
         <div className="flex gap-8">
             <div className="flex flex-col items-center gap-1">
                 <KpiValue value={recurringOrdersRate} unit="%" />
-                <span className="text-xs text-gray-400">commandes récurrentes</span>
+                <span className="text-xs text-gray-400 text-center">commandes récurrentes</span>
             </div>
             <div className="flex flex-col items-center gap-1">
                 <KpiValue value={newOrdersRate} unit="%" />
-                <span className="text-xs text-gray-400">commandes nouvelles</span>
+                <span className="text-xs text-gray-400 text-center">commandes nouvelles</span>
             </div>
         </div>
     );
