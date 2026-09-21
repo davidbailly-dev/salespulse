@@ -42,7 +42,7 @@ export function CardList({items}: CardListProps) {
             <li key={item.id} className="contents">
                 <span>{index + 1}.</span>
                 <span className="truncate">{item.label}</span>
-                <span className={toneClassNames[item.tone ?? 'default']}>{item.value}</span>
+                <span className={`text-right ${toneClassNames[item.tone ?? 'default']}`}>{item.value}</span>
             </li>
             ))}
         </ul>
