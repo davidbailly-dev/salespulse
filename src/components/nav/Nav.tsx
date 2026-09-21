@@ -33,13 +33,18 @@ const navItems: NavItemProps[] = [
 
 export function Nav() {
     return(
-        <nav className="bg-background border-r border-r-primary-900">
+        <nav className="bg-background border-r border-r-primary-900 h-screen sticky top-0 flex flex-col">
             <h1 className="p-4 text-2xl">SalesPulse</h1>
             <ul className="flex flex-col">
                 {navItems.map((item) => (
                     <NavLink key={item.href} href={item.href} label={item.label} icon={<item.icon />} />
                 ))}
             </ul>
+            <div className="mt-auto p-4">
+                <div className="border-t border-primary-900 mx-4 pt-4 text-sm text-gray-400">
+                    David Bailly
+                </div>
+            </div>
         </nav>
     );
 }
