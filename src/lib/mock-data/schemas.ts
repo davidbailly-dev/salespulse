@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const CategorySchema = z.enum([
-    'Clothing',
-    'Shoes',
-    'Accessories',
-    'Electronics',
-    'Home',
+    'Armes',
+    'Armures',
+    'Potions',
+    'Grimoires',
+    'Artefacts',
 ]);
 export type Category = z.infer<typeof CategorySchema>;
 

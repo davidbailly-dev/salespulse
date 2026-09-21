@@ -7,24 +7,64 @@ const CUSTOMER_COUNT = 120;
 const ORDER_COUNT = 600;
 const WINDOW_DAYS = 90;
 
-const CATEGORIES: Category[] = ['Clothing', 'Shoes', 'Accessories', 'Electronics', 'Home'];
+const CATEGORIES: Category[] = ['Armes', 'Armures', 'Potions', 'Grimoires', 'Artefacts'];
+
+// Faker n'a pas de module "heroic fantasy" : les noms de produits sont composés
+// à la main (un item par catégorie + un qualificatif), pas générés par Faker.
+const ITEM_NAMES_BY_CATEGORY: Record<Category, string[]> = {
+    Armes: ['Épée longue', 'Dague', 'Hache de guerre', 'Arc long', 'Masse d\'armes', 'Lance', 'Marteau de guerre', 'Rapière', 'Hallebarde', 'Katana'],
+    Armures: ['Plastron', 'Casque', 'Bouclier', 'Gantelets', 'Jambières', 'Heaume', 'Bottes de plates', 'Cotte de mailles', 'Cape', 'Brassards'],
+    Potions: ['Potion de soin', 'Potion de mana', 'Élixir de force', 'Philtre d\'invisibilité', 'Fiole de poison', 'Décoction de résistance', 'Élixir de vitesse', 'Potion de régénération'],
+    Grimoires: ['Grimoire des flammes', 'Tome des ombres', 'Manuel de nécromancie', 'Codex runique', 'Parchemin ancien', 'Livre des sortilèges', 'Traité d\'alchimie', 'Recueil des Anciens'],
+    Artefacts: ['Amulette runique', 'Anneau de pouvoir', 'Orbe de cristal', 'Talisman protecteur', 'Sceptre ancien', 'Médaillon enchanté', 'Couronne oubliée', 'Relique sacrée'],
+};
+
+const ITEM_QUALIFIERS = ['du Dragon', 'des Ombres', 'de l\'Aube', 'légendaire', 'enchanté', 'de l\'Éternité', 'maudit', 'runique', 'des Anciens', 'de Cristal', 'de Givre', 'du Néant'];
+
+function generateProductName(category: Category): string {
+    const item = faker.helpers.arrayElement(ITEM_NAMES_BY_CATEGORY[category]);
+    const qualifier = faker.helpers.arrayElement(ITEM_QUALIFIERS);
+    return `${item} ${qualifier}`;
+}
 
 function generateProducts(): Product[] {
-    return Array.from({ length: PRODUCT_COUNT }, () => ({
-        id: faker.string.uuid(),
-        name: faker.commerce.productName(),
-        category: faker.helpers.arrayElement(CATEGORIES),
-        price: Number(faker.commerce.price({ min: 10, max: 300 })),
-    }));
+    return Array.from({ length: PRODUCT_COUNT }, () => {
+        const category = faker.helpers.arrayElement(CATEGORIES);
+
+        return {
+            id: faker.string.uuid(),
+            name: generateProductName(category),
+            category,
+            price: Number(faker.commerce.price({ min: 10, max: 300 })),
+        };
+    });
+}
+
+// Personnages plutôt que clients réels (boutique MMORPG) : prénom + épithète tirés
+// de listes dédiées, l'email est dérivé des mêmes tokens (accents retirés) pour
+// rester cohérent avec le nom plutôt que de générer un email sans rapport.
+const FANTASY_FIRST_NAMES = ['Thoradin', 'Elyndra', 'Kael', 'Sylvara', 'Grimbald', 'Aurelia', 'Thrain', 'Nyssa', 'Draven', 'Isolde', 'Varic', 'Lyra', 'Borin', 'Seraphine', 'Malgrim', 'Freya', 'Corvin', 'Elowen', 'Ragnar', 'Ombeline'];
+const FANTASY_EPITHETS = ['Brise-Lame', 'Cœur-de-Dragon', 'Nuit-d\'Argent', 'l\'Ombrage', 'Sans-Peur', 'des Cimes', 'Flamme-Ardente', 'le Rôdeur', 'Sang-Froid', 'des Brumes'];
+
+function slugify(value: string): string {
+    return value
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-zA-Z]/g, '');
 }
 
 function generateCustomers(): Customer[] {
-    return Array.from({ length: CUSTOMER_COUNT }, () => ({
-        id: faker.string.uuid(),
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        registeredAt: faker.date.past({ years: 2 }).toISOString(),
-    }));
+    return Array.from({ length: CUSTOMER_COUNT }, () => {
+        const firstName = faker.helpers.arrayElement(FANTASY_FIRST_NAMES);
+        const epithet = faker.helpers.arrayElement(FANTASY_EPITHETS);
+
+        return {
+            id: faker.string.uuid(),
+            name: `${firstName} ${epithet}`,
+            email: faker.internet.email({ firstName: slugify(firstName), lastName: slugify(epithet) }),
+            registeredAt: faker.date.past({ years: 2 }).toISOString(),
+        };
+    });
 }
 
 function pickStatus(): OrderStatus {
