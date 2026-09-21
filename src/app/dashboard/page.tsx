@@ -8,6 +8,7 @@ import { TopProducts } from '../../components/dashboard/TopProducts';
 import { TopCategories } from '../../components/dashboard/TopCategories';
 import { DecliningProducts } from '../../components/dashboard/DecliningProducts';
 import { ConversionRate } from '../../components/dashboard/ConversionRate';
+import { RecurringCustomers } from '../../components/dashboard/RecurringCustomers';
 
 export default function DashboardPage() {
     return (
@@ -70,7 +71,9 @@ export default function DashboardPage() {
                 <CardGroupContent>
                     <Card>
                         <CardTitle>Récurrents vs nouveaux</CardTitle>
-                        <CardContent>25% récurrents</CardContent>
+                        <CardContent>
+                            <RecurringCustomers />
+                        </CardContent>
                     </Card>
                     <Card>
                         <CardTitle>Paniers abandonnés</CardTitle>
