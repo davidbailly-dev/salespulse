@@ -3,6 +3,7 @@ import { PageTitle } from "../../../components/ui/PageTitle";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
+import { RevenueByStatus } from "../../../components/dashboard/RevenueByStatus";
 
 export default function SalesPage() {
     return (
@@ -11,6 +12,12 @@ export default function SalesPage() {
             <CardGroup>
                 <CardGroupTitle>Statuts des commandes</CardGroupTitle>
                 <CardGroupContent>
+                    <Card>
+                        <CardTitle>Répartition du CA par statut</CardTitle>
+                        <CardContent>
+                            <RevenueByStatus />
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardTitle>Taux de remboursement</CardTitle>
                         <CardContent>
