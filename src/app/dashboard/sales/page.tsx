@@ -3,6 +3,7 @@ import { PageTitle } from "../../../components/ui/PageTitle";
 import { Revenue } from "../../../components/dashboard/Revenue";
 import { TotalOrders } from "../../../components/dashboard/TotalOrders";
 import { AverageOrderValue } from "../../../components/dashboard/AverageOrderValue";
+import { ConversionRate } from "../../../components/dashboard/ConversionRate";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
@@ -32,6 +33,12 @@ export default function SalesPage() {
                         <CardTitle>Panier moyen</CardTitle>
                         <CardContent>
                             <AverageOrderValue />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Taux de conversion</CardTitle>
+                        <CardContent>
+                            <ConversionRate />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
