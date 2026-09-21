@@ -3,7 +3,7 @@ import type { Category, Customer, Dataset, Order, OrderLine, OrderStatus, Produc
 
 const SEED = 424242;
 const PRODUCT_COUNT = 30;
-const CUSTOMER_COUNT = 120;
+const CUSTOMER_COUNT = 600;
 const ORDER_COUNT = 600;
 const WINDOW_DAYS = 90;
 
@@ -137,6 +137,22 @@ function generateCustomers(): Customer[] {
     });
 }
 
+// Avec un tirage uniforme, le ratio commandes/clients écrase quasi tous les clients au-dessus
+// de 2 commandes. La pondération seule a un plancher mathématique (~90% récurrents avec
+// CUSTOMER_COUNT trop bas vis-à-vis d'ORDER_COUNT, cf. brainstorm dans CLAUDE.md) : il faut
+// aussi plus de clients pour laisser de la place à de vrais acheteurs ponctuels.
+const LOYAL_CUSTOMER_SHARE = 0.06;
+const LOYAL_CUSTOMER_WEIGHT = 15;
+
+function buildWeightedCustomers(customers: Customer[]): { value: Customer; weight: number }[] {
+    const loyalCount = Math.round(customers.length * LOYAL_CUSTOMER_SHARE);
+
+    return customers.map((customer, index) => ({
+        value: customer,
+        weight: index < loyalCount ? LOYAL_CUSTOMER_WEIGHT : 1,
+    }));
+}
+
 function pickStatus(): OrderStatus {
     return faker.helpers.weightedArrayElement([
         { value: 'completed', weight: 80 },
@@ -162,6 +178,8 @@ function generateLines(products: Product[]): OrderLine[] {
  * automatiquement sur une fenêtre glissante des `WINDOW_DAYS` derniers jours.
  */
 function generateOrders(products: Product[], customers: Customer[], now: Date): Order[] {
+    const weightedCustomers = buildWeightedCustomers(customers);
+
     return Array.from({ length: ORDER_COUNT }, () => {
         const offsetHours = faker.number.float({ min: 0, max: WINDOW_DAYS * 24 });
         const date = new Date(now.getTime() - offsetHours * 60 * 60 * 1000);
@@ -170,7 +188,7 @@ function generateOrders(products: Product[], customers: Customer[], now: Date): 
 
         return {
             id: faker.string.uuid(),
-            customerId: faker.helpers.arrayElement(customers).id,
+            customerId: faker.helpers.weightedArrayElement(weightedCustomers).id,
             date: date.toISOString(),
             status: pickStatus(),
             lines,
