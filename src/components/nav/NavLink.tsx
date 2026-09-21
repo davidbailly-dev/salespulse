@@ -19,7 +19,7 @@ export function NavLink({ href, label, icon }: NavLinkProps) {
             href={href}
             aria-current={isActive ? 'page' : undefined}
             className={`p-4 flex flex-row gap-4 hover:bg-primary-600 ${
-                isActive ? 'bg-primary-900' : ''
+                isActive ? 'bg-linear-to-r from-primary-900 to-70% to-primary-600' : ''
             }`}
         >
             {icon}
