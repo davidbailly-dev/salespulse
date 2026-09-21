@@ -34,3 +34,9 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Documentation locale
+/docs
+
+# Agents IA
+CLAUDE.md

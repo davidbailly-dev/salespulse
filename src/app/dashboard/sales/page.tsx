@@ -1,26 +1,26 @@
-import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from '../../components/ui/Card';
-import { PageTitle } from '../../components/ui/PageTitle';
-import { Revenue } from '../../components/dashboard/Revenue';
-import { TotalOrders } from '../../components/dashboard/TotalOrders';
-import { AverageOrderValue } from '../../components/dashboard/AverageOrderValue';
-import { TopProducts } from '../../components/dashboard/TopProducts';
-import { TopCategories } from '../../components/dashboard/TopCategories';
-import { DecliningProducts } from '../../components/dashboard/DecliningProducts';
-import { ConversionRate } from '../../components/dashboard/ConversionRate';
-import { RecurringCustomers } from '../../components/dashboard/RecurringCustomers';
-import { AbandonedCarts } from '../../components/dashboard/AbandonedCarts';
+import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
+import { PageTitle } from "../../../components/ui/PageTitle";
+import { Revenue } from "../../../components/dashboard/Revenue";
+import { TotalOrders } from "../../../components/dashboard/TotalOrders";
+import { AverageOrderValue } from "../../../components/dashboard/AverageOrderValue";
+import { ConversionRate } from "../../../components/dashboard/ConversionRate";
+import { RefundRate } from "../../../components/dashboard/RefundRate";
+import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
+import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
+import { RevenueByStatus } from "../../../components/dashboard/RevenueByStatus";
+import { TopCustomers } from "../../../components/dashboard/TopCustomers";
 
-export default function DashboardPage() {
+export default function SalesPage() {
     return (
         <div className="space-y-8">
-            <PageTitle>Dashboard</PageTitle>
+            <PageTitle>Ventes</PageTitle>
             <CardGroup>
-                <CardGroupTitle>Ventes & performances</CardGroupTitle>
+                <CardGroupTitle>Vue d&apos;ensemble</CardGroupTitle>
                 <CardGroupContent>
                     <Card>
                         <CardTitle>CA</CardTitle>
                         <CardContent>
-                            <Revenue></Revenue>
+                            <Revenue />
                         </CardContent>
                     </Card>
                     <Card>
@@ -32,7 +32,7 @@ export default function DashboardPage() {
                     <Card>
                         <CardTitle>Panier moyen</CardTitle>
                         <CardContent>
-                            <AverageOrderValue></AverageOrderValue>
+                            <AverageOrderValue />
                         </CardContent>
                     </Card>
                     <Card>
@@ -44,41 +44,41 @@ export default function DashboardPage() {
                 </CardGroupContent>
             </CardGroup>
             <CardGroup>
-                <CardGroupTitle>Produits</CardGroupTitle>
+                <CardGroupTitle>Statuts des commandes</CardGroupTitle>
                 <CardGroupContent>
                     <Card>
-                        <CardTitle>Top 5 produits</CardTitle>
+                        <CardTitle>Répartition du CA par statut</CardTitle>
                         <CardContent>
-                            <TopProducts />
+                            <RevenueByStatus />
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardTitle>Produits en baisse</CardTitle>
+                        <CardTitle>Taux de remboursement</CardTitle>
                         <CardContent>
-                            <DecliningProducts />
+                            <RefundRate />
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardTitle>Top catégories</CardTitle>
+                        <CardTitle>CA perdu en remboursements</CardTitle>
                         <CardContent>
-                            <TopCategories />
+                            <RefundedRevenue />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
             </CardGroup>
             <CardGroup>
-                <CardGroupTitle>Clients</CardGroupTitle>
+                <CardGroupTitle>Commandes & clients</CardGroupTitle>
                 <CardGroupContent>
                     <Card>
-                        <CardTitle>Récurrents vs nouveaux</CardTitle>
+                        <CardTitle>Articles par commande</CardTitle>
                         <CardContent>
-                            <RecurringCustomers />
+                            <AverageItemsPerOrder />
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardTitle>Paniers abandonnés</CardTitle>
+                        <CardTitle>Top clients</CardTitle>
                         <CardContent>
-                            <AbandonedCarts />
+                            <TopCustomers />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
