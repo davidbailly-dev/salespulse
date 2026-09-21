@@ -5,6 +5,7 @@ import { CustomerActivationRate } from "../../../components/dashboard/CustomerAc
 import { NeverConvertedCustomers } from "../../../components/dashboard/NeverConvertedCustomers";
 import { AverageRevenuePerCustomer } from "../../../components/dashboard/AverageRevenuePerCustomer";
 import { AveragePurchaseFrequency } from "../../../components/dashboard/AveragePurchaseFrequency";
+import { TopCustomersByOrderCount } from "../../../components/dashboard/TopCustomersByOrderCount";
 
 export default function CustomersPage() {
     return (
@@ -41,6 +42,12 @@ export default function CustomersPage() {
                         <CardTitle>Fréquence d&apos;achat</CardTitle>
                         <CardContent>
                             <AveragePurchaseFrequency />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Top clients par commandes</CardTitle>
+                        <CardContent>
+                            <TopCustomersByOrderCount />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
