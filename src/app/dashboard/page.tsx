@@ -4,6 +4,7 @@ import { PageTitle } from '../../components/ui/PageTitle';
 import { Revenue } from '../../components/dashboard/Revenue';
 import { TotalOrders } from '../../components/dashboard/TotalOrders';
 import { AverageOrderValue } from '../../components/dashboard/AverageOrderValue';
+import { TopProducts } from '../../components/dashboard/TopProducts';
 
 export default function DashboardPage() {
     return (
@@ -42,15 +43,9 @@ export default function DashboardPage() {
                 <CardGroupTitle>Produits</CardGroupTitle>
                 <CardGroupContent>
                     <Card>
-                        <CardTitle>Top 5</CardTitle>
+                        <CardTitle>Top 5 produits</CardTitle>
                         <CardContent>
-                            <ul>
-                                <li>1. Produit A</li>
-                                <li>2. Produit B</li>
-                                <li>3. Produit C</li>
-                                <li>4. Produit D</li>
-                                <li>5. Produit F</li>
-                            </ul>
+                            <TopProducts />
                         </CardContent>
                     </Card>
                     <Card>
