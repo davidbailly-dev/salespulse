@@ -40,8 +40,10 @@ export function Nav() {
                     <NavLink key={item.href} href={item.href} label={item.label} icon={<item.icon />} />
                 ))}
             </ul>
-            <div className="mt-auto p-4 border-t border-primary-900 text-sm text-gray-400">
-                David Bailly
+            <div className="mt-auto p-4">
+                <div className="border-t border-primary-900 mx-4 pt-4 text-sm text-gray-400">
+                    David Bailly
+                </div>
             </div>
         </nav>
     );
