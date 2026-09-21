@@ -1,5 +1,6 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
+import { TopProducts } from "../../../components/dashboard/TopProducts";
 import { TotalItemsSold } from "../../../components/dashboard/TotalItemsSold";
 import { CatalogCoverage } from "../../../components/dashboard/CatalogCoverage";
 import { NeverSoldProducts } from "../../../components/dashboard/NeverSoldProducts";
@@ -10,6 +11,17 @@ export default function ProductsPage() {
     return (
         <div className="space-y-8">
             <PageTitle>Produits</PageTitle>
+            <CardGroup>
+                <CardGroupTitle>Vue d&apos;ensemble</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Top 5 produits</CardTitle>
+                        <CardContent>
+                            <TopProducts />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
             <CardGroup>
                 <CardGroupTitle>Catalogue & ventes</CardGroupTitle>
                 <CardGroupContent>
