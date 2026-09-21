@@ -27,6 +27,8 @@ export const CustomerSchema = z.object({
 });
 export type Customer = z.infer<typeof CustomerSchema>;
 
+export const CustomerListSchema = z.array(CustomerSchema);
+
 export const OrderStatusSchema = z.enum(['completed', 'abandoned', 'refunded']);
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;
 

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { getDataset } from '../lib/mock-data/store';
-import { OrderListSchema, ProductListSchema } from '../lib/mock-data/schemas';
+import { CustomerListSchema, OrderListSchema, ProductListSchema } from '../lib/mock-data/schemas';
 
 export const handlers = [
     http.get('/api/orders', ({ request }) => {
@@ -24,5 +24,11 @@ export const handlers = [
         const { products } = getDataset();
 
         return HttpResponse.json(ProductListSchema.parse(products));
+    }),
+
+    http.get('/api/customers', () => {
+        const { customers } = getDataset();
+
+        return HttpResponse.json(CustomerListSchema.parse(customers));
     }),
 ];

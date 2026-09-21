@@ -4,6 +4,7 @@ import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
 import { RevenueByStatus } from "../../../components/dashboard/RevenueByStatus";
+import { TopCustomers } from "../../../components/dashboard/TopCustomers";
 
 export default function SalesPage() {
     return (
@@ -39,6 +40,12 @@ export default function SalesPage() {
                         <CardTitle>Articles par commande</CardTitle>
                         <CardContent>
                             <AverageItemsPerOrder />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Top clients</CardTitle>
+                        <CardContent>
+                            <TopCustomers />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
