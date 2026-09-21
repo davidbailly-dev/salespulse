@@ -4,6 +4,8 @@ SalesPulse est un dashboard de monitoring des ventes pour une boutique e-commerc
 
 L'application s'appuie sur des données mockées (une boutique fictive à thème heroic fantasy) : aucun backend réel n'est nécessaire pour la faire tourner, mais l'architecture est pensée pour en accueillir un par la suite.
 
+**Démo en ligne :** [salespulse-e8yw.onrender.com](https://salespulse-e8yw.onrender.com)
+
 ## Pages
 
 - **Dashboard** — les indicateurs les plus globaux, ceux qu'on veut voir en un coup d'œil
