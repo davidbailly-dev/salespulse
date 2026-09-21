@@ -29,5 +29,4 @@ L'application est ensuite accessible sur [http://localhost:3000](http://localhos
 ![Zod](https://img.shields.io/badge/Zod-3E67B1?style=flat&logo=zod&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-8884d8?style=flat)
-![MSW](https://img.shields.io/badge/MSW-FF6A33?style=flat&logo=mockserviceworker&logoColor=white)
 ![Faker](https://img.shields.io/badge/Faker-slategray?style=flat)
