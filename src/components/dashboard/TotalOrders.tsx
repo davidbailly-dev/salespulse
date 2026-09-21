@@ -11,8 +11,12 @@ export function TotalOrders() {
     if (isError) return <p>Erreur de chargement</p>;
 
     const totalOrders = calculateTotalOrders(orders);
+    const label = totalOrders === 1 ? 'commande' : 'commandes';
 
     return (
-        <KpiValue value={totalOrders} />
+        <div className="flex flex-col items-center gap-1">
+            <KpiValue value={totalOrders} />
+            <span className="text-xs text-gray-400">{label}</span>
+        </div>
     )
 }
