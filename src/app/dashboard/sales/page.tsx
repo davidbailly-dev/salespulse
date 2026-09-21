@@ -1,5 +1,6 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
+import { Revenue } from "../../../components/dashboard/Revenue";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
@@ -10,6 +11,17 @@ export default function SalesPage() {
     return (
         <div className="space-y-8">
             <PageTitle>Ventes</PageTitle>
+            <CardGroup>
+                <CardGroupTitle>Vue d&apos;ensemble</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>CA</CardTitle>
+                        <CardContent>
+                            <Revenue />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
             <CardGroup>
                 <CardGroupTitle>Statuts des commandes</CardGroupTitle>
                 <CardGroupContent>
