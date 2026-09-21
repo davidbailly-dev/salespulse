@@ -1,6 +1,7 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { TotalItemsSold } from "../../../components/dashboard/TotalItemsSold";
+import { CatalogCoverage } from "../../../components/dashboard/CatalogCoverage";
 
 export default function ProductsPage() {
     return (
@@ -13,6 +14,12 @@ export default function ProductsPage() {
                         <CardTitle>Articles vendus</CardTitle>
                         <CardContent>
                             <TotalItemsSold />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Couverture catalogue</CardTitle>
+                        <CardContent>
+                            <CatalogCoverage />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
