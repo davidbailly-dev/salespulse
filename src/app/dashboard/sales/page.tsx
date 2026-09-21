@@ -2,6 +2,7 @@ import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardConte
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { Revenue } from "../../../components/dashboard/Revenue";
 import { TotalOrders } from "../../../components/dashboard/TotalOrders";
+import { AverageOrderValue } from "../../../components/dashboard/AverageOrderValue";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
 import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
@@ -25,6 +26,12 @@ export default function SalesPage() {
                         <CardTitle>Commandes</CardTitle>
                         <CardContent>
                             <TotalOrders />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Panier moyen</CardTitle>
+                        <CardContent>
+                            <AverageOrderValue />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
