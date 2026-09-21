@@ -14,5 +14,10 @@ export function CustomerActivationRate() {
 
     const activationRate = calculateCustomerActivationRate(orders, customers);
 
-    return <ScoreGauge value={activationRate} unit="%" />;
+    return (
+        <div className="flex flex-col items-center gap-1">
+            <ScoreGauge value={activationRate} unit="%" />
+            <span className="text-xs text-gray-400 text-center">clients ayant déjà acheté</span>
+        </div>
+    );
 }
