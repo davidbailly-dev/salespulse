@@ -6,6 +6,7 @@ import { TotalOrders } from '../../components/dashboard/TotalOrders';
 import { AverageOrderValue } from '../../components/dashboard/AverageOrderValue';
 import { TopProducts } from '../../components/dashboard/TopProducts';
 import { TopCategories } from '../../components/dashboard/TopCategories';
+import { ConversionRate } from '../../components/dashboard/ConversionRate';
 
 export default function DashboardPage() {
     return (
@@ -35,7 +36,7 @@ export default function DashboardPage() {
                     <Card>
                         <CardTitle>Taux de conversion</CardTitle>
                         <CardContent>
-                            <ScoreGauge value={25} unit="%"></ScoreGauge>
+                            <ConversionRate />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
