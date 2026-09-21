@@ -3,6 +3,7 @@ import { PageTitle } from "../../../components/ui/PageTitle";
 import { TotalCustomers } from "../../../components/dashboard/TotalCustomers";
 import { CustomerActivationRate } from "../../../components/dashboard/CustomerActivationRate";
 import { NeverConvertedCustomers } from "../../../components/dashboard/NeverConvertedCustomers";
+import { AverageRevenuePerCustomer } from "../../../components/dashboard/AverageRevenuePerCustomer";
 
 export default function CustomersPage() {
     return (
@@ -27,6 +28,12 @@ export default function CustomersPage() {
                         <CardTitle>Clients jamais convertis</CardTitle>
                         <CardContent>
                             <NeverConvertedCustomers />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>CA moyen par client actif</CardTitle>
+                        <CardContent>
+                            <AverageRevenuePerCustomer />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
