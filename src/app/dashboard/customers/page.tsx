@@ -1,7 +1,71 @@
-import { PageTitle } from "../../../components/ui/PageTitle"
+import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
+import { PageTitle } from "../../../components/ui/PageTitle";
+import { TotalCustomers } from "../../../components/dashboard/TotalCustomers";
+import { CustomerActivationRate } from "../../../components/dashboard/CustomerActivationRate";
+import { NeverConvertedCustomers } from "../../../components/dashboard/NeverConvertedCustomers";
+import { AverageRevenuePerCustomer } from "../../../components/dashboard/AverageRevenuePerCustomer";
+import { AveragePurchaseFrequency } from "../../../components/dashboard/AveragePurchaseFrequency";
+import { TopCustomersByOrderCount } from "../../../components/dashboard/TopCustomersByOrderCount";
+import { AverageCustomerTenure } from "../../../components/dashboard/AverageCustomerTenure";
+import { CustomerRevenueSegments } from "../../../components/dashboard/CustomerRevenueSegments";
 
 export default function CustomersPage() {
     return (
-        <PageTitle>Clients</PageTitle>
+        <div className="space-y-8">
+            <PageTitle>Clients</PageTitle>
+            <CardGroup>
+                <CardGroupTitle>Base clients</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Nombre de clients</CardTitle>
+                        <CardContent>
+                            <TotalCustomers />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Taux d&apos;activation</CardTitle>
+                        <CardContent>
+                            <CustomerActivationRate />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Clients jamais convertis</CardTitle>
+                        <CardContent>
+                            <NeverConvertedCustomers />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>CA moyen par client actif</CardTitle>
+                        <CardContent>
+                            <AverageRevenuePerCustomer />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Fréquence d&apos;achat</CardTitle>
+                        <CardContent>
+                            <AveragePurchaseFrequency />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Top clients par commandes</CardTitle>
+                        <CardContent>
+                            <TopCustomersByOrderCount />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Ancienneté moyenne</CardTitle>
+                        <CardContent>
+                            <AverageCustomerTenure />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Répartition par tranche de CA</CardTitle>
+                        <CardContent>
+                            <CustomerRevenueSegments />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
+        </div>
     );
 }
