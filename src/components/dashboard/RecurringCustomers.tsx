@@ -11,11 +11,20 @@ export function RecurringCustomers() {
     if (isError) return <p>Erreur de chargement</p>;
 
     const recurringOrdersRate = calculateRecurringOrdersRate(orders);
+    // Complémentaire du taux récurrent (pas un second calcul indépendant), pour garantir
+    // que les deux valeurs affichées somment toujours à 100 malgré l'arrondi.
+    const newOrdersRate = 100 - recurringOrdersRate;
 
     return (
-        <div className="flex flex-col items-center gap-1">
-            <KpiValue value={recurringOrdersRate} unit="%" />
-            <span className="text-xs text-gray-400">des commandes</span>
+        <div className="flex gap-8">
+            <div className="flex flex-col items-center gap-1">
+                <KpiValue value={recurringOrdersRate} unit="%" />
+                <span className="text-xs text-gray-400">commandes récurrentes</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+                <KpiValue value={newOrdersRate} unit="%" />
+                <span className="text-xs text-gray-400">commandes nouvelles</span>
+            </div>
         </div>
     );
 }
