@@ -1,6 +1,7 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { TopProducts } from "../../../components/dashboard/TopProducts";
+import { TopCategories } from "../../../components/dashboard/TopCategories";
 import { TotalItemsSold } from "../../../components/dashboard/TotalItemsSold";
 import { CatalogCoverage } from "../../../components/dashboard/CatalogCoverage";
 import { NeverSoldProducts } from "../../../components/dashboard/NeverSoldProducts";
@@ -18,6 +19,12 @@ export default function ProductsPage() {
                         <CardTitle>Top 5 produits</CardTitle>
                         <CardContent>
                             <TopProducts />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Top catégories</CardTitle>
+                        <CardContent>
+                            <TopCategories />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
