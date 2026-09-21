@@ -4,6 +4,7 @@ import { TotalCustomers } from "../../../components/dashboard/TotalCustomers";
 import { CustomerActivationRate } from "../../../components/dashboard/CustomerActivationRate";
 import { NeverConvertedCustomers } from "../../../components/dashboard/NeverConvertedCustomers";
 import { AverageRevenuePerCustomer } from "../../../components/dashboard/AverageRevenuePerCustomer";
+import { AveragePurchaseFrequency } from "../../../components/dashboard/AveragePurchaseFrequency";
 
 export default function CustomersPage() {
     return (
@@ -34,6 +35,12 @@ export default function CustomersPage() {
                         <CardTitle>CA moyen par client actif</CardTitle>
                         <CardContent>
                             <AverageRevenuePerCustomer />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Fréquence d&apos;achat</CardTitle>
+                        <CardContent>
+                            <AveragePurchaseFrequency />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
