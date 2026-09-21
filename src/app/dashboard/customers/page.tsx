@@ -1,6 +1,7 @@
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from "../../../components/ui/Card";
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { TotalCustomers } from "../../../components/dashboard/TotalCustomers";
+import { CustomerActivationRate } from "../../../components/dashboard/CustomerActivationRate";
 
 export default function CustomersPage() {
     return (
@@ -13,6 +14,12 @@ export default function CustomersPage() {
                         <CardTitle>Nombre de clients</CardTitle>
                         <CardContent>
                             <TotalCustomers />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Taux d&apos;activation</CardTitle>
+                        <CardContent>
+                            <CustomerActivationRate />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
