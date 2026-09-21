@@ -6,6 +6,7 @@ import { NeverConvertedCustomers } from "../../../components/dashboard/NeverConv
 import { AverageRevenuePerCustomer } from "../../../components/dashboard/AverageRevenuePerCustomer";
 import { AveragePurchaseFrequency } from "../../../components/dashboard/AveragePurchaseFrequency";
 import { TopCustomersByOrderCount } from "../../../components/dashboard/TopCustomersByOrderCount";
+import { AverageCustomerTenure } from "../../../components/dashboard/AverageCustomerTenure";
 
 export default function CustomersPage() {
     return (
@@ -48,6 +49,12 @@ export default function CustomersPage() {
                         <CardTitle>Top clients par commandes</CardTitle>
                         <CardContent>
                             <TopCustomersByOrderCount />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Ancienneté moyenne</CardTitle>
+                        <CardContent>
+                            <AverageCustomerTenure />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
