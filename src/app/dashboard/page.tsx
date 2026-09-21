@@ -1,4 +1,3 @@
-import { ScoreGauge } from '../../components/charts/ScoreGauge';
 import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardContent } from '../../components/ui/Card';
 import { PageTitle } from '../../components/ui/PageTitle';
 import { Revenue } from '../../components/dashboard/Revenue';
@@ -9,6 +8,7 @@ import { TopCategories } from '../../components/dashboard/TopCategories';
 import { DecliningProducts } from '../../components/dashboard/DecliningProducts';
 import { ConversionRate } from '../../components/dashboard/ConversionRate';
 import { RecurringCustomers } from '../../components/dashboard/RecurringCustomers';
+import { AbandonedCarts } from '../../components/dashboard/AbandonedCarts';
 
 export default function DashboardPage() {
     return (
@@ -78,7 +78,7 @@ export default function DashboardPage() {
                     <Card>
                         <CardTitle>Paniers abandonnés</CardTitle>
                         <CardContent>
-                            <ScoreGauge value={14} unit="%"></ScoreGauge>
+                            <AbandonedCarts />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
