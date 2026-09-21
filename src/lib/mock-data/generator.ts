@@ -11,20 +11,90 @@ const CATEGORIES: Category[] = ['Armes', 'Armures', 'Potions', 'Grimoires', 'Art
 
 // Faker n'a pas de module "heroic fantasy" : les noms de produits sont composés
 // à la main (un item par catégorie + un qualificatif), pas générés par Faker.
-const ITEM_NAMES_BY_CATEGORY: Record<Category, string[]> = {
-    Armes: ['Épée longue', 'Dague', 'Hache de guerre', 'Arc long', 'Masse d\'armes', 'Lance', 'Marteau de guerre', 'Rapière', 'Hallebarde', 'Katana'],
-    Armures: ['Plastron', 'Casque', 'Bouclier', 'Gantelets', 'Jambières', 'Heaume', 'Bottes de plates', 'Cotte de mailles', 'Cape', 'Brassards'],
-    Potions: ['Potion de soin', 'Potion de mana', 'Élixir de force', 'Philtre d\'invisibilité', 'Fiole de poison', 'Décoction de résistance', 'Élixir de vitesse', 'Potion de régénération'],
-    Grimoires: ['Grimoire des flammes', 'Tome des ombres', 'Manuel de nécromancie', 'Codex runique', 'Parchemin ancien', 'Livre des sortilèges', 'Traité d\'alchimie', 'Recueil des Anciens'],
-    Artefacts: ['Amulette runique', 'Anneau de pouvoir', 'Orbe de cristal', 'Talisman protecteur', 'Sceptre ancien', 'Médaillon enchanté', 'Couronne oubliée', 'Relique sacrée'],
+// Le genre de chaque item est renseigné pour accorder le qualificatif (ex. "enchantée"
+// vs "enchanté") plutôt que d'avoir un texte grammaticalement faux une fois sur deux.
+type GenderedItem = { name: string; gender: 'm' | 'f' };
+
+const ITEM_NAMES_BY_CATEGORY: Record<Category, GenderedItem[]> = {
+    Armes: [
+        { name: 'Épée longue', gender: 'f' },
+        { name: 'Dague', gender: 'f' },
+        { name: 'Hache de guerre', gender: 'f' },
+        { name: 'Arc long', gender: 'm' },
+        { name: 'Masse d\'armes', gender: 'f' },
+        { name: 'Lance', gender: 'f' },
+        { name: 'Marteau de guerre', gender: 'm' },
+        { name: 'Rapière', gender: 'f' },
+        { name: 'Hallebarde', gender: 'f' },
+        { name: 'Katana', gender: 'm' },
+    ],
+    Armures: [
+        { name: 'Plastron', gender: 'm' },
+        { name: 'Casque', gender: 'm' },
+        { name: 'Bouclier', gender: 'm' },
+        { name: 'Gantelets', gender: 'm' },
+        { name: 'Jambières', gender: 'f' },
+        { name: 'Heaume', gender: 'm' },
+        { name: 'Bottes de plates', gender: 'f' },
+        { name: 'Cotte de mailles', gender: 'f' },
+        { name: 'Cape', gender: 'f' },
+        { name: 'Brassards', gender: 'm' },
+    ],
+    Potions: [
+        { name: 'Potion de soin', gender: 'f' },
+        { name: 'Potion de mana', gender: 'f' },
+        { name: 'Élixir de force', gender: 'm' },
+        { name: 'Philtre d\'invisibilité', gender: 'm' },
+        { name: 'Fiole de poison', gender: 'f' },
+        { name: 'Décoction de résistance', gender: 'f' },
+        { name: 'Élixir de vitesse', gender: 'm' },
+        { name: 'Potion de régénération', gender: 'f' },
+    ],
+    Grimoires: [
+        { name: 'Grimoire des flammes', gender: 'm' },
+        { name: 'Tome des ombres', gender: 'm' },
+        { name: 'Manuel de nécromancie', gender: 'm' },
+        { name: 'Codex runique', gender: 'm' },
+        { name: 'Parchemin ancien', gender: 'm' },
+        { name: 'Livre des sortilèges', gender: 'm' },
+        { name: 'Traité d\'alchimie', gender: 'm' },
+        { name: 'Recueil des Anciens', gender: 'm' },
+    ],
+    Artefacts: [
+        { name: 'Amulette runique', gender: 'f' },
+        { name: 'Anneau de pouvoir', gender: 'm' },
+        { name: 'Orbe de cristal', gender: 'f' },
+        { name: 'Talisman protecteur', gender: 'm' },
+        { name: 'Sceptre ancien', gender: 'm' },
+        { name: 'Médaillon enchanté', gender: 'm' },
+        { name: 'Couronne oubliée', gender: 'f' },
+        { name: 'Relique sacrée', gender: 'f' },
+    ],
 };
 
-const ITEM_QUALIFIERS = ['du Dragon', 'des Ombres', 'de l\'Aube', 'légendaire', 'enchanté', 'de l\'Éternité', 'maudit', 'runique', 'des Anciens', 'de Cristal', 'de Givre', 'du Néant'];
+// La plupart des qualificatifs sont des compléments invariables ("du Dragon", "runique"...) ;
+// seuls les vrais adjectifs (enchanté/maudit) ont une forme féminine différente.
+type Qualifier = { m: string; f: string };
+
+const ITEM_QUALIFIERS: Qualifier[] = [
+    { m: 'du Dragon', f: 'du Dragon' },
+    { m: 'des Ombres', f: 'des Ombres' },
+    { m: 'de l\'Aube', f: 'de l\'Aube' },
+    { m: 'légendaire', f: 'légendaire' },
+    { m: 'enchanté', f: 'enchantée' },
+    { m: 'de l\'Éternité', f: 'de l\'Éternité' },
+    { m: 'maudit', f: 'maudite' },
+    { m: 'runique', f: 'runique' },
+    { m: 'des Anciens', f: 'des Anciens' },
+    { m: 'de Cristal', f: 'de Cristal' },
+    { m: 'de Givre', f: 'de Givre' },
+    { m: 'du Néant', f: 'du Néant' },
+];
 
 function generateProductName(category: Category): string {
     const item = faker.helpers.arrayElement(ITEM_NAMES_BY_CATEGORY[category]);
     const qualifier = faker.helpers.arrayElement(ITEM_QUALIFIERS);
-    return `${item} ${qualifier}`;
+    return `${item.name} ${item.gender === 'f' ? qualifier.f : qualifier.m}`;
 }
 
 function generateProducts(): Product[] {
