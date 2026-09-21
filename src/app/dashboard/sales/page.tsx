@@ -2,6 +2,7 @@ import { CardGroup, CardGroupTitle, CardGroupContent, Card, CardTitle, CardConte
 import { PageTitle } from "../../../components/ui/PageTitle";
 import { RefundRate } from "../../../components/dashboard/RefundRate";
 import { RefundedRevenue } from "../../../components/dashboard/RefundedRevenue";
+import { AverageItemsPerOrder } from "../../../components/dashboard/AverageItemsPerOrder";
 
 export default function SalesPage() {
     return (
@@ -20,6 +21,17 @@ export default function SalesPage() {
                         <CardTitle>CA perdu en remboursements</CardTitle>
                         <CardContent>
                             <RefundedRevenue />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
+            <CardGroup>
+                <CardGroupTitle>Commandes & clients</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Articles par commande</CardTitle>
+                        <CardContent>
+                            <AverageItemsPerOrder />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
