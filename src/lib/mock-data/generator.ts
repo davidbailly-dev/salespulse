@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import type { Category, Customer, Dataset, Order, OrderLine, OrderStatus, Product } from './schemas';
 
 const SEED = 424242;
-const PRODUCT_COUNT = 30;
+const PRODUCT_COUNT = 180;
 const CUSTOMER_COUNT = 600;
 const ORDER_COUNT = 600;
 const WINDOW_DAYS = 90;
@@ -161,9 +161,44 @@ function pickStatus(): OrderStatus {
     ]);
 }
 
-function generateLines(products: Product[]): OrderLine[] {
+// Sans pondération, un tirage uniforme sur le catalogue fait qu'avec le volume de
+// commandes du mock, quasi tous les produits finissent vendus au moins une fois
+// (couverture catalogue à 100%, concentration des ventes proche du bruit statistique).
+// Une minorité de produits "populaires" (POPULAR_PRODUCT_SHARE = 20%, poids
+// POPULAR_PRODUCT_WEIGHT = 10) concentre l'essentiel des ventes, même pattern que
+// buildWeightedCustomers, pour laisser une vraie traîne de produits peu ou jamais vendus.
+const POPULAR_PRODUCT_SHARE = 0.2;
+const POPULAR_PRODUCT_WEIGHT = 15;
+
+function buildWeightedProducts(products: Product[]): { value: Product; weight: number }[] {
+    const popularCount = Math.round(products.length * POPULAR_PRODUCT_SHARE);
+
+    return products.map((product, index) => ({
+        value: product,
+        weight: index < popularCount ? POPULAR_PRODUCT_WEIGHT : 1,
+    }));
+}
+
+/**
+ * Tirage sans remise pondéré par popularité (algorithme A-ES : chaque produit reçoit
+ * une clé aléatoire élevée à la puissance 1/poids, les plus fortes clés l'emportent),
+ * pour que les produits populaires reviennent plus souvent dans les lignes de commande
+ * sans jamais apparaître deux fois dans la même commande.
+ */
+function pickWeightedProductsWithoutReplacement(
+    weightedProducts: { value: Product; weight: number }[],
+    count: number,
+): Product[] {
+    return weightedProducts
+        .map(({ value, weight }) => ({ value, key: faker.number.float({ min: 0, max: 1 }) ** (1 / weight) }))
+        .sort((a, b) => b.key - a.key)
+        .slice(0, count)
+        .map(({ value }) => value);
+}
+
+function generateLines(weightedProducts: { value: Product; weight: number }[]): OrderLine[] {
     const lineCount = faker.number.int({ min: 1, max: 4 });
-    const chosenProducts = faker.helpers.arrayElements(products, lineCount);
+    const chosenProducts = pickWeightedProductsWithoutReplacement(weightedProducts, lineCount);
     return chosenProducts.map((product) => ({
         productId: product.id,
         quantity: faker.number.int({ min: 1, max: 3 }),
@@ -179,11 +214,12 @@ function generateLines(products: Product[]): OrderLine[] {
  */
 function generateOrders(products: Product[], customers: Customer[], now: Date): Order[] {
     const weightedCustomers = buildWeightedCustomers(customers);
+    const weightedProducts = buildWeightedProducts(products);
 
     return Array.from({ length: ORDER_COUNT }, () => {
         const offsetHours = faker.number.float({ min: 0, max: WINDOW_DAYS * 24 });
         const date = new Date(now.getTime() - offsetHours * 60 * 60 * 1000);
-        const lines = generateLines(products);
+        const lines = generateLines(weightedProducts);
         const totalAmount = lines.reduce((total, line) => total + line.quantity * line.unitPrice, 0);
 
         return {
