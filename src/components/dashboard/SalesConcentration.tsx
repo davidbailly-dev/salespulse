@@ -14,5 +14,10 @@ export function SalesConcentration() {
 
     const salesConcentration = calculateSalesConcentration(orders, products);
 
-    return <ScoreGauge value={salesConcentration} unit="%" />;
+    return (
+        <div className="flex flex-col items-center gap-1">
+            <ScoreGauge value={salesConcentration} unit="%" />
+            <span className="text-xs text-gray-400 text-center">CA généré par le top 20% des produits</span>
+        </div>
+    );
 }
