@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const CategorySchema = z.enum([
-    'Clothing',
-    'Shoes',
-    'Accessories',
-    'Electronics',
-    'Home',
+    'Armes',
+    'Armures',
+    'Potions',
+    'Grimoires',
+    'Artefacts',
 ]);
 export type Category = z.infer<typeof CategorySchema>;
 
@@ -16,6 +16,8 @@ export const ProductSchema = z.object({
     price: z.number().positive(),
 });
 export type Product = z.infer<typeof ProductSchema>;
+
+export const ProductListSchema = z.array(ProductSchema);
 
 export const CustomerSchema = z.object({
     id: z.string(),

@@ -18,6 +18,37 @@ export function CardContent({ children }: { children: React.ReactNode }) {
     );
 }
 
+type CardListProps = {
+    items: CardListItemProps[];
+};
+
+type CardListItemProps = {
+    id: string;
+    label: string;
+    value: string;
+    tone?: 'default' | 'danger' | 'success';
+};
+
+const toneClassNames: Record<NonNullable<CardListItemProps['tone']>, string> = {
+    default: '',
+    danger: 'text-danger',
+    success: 'text-success',
+};
+
+export function CardList({items}: CardListProps) {
+    return (
+        <ul className="grid grid-cols-[1.5rem_1fr_auto] gap-2">
+            {items.map((item, index) => (
+            <li key={item.id} className="contents">
+                <span>{index + 1}.</span>
+                <span className="truncate">{item.label}</span>
+                <span className={`text-right ${toneClassNames[item.tone ?? 'default']}`}>{item.value}</span>
+            </li>
+            ))}
+        </ul>
+    );
+}
+
 export function CardGroup({ children }: { children: React.ReactNode }) {
     return (
         <div className="grid grid-col gap-4">{children}</div>
