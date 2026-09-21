@@ -7,6 +7,7 @@ import { AverageRevenuePerCustomer } from "../../../components/dashboard/Average
 import { AveragePurchaseFrequency } from "../../../components/dashboard/AveragePurchaseFrequency";
 import { TopCustomersByOrderCount } from "../../../components/dashboard/TopCustomersByOrderCount";
 import { AverageCustomerTenure } from "../../../components/dashboard/AverageCustomerTenure";
+import { CustomerRevenueSegments } from "../../../components/dashboard/CustomerRevenueSegments";
 
 export default function CustomersPage() {
     return (
@@ -55,6 +56,12 @@ export default function CustomersPage() {
                         <CardTitle>Ancienneté moyenne</CardTitle>
                         <CardContent>
                             <AverageCustomerTenure />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Répartition par tranche de CA</CardTitle>
+                        <CardContent>
+                            <CustomerRevenueSegments />
                         </CardContent>
                     </Card>
                 </CardGroupContent>
