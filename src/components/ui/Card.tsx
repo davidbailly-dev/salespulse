@@ -29,6 +29,12 @@ type CardListItemProps = {
     tone?: 'default' | 'danger' | 'success';
 };
 
+const toneClassNames: Record<NonNullable<CardListItemProps['tone']>, string> = {
+    default: '',
+    danger: 'text-danger',
+    success: 'text-success',
+};
+
 export function CardList({items}: CardListProps) {
     return (
         <ul className="grid grid-cols-[1.5rem_1fr_auto] gap-2">
@@ -36,7 +42,7 @@ export function CardList({items}: CardListProps) {
             <li key={item.id} className="contents">
                 <span>{index + 1}.</span>
                 <span className="truncate">{item.label}</span>
-                <span>{item.value}</span>
+                <span className={toneClassNames[item.tone ?? 'default']}>{item.value}</span>
             </li>
             ))}
         </ul>
