@@ -1,12 +1,13 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useProducts } from '../../lib/queries/useProducts';
 import { calculateCatalogCoverage } from '../../lib/kpis/catalogCoverage';
 import { ScoreGauge } from '../charts/ScoreGauge';
 
 export function CatalogCoverage() {
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
 
     if (isOrdersLoading || isProductsLoading) return <p>Chargement...</p>;

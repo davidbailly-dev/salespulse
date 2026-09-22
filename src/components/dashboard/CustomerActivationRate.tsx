@@ -1,12 +1,13 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useCustomers } from '../../lib/queries/useCustomers';
 import { calculateCustomerActivationRate } from '../../lib/kpis/customerActivationRate';
 import { ScoreGauge } from '../charts/ScoreGauge';
 
 export function CustomerActivationRate() {
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: customers, isLoading: isCustomersLoading, isError: isCustomersError } = useCustomers();
 
     if (isOrdersLoading || isCustomersLoading) return <p>Chargement...</p>;
