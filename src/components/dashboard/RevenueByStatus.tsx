@@ -1,6 +1,7 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { calculateRevenueByStatus } from '../../lib/kpis/revenueByStatus';
 import { CardList } from '../ui/Card';
 import { OrderStatus } from '../../lib/mock-data/schemas';
@@ -25,7 +26,7 @@ const statusTones: Record<OrderStatus, 'default' | 'danger' | 'success'> = {
 };
 
 export function RevenueByStatus() {
-    const { data: orders, isLoading, isError } = useOrders();
+    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
 
     if (isLoading) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;

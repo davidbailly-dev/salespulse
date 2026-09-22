@@ -1,6 +1,7 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { calculateRefundedRevenue } from '../../lib/kpis/refundedRevenue';
 import { KpiValue } from './KpiValue';
 
@@ -12,7 +13,7 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 export function RefundedRevenue() {
-    const { data: orders, isLoading, isError } = useOrders();
+    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
 
     if (isLoading) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;

@@ -1,12 +1,13 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useProducts } from '../../lib/queries/useProducts';
 import { calculateNeverSoldProducts } from '../../lib/kpis/neverSoldProducts';
 import { CardList } from '../ui/Card';
 
 export function NeverSoldProducts() {
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
 
     if (isOrdersLoading || isProductsLoading) return <p>Chargement...</p>;
