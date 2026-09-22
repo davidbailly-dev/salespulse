@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useProducts } from '../../lib/queries/useProducts';
 import { calculateTopCategories, type TopCategoriesMetric } from '../../lib/kpis/topCategories';
 import { CardList } from '../ui/Card';
@@ -20,7 +21,7 @@ const metrics: { value: TopCategoriesMetric; label: string }[] = [
 
 export function TopCategories() {
     const [metric, setMetric] = useState<TopCategoriesMetric>('revenue');
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
 
     if (isOrdersLoading || isProductsLoading) return <p>Chargement...</p>;

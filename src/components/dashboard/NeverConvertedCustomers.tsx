@@ -1,6 +1,7 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useCustomers } from '../../lib/queries/useCustomers';
 import { calculateNeverConvertedCustomers } from '../../lib/kpis/neverConvertedCustomers';
 import { CardList } from '../ui/Card';
@@ -8,7 +9,7 @@ import { CardList } from '../ui/Card';
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short' });
 
 export function NeverConvertedCustomers() {
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: customers, isLoading: isCustomersLoading, isError: isCustomersError } = useCustomers();
 
     if (isOrdersLoading || isCustomersLoading) return <p>Chargement...</p>;

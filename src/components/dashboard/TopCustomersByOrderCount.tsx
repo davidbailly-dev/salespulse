@@ -1,12 +1,13 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
+import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { useCustomers } from '../../lib/queries/useCustomers';
 import { calculateTopCustomersByOrderCount } from '../../lib/kpis/topCustomersByOrderCount';
 import { CardList } from '../ui/Card';
 
 export function TopCustomersByOrderCount() {
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders();
+    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: customers, isLoading: isCustomersLoading, isError: isCustomersError } = useCustomers();
 
     if (isOrdersLoading || isCustomersLoading) return <p>Chargement...</p>;
