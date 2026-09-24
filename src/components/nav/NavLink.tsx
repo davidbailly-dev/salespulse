@@ -8,9 +8,10 @@ type NavLinkProps = {
     href: string;
     label: string;
     icon: ReactNode;
+    onClick?: () => void;
 };
 
-export function NavLink({ href, label, icon }: NavLinkProps) {
+export function NavLink({ href, label, icon, onClick }: NavLinkProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const isActive = pathname === href;
@@ -23,6 +24,7 @@ export function NavLink({ href, label, icon }: NavLinkProps) {
         <Link
             href={targetHref}
             aria-current={isActive ? 'page' : undefined}
+            onClick={onClick}
             className={`p-4 flex flex-row gap-4 hover:bg-primary-600 ${
                 isActive ? 'bg-linear-to-r from-primary-900 to-70% to-primary-600' : ''
             }`}

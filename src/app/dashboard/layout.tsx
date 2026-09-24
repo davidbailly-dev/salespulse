@@ -8,7 +8,7 @@ export default async function DashboardLayout({children}: {children: React.React
  // les Suspense autour de chaque composant qui lit l'URL (Nav, DateRangeFilter, KPIs).
  await connection()
  return (
-    <div className="grid grid-cols-[auto_1fr] gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8">
         <Nav />
         <main className="p-8 space-y-8">
             <div className="flex justify-end">
