@@ -1,5 +1,7 @@
 # SalesPulse
 
+![ScreenshotDashboard](assets/screenshot-dashboard.png)
+
 SalesPulse est un dashboard de monitoring des ventes pour une boutique e-commerce. Il donne une vue d'ensemble de l'activité (chiffre d'affaires, commandes, produits, clients) avec un niveau de détail différent selon la page.
 
 L'application s'appuie sur des données mockées (une boutique fictive à thème heroic fantasy) : aucun backend réel n'est nécessaire pour la faire tourner, mais l'architecture est pensée pour en accueillir un par la suite.
