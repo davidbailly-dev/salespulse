@@ -3,13 +3,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { OrderDateRange } from '../queries/useOrders';
-import { DATE_RANGE_PRESETS, DEFAULT_PRESET, resolvePresetRange, type DateRangePresetId } from './dateRangePresets';
-
-const PRESET_IDS: DateRangePresetId[] = DATE_RANGE_PRESETS.map((preset) => preset.id);
-
-function isValidPreset(value: string | null): value is DateRangePresetId {
-    return PRESET_IDS.includes(value as DateRangePresetId);
-}
+import { DEFAULT_PRESET, isValidPreset, resolvePresetRange } from './dateRangePresets';
 
 export function useDateRangeFilter(): OrderDateRange {
     const searchParams = useSearchParams();

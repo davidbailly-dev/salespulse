@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { DATE_RANGE_PRESETS, type DateRangePresetId } from '../../lib/filters/dateRangePresets';
+import { DATE_RANGE_PRESETS, DEFAULT_PRESET, isValidPreset, type DateRangePresetId } from '../../lib/filters/dateRangePresets';
 
 function toDateInputValue(iso: string): string {
     return iso.slice(0, 10);
@@ -59,7 +59,10 @@ export function DateRangeFilter() {
     const from = searchParams.get('from');
     const to = searchParams.get('to');
     const isCustom = Boolean(from && to);
-    const activePreset = isCustom ? null : ((searchParams.get('preset') as DateRangePresetId | null) ?? null);
+    const presetParam = searchParams.get('preset');
+    // Même règle que useDateRangeFilter() : sans param (ou avec un preset inconnu), c'est le preset
+    // par défaut qui s'applique aux données, donc c'est lui qui doit apparaître sélectionné.
+    const activePreset = isCustom ? null : isValidPreset(presetParam) ? presetParam : DEFAULT_PRESET;
 
     // Repart des params courants (ex. `shop`) et ne remplace que la plage de dates.
     function buildParamsWithoutDateRange(): URLSearchParams {
