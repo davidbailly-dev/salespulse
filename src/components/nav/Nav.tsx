@@ -60,20 +60,20 @@ export function Nav() {
 
     return (
         <>
-            <div className="md:hidden flex items-center justify-between p-4 bg-background border-b border-primary-900 sticky top-0 z-30">
-                {/* Dans la barre (et non dans le drawer) pour rester accessible sans ouvrir le menu */}
-                <div className="flex-1 min-w-0 mr-4">
-                    <ShopSelector />
-                </div>
+            <div className="md:hidden flex items-center p-4 bg-background border-b border-primary-900 sticky top-0 z-30">
                 <button
                     type="button"
                     onClick={() => setIsOpen(true)}
                     aria-label="Ouvrir le menu"
                     aria-expanded={isOpen}
-                    className="p-2 -mr-2 cursor-pointer"
+                    className="p-2 -ml-2 cursor-pointer"
                 >
                     <Menu />
                 </button>
+                {/* Dans la barre (et non dans le drawer) pour rester accessible sans ouvrir le menu */}
+                <div className="flex-1 min-w-0 ml-4">
+                    <ShopSelector />
+                </div>
             </div>
 
             {isOpen && (
