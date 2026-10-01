@@ -12,6 +12,12 @@ export const DATE_RANGE_PRESETS: { id: DateRangePresetId; label: string }[] = [
     { id: 'lastMonth', label: 'Mois dernier' },
 ];
 
+const PRESET_IDS: DateRangePresetId[] = DATE_RANGE_PRESETS.map((preset) => preset.id);
+
+export function isValidPreset(value: string | null): value is DateRangePresetId {
+    return PRESET_IDS.includes(value as DateRangePresetId);
+}
+
 function daysAgoRange(days: number, now: Date): OrderDateRange {
     const from = new Date(now);
     from.setUTCDate(from.getUTCDate() - days);
