@@ -61,14 +61,23 @@ export function DateRangeFilter() {
     const isCustom = Boolean(from && to);
     const activePreset = isCustom ? null : ((searchParams.get('preset') as DateRangePresetId | null) ?? null);
 
+    // Repart des params courants (ex. `shop`) et ne remplace que la plage de dates.
+    function buildParamsWithoutDateRange(): URLSearchParams {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('preset');
+        params.delete('from');
+        params.delete('to');
+        return params;
+    }
+
     function applyPreset(presetId: DateRangePresetId) {
-        const params = new URLSearchParams();
+        const params = buildParamsWithoutDateRange();
         params.set('preset', presetId);
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
 
     function applyCustomRange(nextFrom: string, nextTo: string) {
-        const params = new URLSearchParams();
+        const params = buildParamsWithoutDateRange();
         params.set('from', `${nextFrom}T00:00:00.000Z`);
         // Borne de fin poussée à la fin de journée pour inclure les commandes du dernier jour sélectionné.
         params.set('to', `${nextTo}T23:59:59.999Z`);
