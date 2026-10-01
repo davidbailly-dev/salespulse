@@ -9,8 +9,17 @@ export const CategorySchema = z.enum([
 ]);
 export type Category = z.infer<typeof CategorySchema>;
 
+export const ShopSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+});
+export type Shop = z.infer<typeof ShopSchema>;
+
+export const ShopListSchema = z.array(ShopSchema);
+
 export const ProductSchema = z.object({
     id: z.string(),
+    shopId: z.string(),
     name: z.string(),
     category: CategorySchema,
     price: z.number().positive(),
@@ -21,6 +30,7 @@ export const ProductListSchema = z.array(ProductSchema);
 
 export const CustomerSchema = z.object({
     id: z.string(),
+    shopId: z.string(),
     name: z.string(),
     email: z.string().email(),
     registeredAt: z.string().datetime(),
@@ -41,6 +51,7 @@ export type OrderLine = z.infer<typeof OrderLineSchema>;
 
 export const OrderSchema = z.object({
     id: z.string(),
+    shopId: z.string(),
     customerId: z.string(),
     date: z.string().datetime(),
     status: OrderStatusSchema,
@@ -52,6 +63,7 @@ export type Order = z.infer<typeof OrderSchema>;
 export const OrderListSchema = z.array(OrderSchema);
 
 export const DatasetSchema = z.object({
+    shops: z.array(ShopSchema),
     products: z.array(ProductSchema),
     customers: z.array(CustomerSchema),
     orders: z.array(OrderSchema),

@@ -1,11 +1,25 @@
 import { faker } from '@faker-js/faker';
-import type { Category, Customer, Dataset, Order, OrderLine, OrderStatus, Product } from './schemas';
+import type { Category, Customer, Dataset, Order, OrderLine, OrderStatus, Product, Shop } from './schemas';
 
 const SEED = 424242;
+const WINDOW_DAYS = 90;
+
+// Volumes totaux (toutes boutiques confondues), répartis entre les boutiques selon leur `share`.
+// Les ratios commandes/clients et produits/commandes restent identiques dans chaque boutique,
+// donc les pondérations calibrées plus bas (clients fidèles, produits populaires) gardent leur effet.
 const PRODUCT_COUNT = 180;
 const CUSTOMER_COUNT = 600;
 const ORDER_COUNT = 600;
-const WINDOW_DAYS = 90;
+
+// Les `id` sont des slugs fixes (et non des uuid) : ils apparaissent dans l'URL (`?shop=`),
+// autant qu'ils soient lisibles et stables d'un démarrage à l'autre.
+type ShopConfig = Shop & { share: number };
+
+const SHOP_CONFIGS: ShopConfig[] = [
+    { id: 'armurerie-du-nord', name: 'L\'Armurerie du Nord', share: 0.5 },
+    { id: 'grimoire-errant', name: 'Le Grimoire Errant', share: 0.3 },
+    { id: 'reliques-d-ombre', name: 'Les Reliques d\'Ombre', share: 0.2 },
+];
 
 const CATEGORIES: Category[] = ['Armes', 'Armures', 'Potions', 'Grimoires', 'Artefacts'];
 
@@ -97,12 +111,13 @@ function generateProductName(category: Category): string {
     return `${item.name} ${item.gender === 'f' ? qualifier.f : qualifier.m}`;
 }
 
-function generateProducts(): Product[] {
-    return Array.from({ length: PRODUCT_COUNT }, () => {
+function generateProducts(shopId: string, count: number): Product[] {
+    return Array.from({ length: count }, () => {
         const category = faker.helpers.arrayElement(CATEGORIES);
 
         return {
             id: faker.string.uuid(),
+            shopId,
             name: generateProductName(category),
             category,
             price: Number(faker.commerce.price({ min: 10, max: 300 })),
@@ -123,13 +138,14 @@ function slugify(value: string): string {
         .replace(/[^a-zA-Z]/g, '');
 }
 
-function generateCustomers(): Customer[] {
-    return Array.from({ length: CUSTOMER_COUNT }, () => {
+function generateCustomers(shopId: string, count: number): Customer[] {
+    return Array.from({ length: count }, () => {
         const firstName = faker.helpers.arrayElement(FANTASY_FIRST_NAMES);
         const epithet = faker.helpers.arrayElement(FANTASY_EPITHETS);
 
         return {
             id: faker.string.uuid(),
+            shopId,
             name: `${firstName} ${epithet}`,
             email: faker.internet.email({ firstName: slugify(firstName), lastName: slugify(epithet) }),
             registeredAt: faker.date.past({ years: 2 }).toISOString(),
@@ -212,11 +228,17 @@ function generateLines(weightedProducts: { value: Product; weight: number }[]): 
  * dates absolues : à chaque démarrage du serveur, les commandes se recalent
  * automatiquement sur une fenêtre glissante des `WINDOW_DAYS` derniers jours.
  */
-function generateOrders(products: Product[], customers: Customer[], now: Date): Order[] {
+function generateOrders(
+    shopId: string,
+    products: Product[],
+    customers: Customer[],
+    count: number,
+    now: Date,
+): Order[] {
     const weightedCustomers = buildWeightedCustomers(customers);
     const weightedProducts = buildWeightedProducts(products);
 
-    return Array.from({ length: ORDER_COUNT }, () => {
+    return Array.from({ length: count }, () => {
         const offsetHours = faker.number.float({ min: 0, max: WINDOW_DAYS * 24 });
         const date = new Date(now.getTime() - offsetHours * 60 * 60 * 1000);
         const lines = generateLines(weightedProducts);
@@ -224,6 +246,7 @@ function generateOrders(products: Product[], customers: Customer[], now: Date): 
 
         return {
             id: faker.string.uuid(),
+            shopId,
             customerId: faker.helpers.weightedArrayElement(weightedCustomers).id,
             date: date.toISOString(),
             status: pickStatus(),
@@ -233,12 +256,29 @@ function generateOrders(products: Product[], customers: Customer[], now: Date): 
     });
 }
 
+/**
+ * Chaque boutique a son propre catalogue, ses propres clients et ses propres commandes
+ * (un client ou un produit n'appartient qu'à une boutique, comme avec un connecteur par
+ * boutique dans la version production). Les commandes d'une boutique ne référencent donc
+ * que ses produits et ses clients.
+ */
 export function generateDataset(now: Date = new Date()): Dataset {
     faker.seed(SEED);
 
-    const products = generateProducts();
-    const customers = generateCustomers();
-    const orders = generateOrders(products, customers, now);
+    const shops: Shop[] = SHOP_CONFIGS.map(({ id, name }) => ({ id, name }));
+    const products: Product[] = [];
+    const customers: Customer[] = [];
+    const orders: Order[] = [];
 
-    return { products, customers, orders };
+    for (const { id: shopId, share } of SHOP_CONFIGS) {
+        const shopProducts = generateProducts(shopId, Math.round(PRODUCT_COUNT * share));
+        const shopCustomers = generateCustomers(shopId, Math.round(CUSTOMER_COUNT * share));
+        const shopOrders = generateOrders(shopId, shopProducts, shopCustomers, Math.round(ORDER_COUNT * share), now);
+
+        products.push(...shopProducts);
+        customers.push(...shopCustomers);
+        orders.push(...shopOrders);
+    }
+
+    return { shops, products, customers, orders };
 }
