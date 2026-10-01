@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { TrendingUp, Package, Users, Gauge, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from './NavLink';
+import { ShopSelector } from '../filters/ShopSelector';
 
 type NavItemProps = {
     label: string,
@@ -60,7 +61,10 @@ export function Nav() {
     return (
         <>
             <div className="md:hidden flex items-center justify-between p-4 bg-background border-b border-primary-900 sticky top-0 z-30">
-                <span className="text-xl">SalesPulse</span>
+                {/* Dans la barre (et non dans le drawer) pour rester accessible sans ouvrir le menu */}
+                <div className="flex-1 min-w-0 mr-4">
+                    <ShopSelector />
+                </div>
                 <button
                     type="button"
                     onClick={() => setIsOpen(true)}
@@ -95,6 +99,9 @@ export function Nav() {
                     >
                         <X />
                     </button>
+                </div>
+                <div className="hidden md:block px-4 pb-4">
+                    <ShopSelector />
                 </div>
                 <ul className="flex flex-col">
                     {navItems.map((item) => (
