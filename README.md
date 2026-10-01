@@ -2,9 +2,9 @@
 
 ![ScreenshotDashboard](assets/screenshot-dashboard.png)
 
-SalesPulse est un dashboard de monitoring des ventes pour une boutique e-commerce. Il donne une vue d'ensemble de l'activité (chiffre d'affaires, commandes, produits, clients) avec un niveau de détail différent selon la page.
+SalesPulse est un dashboard de monitoring des ventes pour une ou plusieurs boutiques e-commerce. Il donne une vue d'ensemble de l'activité (chiffre d'affaires, commandes, produits, clients) avec un niveau de détail différent selon la page.
 
-L'application s'appuie sur des données mockées (une boutique fictive à thème heroic fantasy) : aucun backend réel n'est nécessaire pour la faire tourner, mais l'architecture est pensée pour en accueillir un par la suite.
+L'application s'appuie sur des données mockées (trois boutiques fictives à thème heroic fantasy) : aucun backend réel n'est nécessaire pour la faire tourner, mais l'architecture est pensée pour en accueillir un par la suite.
 
 **Démo en ligne :** [salespulse-e8yw.onrender.com](https://salespulse-e8yw.onrender.com)
 
@@ -14,6 +14,10 @@ L'application s'appuie sur des données mockées (une boutique fictive à thème
 - **Ventes** — le détail des ventes et des commandes
 - **Produits** — le détail du catalogue et des performances produits
 - **Clients** — le détail de la base clients et de leur comportement d'achat
+
+## Sélecteur de boutique
+
+Un sélecteur permet de consulter une boutique en particulier ou la vue **Toutes les boutiques** (par défaut). Il se trouve en haut de la barre latérale, et dans la barre du haut sur mobile, donc accessible à tout moment. La boutique choisie reste active quand on navigue entre les pages et quand on change de période (paramètre `?shop=` dans l'URL).
 
 ## Démarrer le projet
 
