@@ -1,8 +1,15 @@
-import { faker } from '@faker-js/faker';
-import type { Category, Customer, Dataset, Order, OrderLine, OrderStatus, Product, Shop } from './schemas';
+import { faker, SimpleFaker } from '@faker-js/faker';
+import type { Category, Channel, Customer, Dataset, Device, Order, OrderLine, OrderStatus, Product, Shop } from './schemas';
+import { CHANNEL_PROFILES, CHANNELS, DEVICE_PROFILES, DEVICES } from './trafficProfiles';
 
 const SEED = 424242;
-const WINDOW_DAYS = 90;
+const ATTRIBUTION_SEED = 515151;
+export const WINDOW_DAYS = 90;
+
+// Instance Faker dédiée au canal et à l'appareil des commandes, seedée à part : avec le `faker`
+// global, ajouter ces deux tirages à chaque commande décalerait toute la séquence aléatoire et
+// ferait changer produits, clients et commandes existants (donc tous les KPIs déjà validés).
+const attributionFaker = new SimpleFaker();
 
 // Volumes totaux (toutes boutiques confondues), répartis entre les boutiques selon leur `share`.
 // Les ratios commandes/clients et produits/commandes restent identiques dans chaque boutique,
@@ -169,6 +176,18 @@ function buildWeightedCustomers(customers: Customer[]): { value: Customer; weigh
     }));
 }
 
+function pickChannel(): Channel {
+    return attributionFaker.helpers.weightedArrayElement(
+        CHANNELS.map((channel) => ({ value: channel, weight: CHANNEL_PROFILES[channel].orderWeight })),
+    );
+}
+
+function pickDevice(): Device {
+    return attributionFaker.helpers.weightedArrayElement(
+        DEVICES.map((device) => ({ value: device, weight: DEVICE_PROFILES[device].orderWeight })),
+    );
+}
+
 function pickStatus(): OrderStatus {
     return faker.helpers.weightedArrayElement([
         { value: 'completed', weight: 80 },
@@ -252,6 +271,8 @@ function generateOrders(
             status: pickStatus(),
             lines,
             totalAmount: Number(totalAmount.toFixed(2)),
+            channel: pickChannel(),
+            device: pickDevice(),
         };
     });
 }
@@ -264,6 +285,7 @@ function generateOrders(
  */
 export function generateDataset(now: Date = new Date()): Dataset {
     faker.seed(SEED);
+    attributionFaker.seed(ATTRIBUTION_SEED);
 
     const shops: Shop[] = SHOP_CONFIGS.map(({ id, name }) => ({ id, name }));
     const products: Product[] = [];
