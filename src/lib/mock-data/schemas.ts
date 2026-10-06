@@ -49,6 +49,14 @@ export const OrderLineSchema = z.object({
 });
 export type OrderLine = z.infer<typeof OrderLineSchema>;
 
+// Canal d'acquisition et appareil de la session ayant mené à la commande : ils permettent
+// d'attribuer le CA à un canal (ROAS, CAC) et de comparer la conversion mobile/desktop.
+export const ChannelSchema = z.enum(['organic', 'paid', 'direct', 'social', 'email', 'referral']);
+export type Channel = z.infer<typeof ChannelSchema>;
+
+export const DeviceSchema = z.enum(['desktop', 'mobile', 'tablet']);
+export type Device = z.infer<typeof DeviceSchema>;
+
 export const OrderSchema = z.object({
     id: z.string(),
     shopId: z.string(),
@@ -57,6 +65,8 @@ export const OrderSchema = z.object({
     status: OrderStatusSchema,
     lines: z.array(OrderLineSchema).min(1),
     totalAmount: z.number().nonnegative(),
+    channel: ChannelSchema,
+    device: DeviceSchema,
 });
 export type Order = z.infer<typeof OrderSchema>;
 
