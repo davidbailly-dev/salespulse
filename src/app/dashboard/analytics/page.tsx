@@ -15,6 +15,7 @@ import { DeepScrollRate } from '../../../components/dashboard/DeepScrollRate';
 import { ExitPages } from '../../../components/dashboard/ExitPages';
 import { TopSearchTerms } from '../../../components/dashboard/TopSearchTerms';
 import { NoResultSearches } from '../../../components/dashboard/NoResultSearches';
+import { TopPages } from '../../../components/dashboard/TopPages';
 
 // Section de l'epic "Analytics" (voir docs/features-to-plan.md) pas encore codée :
 // les KPIs sont ajoutés étape par étape.
@@ -107,7 +108,23 @@ export default function AnalyticsPage() {
                     </Card>
                 </CardGroupContent>
             </CardGroup>
-            <UpcomingSection title="Visites" />
+            <CardGroup>
+                <CardGroupTitle>Visites</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Pages les plus vues</CardTitle>
+                        <CardContent>
+                            <TopPages type="all" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Pages produits les plus vues</CardTitle>
+                        <CardContent>
+                            <TopPages type="product" />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
             <UpcomingSection title="Rentabilité" />
             <CardGroup>
                 <CardGroupTitle>Fidélisation</CardGroupTitle>
