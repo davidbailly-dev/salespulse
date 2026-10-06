@@ -7,11 +7,13 @@ const AD_SPEND_SEED = 717171;
 // Canaux qui génèrent une dépense, avec leur coût par clic de base (en euros). Les autres canaux
 // (organique, direct, e-mail, référents) n'ont aucune ligne. Ces coûts sont élevés pour un
 // e-commerce classique parce qu'ils sont calibrés sur le panier moyen du mock (~800 EUR, articles
-// de collection) : ils donnent un ROAS d'environ 3 à 4 par canal, le social convertissant moins
-// bien que le payant.
+// de collection). Réglage mesuré avec la fenêtre N-1 (qui rend le CAC réaliste) : ROAS d'environ 5
+// à 6 et LTV/CAC d'environ 3 sur la vue par défaut de 30 jours (6 sur 90 jours). Les deux ne
+// peuvent pas être tenus à la fois à 3-4 : le CAC se déduit de la dépense, donc du ROAS. Le social
+// convertit moins bien que le payant, d'où un ROAS un peu plus bas à coût par clic comparable.
 export const AD_SPEND_CPC: Partial<Record<Channel, number>> = {
-    paid: 3.2,
-    social: 2.4,
+    paid: 2.25,
+    social: 1.7,
 };
 
 // Un clic publicitaire ne donne pas toujours une session mesurée (page abandonnée avant
