@@ -1,6 +1,7 @@
 import { connection } from "next/server"
 import { Nav } from "../../components/nav/Nav"
 import { DateRangeFilter } from "../../components/filters/DateRangeFilter"
+import { ComparisonToggle } from "../../components/filters/ComparisonToggle"
 
 export default async function DashboardLayout({children}: {children: React.ReactNode}) {
  // Le filtre de dates (useSearchParams) rend tout le dashboard dependant de la requete
@@ -11,7 +12,8 @@ export default async function DashboardLayout({children}: {children: React.React
     <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8">
         <Nav />
         <main className="p-8 space-y-8">
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-3">
+                <ComparisonToggle />
                 <DateRangeFilter />
             </div>
             {children}
