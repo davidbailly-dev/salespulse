@@ -167,10 +167,34 @@ export type AdSpendRow = z.infer<typeof AdSpendRowSchema>;
 
 export const AdSpendRowListSchema = z.array(AdSpendRowSchema);
 
+// Core Web Vitals : un point par jour, boutique et appareil, comme le rapport CrUX par type d'appareil.
+// LCP, INP et CLS sont des percentiles 75 du jour (le seuil de Google s'applique au p75). Un
+// percentile n'est pas additif : sur plusieurs jours, on les agrège par moyenne pondérée par
+// `samples`, ce qui reste une approximation du vrai p75 de la période.
+export const WebVitalsRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    device: DeviceSchema,
+    // Chargements de page mesurés ce jour-là : le poids de la ligne dans une moyenne.
+    samples: z.number().int().nonnegative(),
+    // Largest Contentful Paint, en millisecondes.
+    lcpMs: z.number().nonnegative(),
+    // Interaction to Next Paint, en millisecondes.
+    inpMs: z.number().nonnegative(),
+    // Cumulative Layout Shift, sans unité.
+    cls: z.number().nonnegative(),
+    // Temps de chargement moyen de la page, en millisecondes.
+    loadTimeMs: z.number().nonnegative(),
+});
+export type WebVitalsRow = z.infer<typeof WebVitalsRowSchema>;
+
+export const WebVitalsRowListSchema = z.array(WebVitalsRowSchema);
+
 export const AnalyticsDatasetSchema = z.object({
     traffic: TrafficRowListSchema,
     pageViews: z.array(PageViewRowSchema),
     searches: z.array(SearchRowSchema),
     adSpend: AdSpendRowListSchema,
+    webVitals: WebVitalsRowListSchema,
 });
 export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;
