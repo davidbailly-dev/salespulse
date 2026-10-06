@@ -123,12 +123,6 @@ export default function AnalyticsPage() {
                             <TopPages type="product" />
                         </CardContent>
                     </Card>
-                    <Card>
-                        <CardTitle>Pages les plus vues hors produits</CardTitle>
-                        <CardContent>
-                            <TopPages type="other" />
-                        </CardContent>
-                    </Card>
                 </CardGroupContent>
             </CardGroup>
             <UpcomingSection title="Rentabilité" />
