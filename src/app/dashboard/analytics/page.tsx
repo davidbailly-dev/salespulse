@@ -8,6 +8,13 @@ import { Sessions } from '../../../components/dashboard/Sessions';
 import { UniqueVisitors } from '../../../components/dashboard/UniqueVisitors';
 import { TrafficSources } from '../../../components/dashboard/TrafficSources';
 import { NewVsReturningVisitors } from '../../../components/dashboard/NewVsReturningVisitors';
+import { EngagementRate } from '../../../components/dashboard/EngagementRate';
+import { AverageSessionDuration } from '../../../components/dashboard/AverageSessionDuration';
+import { PagesPerSession } from '../../../components/dashboard/PagesPerSession';
+import { DeepScrollRate } from '../../../components/dashboard/DeepScrollRate';
+import { ExitPages } from '../../../components/dashboard/ExitPages';
+import { TopSearchTerms } from '../../../components/dashboard/TopSearchTerms';
+import { NoResultSearches } from '../../../components/dashboard/NoResultSearches';
 
 // Section de l'epic "Analytics" (voir docs/features-to-plan.md) pas encore codée :
 // les KPIs sont ajoutés étape par étape.
@@ -53,7 +60,53 @@ export default function AnalyticsPage() {
                     </Card>
                 </CardGroupContent>
             </CardGroup>
-            <UpcomingSection title="Engagement" />
+            <CardGroup>
+                <CardGroupTitle>Engagement</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Taux d&apos;engagement</CardTitle>
+                        <CardContent>
+                            <EngagementRate />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Durée moyenne de session</CardTitle>
+                        <CardContent>
+                            <AverageSessionDuration />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Pages par session</CardTitle>
+                        <CardContent>
+                            <PagesPerSession />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Scroll profond</CardTitle>
+                        <CardContent>
+                            <DeepScrollRate />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Pages de sortie</CardTitle>
+                        <CardContent>
+                            <ExitPages />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Recherches internes</CardTitle>
+                        <CardContent>
+                            <TopSearchTerms />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Recherches sans résultat</CardTitle>
+                        <CardContent>
+                            <NoResultSearches />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
             <UpcomingSection title="Visites" />
             <UpcomingSection title="Rentabilité" />
             <CardGroup>
