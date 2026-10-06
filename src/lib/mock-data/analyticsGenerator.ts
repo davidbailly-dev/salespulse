@@ -194,7 +194,7 @@ export function generateAnalyticsDataset(
 
                 const users = Math.round(sessions * USERS_PER_SESSION);
                 const engagementRate = clamp(
-                    BASE_ENGAGEMENT_RATE + channelProfile.engagementDelta + deviceProfile.engagementDelta,
+                    BASE_ENGAGEMENT_RATE + channelProfile.engagementDelta + deviceProfile.engagementDelta + tuning.engagementDelta,
                     0.2,
                     0.9,
                 );
@@ -202,7 +202,12 @@ export function generateAnalyticsDataset(
                 const rowPageViews = Math.max(
                     sessions,
                     Math.round(
-                        sessions * BASE_PAGES_PER_SESSION * channelProfile.pagesFactor * deviceProfile.pagesFactor * jitter(0.1),
+                        sessions *
+                            BASE_PAGES_PER_SESSION *
+                            channelProfile.pagesFactor *
+                            deviceProfile.pagesFactor *
+                            tuning.pagesFactor *
+                            jitter(0.1),
                     ),
                 );
 
@@ -215,12 +220,13 @@ export function generateAnalyticsDataset(
                     users,
                     newUsers: Math.min(users, Math.round(users * channelProfile.newUserShare)),
                     engagedSessions,
-                    deepScrollSessions: Math.round(engagedSessions * DEEP_SCROLL_SHARE_OF_ENGAGED * jitter(0.1)),
+                    deepScrollSessions: Math.round(engagedSessions * DEEP_SCROLL_SHARE_OF_ENGAGED * tuning.deepScrollFactor * jitter(0.1)),
                     totalSessionDurationSeconds: Math.round(
                         sessions *
                             BASE_SESSION_DURATION_SECONDS *
                             channelProfile.durationFactor *
                             deviceProfile.durationFactor *
+                            tuning.durationFactor *
                             jitter(0.1),
                     ),
                     pageViews: rowPageViews,
