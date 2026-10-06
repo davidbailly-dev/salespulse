@@ -167,10 +167,69 @@ export type AdSpendRow = z.infer<typeof AdSpendRowSchema>;
 
 export const AdSpendRowListSchema = z.array(AdSpendRowSchema);
 
+// Core Web Vitals : un point par jour, boutique et appareil, comme le rapport CrUX par type d'appareil.
+// LCP, INP et CLS sont des percentiles 75 du jour (le seuil de Google s'applique au p75). Un
+// percentile n'est pas additif : sur plusieurs jours, on les agrège par moyenne pondérée par
+// `samples`, ce qui reste une approximation du vrai p75 de la période.
+export const WebVitalsRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    device: DeviceSchema,
+    // Chargements de page mesurés ce jour-là : le poids de la ligne dans une moyenne.
+    samples: z.number().int().nonnegative(),
+    // Largest Contentful Paint, en millisecondes.
+    lcpMs: z.number().nonnegative(),
+    // Interaction to Next Paint, en millisecondes.
+    inpMs: z.number().nonnegative(),
+    // Cumulative Layout Shift, sans unité.
+    cls: z.number().nonnegative(),
+    // Temps de chargement moyen de la page, en millisecondes.
+    loadTimeMs: z.number().nonnegative(),
+});
+export type WebVitalsRow = z.infer<typeof WebVitalsRowSchema>;
+
+export const WebVitalsRowListSchema = z.array(WebVitalsRowSchema);
+
+export const ErrorTypeSchema = z.enum(['not_found', 'payment_failed']);
+export type ErrorType = z.infer<typeof ErrorTypeSchema>;
+
+// Erreurs rencontrées par les visiteurs : un compteur par jour, boutique et type. Les taux se
+// calculent avec les autres jeux (404 / pages vues, échecs / (échecs + commandes completed)).
+export const ErrorRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    type: ErrorTypeSchema,
+    count: z.number().int().positive(),
+});
+export type ErrorRow = z.infer<typeof ErrorRowSchema>;
+
+export const ErrorRowListSchema = z.array(ErrorRowSchema);
+
+export const EmailCampaignSchema = z.enum(['newsletter', 'cart_recovery']);
+export type EmailCampaign = z.infer<typeof EmailCampaignSchema>;
+
+// Envois d'e-mails : un compteur par jour, boutique et type de campagne (newsletter ou relance de
+// panier). `opens` est le nombre d'ouvertures (la protection de confidentialité d'Apple Mail les
+// gonfle en pratique) et `clicks` celui de clics sur un lien, avec `clicks <= opens <= sent`.
+export const EmailRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    campaign: EmailCampaignSchema,
+    sent: z.number().int().nonnegative(),
+    opens: z.number().int().nonnegative(),
+    clicks: z.number().int().nonnegative(),
+});
+export type EmailRow = z.infer<typeof EmailRowSchema>;
+
+export const EmailRowListSchema = z.array(EmailRowSchema);
+
 export const AnalyticsDatasetSchema = z.object({
     traffic: TrafficRowListSchema,
     pageViews: z.array(PageViewRowSchema),
     searches: z.array(SearchRowSchema),
     adSpend: AdSpendRowListSchema,
+    webVitals: WebVitalsRowListSchema,
+    errors: ErrorRowListSchema,
+    emails: EmailRowListSchema,
 });
 export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;

@@ -1,4 +1,4 @@
-import type { AdSpendRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow } from './schemas';
+import type { AdSpendRow, EmailRow, ErrorRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow, WebVitalsRow } from './schemas';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -126,6 +126,55 @@ export function filterAdSpend(rows: AdSpendRow[], params: ReportParams): AdSpend
             {
                 ...row,
                 spend: Math.round(row.spend * weight * 100) / 100,
+                clicks: scaleCount(row.clicks, weight),
+            },
+        ];
+    });
+}
+
+/**
+ * Core Web Vitals de la plage demandée. Le prorata ne touche que `samples` (le poids des lignes) :
+ * les valeurs mesurées, elles, ne dépendent pas de la part de journée couverte.
+ */
+export function filterWebVitals(rows: WebVitalsRow[], params: ReportParams): WebVitalsRow[] {
+    const getWeight = createDayWeight(params);
+
+    return rows.flatMap((row) => {
+        const weight = getWeight(row);
+        if (weight === 0) return [];
+        if (weight === 1) return [row];
+
+        return [{ ...row, samples: scaleCount(row.samples, weight) }];
+    });
+}
+
+/** Erreurs de la plage demandée, avec le même prorata de jours que `filterTraffic`. */
+export function filterErrors(rows: ErrorRow[], params: ReportParams): ErrorRow[] {
+    const getWeight = createDayWeight(params);
+
+    return rows.flatMap((row) => {
+        const weight = getWeight(row);
+        if (weight === 0) return [];
+
+        const count = scaleCount(row.count, weight);
+        return count > 0 ? [{ ...row, count }] : [];
+    });
+}
+
+/** Envois d'e-mails de la plage demandée, avec le même prorata de jours que `filterTraffic`. */
+export function filterEmails(rows: EmailRow[], params: ReportParams): EmailRow[] {
+    const getWeight = createDayWeight(params);
+
+    return rows.flatMap((row) => {
+        const weight = getWeight(row);
+        if (weight === 0) return [];
+        if (weight === 1) return [row];
+
+        return [
+            {
+                ...row,
+                sent: scaleCount(row.sent, weight),
+                opens: scaleCount(row.opens, weight),
                 clicks: scaleCount(row.clicks, weight),
             },
         ];

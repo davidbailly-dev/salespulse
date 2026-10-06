@@ -1,6 +1,9 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { generateAdSpend } from './adSpendGenerator';
+import { generateEmails } from './emailGenerator';
+import { generateErrors } from './errorGenerator';
 import { WINDOW_DAYS } from './generator';
+import { generateWebVitals } from './webVitalsGenerator';
 import type { AnalyticsDataset, Channel, Dataset, Device, PageViewRow, SearchRow, TrafficRow } from './schemas';
 import { CategorySchema } from './schemas';
 import {
@@ -266,5 +269,13 @@ export function generateAnalyticsDataset(dataset: Dataset, now: Date = new Date(
         }
     }
 
-    return { traffic, pageViews, searches, adSpend: generateAdSpend(traffic) };
+    return {
+        traffic,
+        pageViews,
+        searches,
+        adSpend: generateAdSpend(traffic),
+        webVitals: generateWebVitals(traffic),
+        errors: generateErrors(traffic, dataset.orders),
+        emails: generateEmails(traffic),
+    };
 }
