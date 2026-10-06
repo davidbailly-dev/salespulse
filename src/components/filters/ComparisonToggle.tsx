@@ -33,13 +33,15 @@ export function ComparisonToggle() {
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        // Pleine largeur sur mobile (interrupteur à gauche, période à droite), largeur du contenu
+        // ensuite. L'interrupteur reste en bord gauche de la zone : rien n'est placé avant lui.
+        <div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 md:w-auto md:justify-start">
             <button
                 type="button"
                 role="switch"
                 aria-checked={isActive}
                 onClick={toggle}
-                className="flex items-center gap-2 text-sm cursor-pointer"
+                className="flex shrink-0 items-center gap-2 text-sm cursor-pointer"
             >
                 <span
                     aria-hidden
@@ -55,11 +57,11 @@ export function ComparisonToggle() {
                 </span>
                 <span className={isActive ? 'text-white' : 'text-gray-400'}>Comparer à N-1</span>
             </button>
-            {isActive && (
-                <span className="text-xs text-gray-400">
-                    {formatRange(resolveComparisonRange(dateRange, mode))}
-                </span>
-            )}
+            {/* Toujours rendue, masquée quand la comparaison est désactivée : le texte garde sa place,
+                donc l'activation de l'interrupteur ne décale plus la mise en page. */}
+            <span className={`text-xs text-gray-400 ${isActive ? '' : 'invisible'}`} aria-hidden={!isActive}>
+                {formatRange(resolveComparisonRange(dateRange, mode ?? 'yoy'))}
+            </span>
         </div>
     );
 }
