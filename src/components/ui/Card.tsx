@@ -26,13 +26,14 @@ type CardListItemProps = {
     id: string;
     label: string;
     value: string;
-    tone?: 'default' | 'danger' | 'success';
+    tone?: 'default' | 'danger' | 'success' | 'warning';
 };
 
 const toneClassNames: Record<NonNullable<CardListItemProps['tone']>, string> = {
     default: '',
     danger: 'text-danger',
     success: 'text-success',
+    warning: 'text-warning',
 };
 
 export function CardList({items}: CardListProps) {

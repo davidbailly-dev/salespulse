@@ -22,17 +22,12 @@ import { CostPerClick } from '../../../components/dashboard/CostPerClick';
 import { CostPerVisit } from '../../../components/dashboard/CostPerVisit';
 import { CustomerAcquisitionCost } from '../../../components/dashboard/CustomerAcquisitionCost';
 import { LtvCacRatio } from '../../../components/dashboard/LtvCacRatio';
-
-// Section de l'epic "Analytics" (voir docs/features-to-plan.md) pas encore codée :
-// les KPIs sont ajoutés étape par étape.
-function UpcomingSection({ title }: { title: string }) {
-    return (
-        <CardGroup>
-            <CardGroupTitle>{title}</CardGroupTitle>
-            <p className="text-sm text-gray-400">KPIs à venir</p>
-        </CardGroup>
-    );
-}
+import { WebVitalByDevice } from '../../../components/dashboard/WebVitalByDevice';
+import { SessionsByDevice } from '../../../components/dashboard/SessionsByDevice';
+import { ConversionByDevice } from '../../../components/dashboard/ConversionByDevice';
+import { NotFoundRate } from '../../../components/dashboard/NotFoundRate';
+import { PaymentFailureRate } from '../../../components/dashboard/PaymentFailureRate';
+import { EmailRate } from '../../../components/dashboard/EmailRate';
 
 export default function AnalyticsPage() {
     return (
@@ -199,9 +194,73 @@ export default function AnalyticsPage() {
                             <CustomerLifetimeValue />
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardTitle>Taux d&apos;ouverture des e-mails</CardTitle>
+                        <CardContent>
+                            <EmailRate metric="open" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Taux de clic des e-mails</CardTitle>
+                        <CardContent>
+                            <EmailRate metric="click" />
+                        </CardContent>
+                    </Card>
                 </CardGroupContent>
             </CardGroup>
-            <UpcomingSection title="Qualité technique" />
+            <CardGroup>
+                <CardGroupTitle>Qualité technique</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>LCP (chargement principal)</CardTitle>
+                        <CardContent>
+                            <WebVitalByDevice metric="lcp" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>INP (réactivité)</CardTitle>
+                        <CardContent>
+                            <WebVitalByDevice metric="inp" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>CLS (stabilité visuelle)</CardTitle>
+                        <CardContent>
+                            <WebVitalByDevice metric="cls" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Temps de chargement</CardTitle>
+                        <CardContent>
+                            <WebVitalByDevice metric="loadTime" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Sessions par appareil</CardTitle>
+                        <CardContent>
+                            <SessionsByDevice />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Conversion des sessions (par appareil)</CardTitle>
+                        <CardContent>
+                            <ConversionByDevice />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Taux de 404</CardTitle>
+                        <CardContent>
+                            <NotFoundRate />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Échecs de paiement</CardTitle>
+                        <CardContent>
+                            <PaymentFailureRate />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
         </div>
     );
 }
