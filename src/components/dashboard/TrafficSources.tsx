@@ -3,17 +3,8 @@
 import { calculateTrafficSources } from '../../lib/kpis/trafficSources';
 import { useTraffic } from '../../lib/queries/useTraffic';
 import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
-import type { Channel } from '../../lib/mock-data/schemas';
 import { CardList } from '../ui/Card';
-
-const channelLabels: Record<Channel, string> = {
-    organic: 'Organique',
-    paid: 'Payant',
-    direct: 'Direct',
-    social: 'Réseaux sociaux',
-    email: 'E-mail',
-    referral: 'Référents',
-};
+import { channelLabels } from './channelLabels';
 
 export function TrafficSources() {
     const { data: traffic, isLoading, isError } = useTraffic(useDateRangeFilter());
