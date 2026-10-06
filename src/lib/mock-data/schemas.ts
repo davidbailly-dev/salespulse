@@ -150,9 +150,27 @@ export type SearchTermStat = z.infer<typeof SearchTermStatSchema>;
 
 export const SearchTermStatListSchema = z.array(SearchTermStatSchema);
 
+// Dépenses publicitaires : lignes quotidiennes par boutique et par canal, uniquement pour les
+// canaux qui en génèrent (voir `AD_SPEND_CPC` dans adSpendGenerator.ts). Pas d'appareil : une
+// dépense se rattache à une campagne, pas à un écran.
+export const AdSpendRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    channel: ChannelSchema,
+    // En euros, centimes compris.
+    spend: z.number().nonnegative(),
+    // Clics côté plateforme publicitaire : toujours >= aux sessions mesurées par l'analytics
+    // (clics sans chargement de page, blocages de suivi).
+    clicks: z.number().int().nonnegative(),
+});
+export type AdSpendRow = z.infer<typeof AdSpendRowSchema>;
+
+export const AdSpendRowListSchema = z.array(AdSpendRowSchema);
+
 export const AnalyticsDatasetSchema = z.object({
     traffic: TrafficRowListSchema,
     pageViews: z.array(PageViewRowSchema),
     searches: z.array(SearchRowSchema),
+    adSpend: AdSpendRowListSchema,
 });
 export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;

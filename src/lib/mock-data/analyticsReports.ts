@@ -1,4 +1,4 @@
-import type { PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow } from './schemas';
+import type { AdSpendRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow } from './schemas';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -108,4 +108,26 @@ export function buildSearchTermStats(rows: SearchRow[], params: ReportParams): S
     });
 
     return [...statsByTerm.values()].sort((a, b) => b.searches - a.searches);
+}
+
+/**
+ * Dépenses publicitaires de la plage demandée. Même prorata de jours que `filterTraffic`, pour
+ * que dépenses et sessions couvrent la même durée (CPV, ROAS, CAC).
+ */
+export function filterAdSpend(rows: AdSpendRow[], params: ReportParams): AdSpendRow[] {
+    const getWeight = createDayWeight(params);
+
+    return rows.flatMap((row) => {
+        const weight = getWeight(row);
+        if (weight === 0) return [];
+        if (weight === 1) return [row];
+
+        return [
+            {
+                ...row,
+                spend: Math.round(row.spend * weight * 100) / 100,
+                clicks: scaleCount(row.clicks, weight),
+            },
+        ];
+    });
 }
