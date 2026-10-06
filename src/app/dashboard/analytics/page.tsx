@@ -16,6 +16,12 @@ import { ExitPages } from '../../../components/dashboard/ExitPages';
 import { TopSearchTerms } from '../../../components/dashboard/TopSearchTerms';
 import { NoResultSearches } from '../../../components/dashboard/NoResultSearches';
 import { TopPages } from '../../../components/dashboard/TopPages';
+import { RevenuePerVisit } from '../../../components/dashboard/RevenuePerVisit';
+import { Roas } from '../../../components/dashboard/Roas';
+import { CostPerClick } from '../../../components/dashboard/CostPerClick';
+import { CostPerVisit } from '../../../components/dashboard/CostPerVisit';
+import { CustomerAcquisitionCost } from '../../../components/dashboard/CustomerAcquisitionCost';
+import { LtvCacRatio } from '../../../components/dashboard/LtvCacRatio';
 
 // Section de l'epic "Analytics" (voir docs/features-to-plan.md) pas encore codée :
 // les KPIs sont ajoutés étape par étape.
@@ -125,7 +131,47 @@ export default function AnalyticsPage() {
                     </Card>
                 </CardGroupContent>
             </CardGroup>
-            <UpcomingSection title="Rentabilité" />
+            <CardGroup>
+                <CardGroupTitle>Rentabilité</CardGroupTitle>
+                <CardGroupContent>
+                    <Card>
+                        <CardTitle>Revenu par visite</CardTitle>
+                        <CardContent>
+                            <RevenuePerVisit />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>ROAS</CardTitle>
+                        <CardContent>
+                            <Roas />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Coût par clic (CPC)</CardTitle>
+                        <CardContent>
+                            <CostPerClick />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Coût par visite (CPV)</CardTitle>
+                        <CardContent>
+                            <CostPerVisit />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Coût d&apos;acquisition client (CAC)</CardTitle>
+                        <CardContent>
+                            <CustomerAcquisitionCost />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardTitle>Ratio LTV/CAC</CardTitle>
+                        <CardContent>
+                            <LtvCacRatio />
+                        </CardContent>
+                    </Card>
+                </CardGroupContent>
+            </CardGroup>
             <CardGroup>
                 <CardGroupTitle>Fidélisation</CardGroupTitle>
                 <CardGroupContent>
