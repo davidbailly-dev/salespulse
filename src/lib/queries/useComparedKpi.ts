@@ -26,3 +26,35 @@ export function useComparedKpi<TData, TValue>(useData: DataHook<TData>, calculat
 
     return { value, previousValue, isLoading: current.isLoading, isError: current.isError };
 }
+
+/**
+ * Variante pour un KPI calculé sur deux sources (ex. commandes et trafic). Une source qui ne
+ * dépend pas de la période (produits, clients) est acceptée telle quelle : son hook ignore la plage
+ * et renvoie la même donnée pour les deux périodes.
+ */
+export function useComparedKpi2<TDataA, TDataB, TValue>(
+    useDataA: DataHook<TDataA>,
+    useDataB: DataHook<TDataB>,
+    calculate: (dataA: TDataA, dataB: TDataB) => TValue,
+) {
+    const comparisonRange = useComparisonRange();
+    const dateRange = useDateRangeFilter();
+    const isComparing = comparisonRange !== undefined;
+
+    const currentA = useDataA(dateRange);
+    const currentB = useDataB(dateRange);
+    const previousA = useDataA(comparisonRange, { enabled: isComparing });
+    const previousB = useDataB(comparisonRange, { enabled: isComparing });
+
+    const value = currentA.data && currentB.data ? calculate(currentA.data, currentB.data) : undefined;
+    let previousValue: TValue | null | undefined;
+    if (!isComparing) previousValue = undefined;
+    else previousValue = previousA.data && previousB.data ? calculate(previousA.data, previousB.data) : null;
+
+    return {
+        value,
+        previousValue,
+        isLoading: currentA.isLoading || currentB.isLoading,
+        isError: currentA.isError || currentB.isError,
+    };
+}

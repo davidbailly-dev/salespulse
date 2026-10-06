@@ -14,11 +14,12 @@ async function fetchSearchTermStats(dateRange?: AnalyticsDateRange, shopId?: str
 }
 
 // Termes triés par volume décroissant, déjà agrégés sur la plage par l'API.
-export function useSearchTermStats(dateRange?: AnalyticsDateRange) {
+export function useSearchTermStats(dateRange?: AnalyticsDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['analytics', 'search-terms', dateRange, shopId],
         queryFn: () => fetchSearchTermStats(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }

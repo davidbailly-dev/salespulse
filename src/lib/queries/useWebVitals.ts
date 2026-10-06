@@ -14,11 +14,12 @@ async function fetchWebVitals(dateRange?: AnalyticsDateRange, shopId?: string): 
 }
 
 // Comme useTraffic, la boutique est lue ici depuis l'URL et la plage de dates passée explicitement.
-export function useWebVitals(dateRange?: AnalyticsDateRange) {
+export function useWebVitals(dateRange?: AnalyticsDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['analytics', 'web-vitals', dateRange, shopId],
         queryFn: () => fetchWebVitals(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }

@@ -8,7 +8,8 @@ import {
 } from '../../lib/comparison/evolution';
 
 type KpiDeltaProps = {
-    current: number;
+    // `null` : le KPI lui-même n'est pas calculable sur la période courante, rien à comparer.
+    current: number | null;
     // `undefined` : comparaison désactivée (rien à afficher). `null` : comparaison active mais valeur
     // N-1 indisponible.
     previous: number | null | undefined;
@@ -37,7 +38,7 @@ const changeFormatter = new Intl.NumberFormat('fr-FR', {
  * flèche, signe et texte pour lecteur d'écran la doublent.
  */
 export function KpiDelta({ current, previous, polarity, mode = 'relative' }: KpiDeltaProps) {
-    if (previous === undefined) return null;
+    if (previous === undefined || current === null) return null;
 
     const evolution = previous === null ? null : calculateEvolution(current, previous, polarity, mode);
 

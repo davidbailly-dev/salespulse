@@ -14,11 +14,12 @@ async function fetchEmails(dateRange?: AnalyticsDateRange, shopId?: string): Pro
 }
 
 // Comme useTraffic, la boutique est lue ici depuis l'URL et la plage de dates passée explicitement.
-export function useEmails(dateRange?: AnalyticsDateRange) {
+export function useEmails(dateRange?: AnalyticsDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['analytics', 'emails', dateRange, shopId],
         queryFn: () => fetchEmails(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }

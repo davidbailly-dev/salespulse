@@ -1,8 +1,9 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi } from '../../lib/queries/useComparedKpi';
 import { calculateAverageRevenuePerActiveCustomer } from '../../lib/kpis/averageRevenuePerCustomer';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -13,12 +14,11 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 export function AverageRevenuePerCustomer() {
-    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
+    const { value: averageRevenuePerCustomer, previousValue, isLoading, isError } = useComparedKpi(useOrders, calculateAverageRevenuePerActiveCustomer);
 
     if (isLoading) return <p>Chargement...</p>;
-    if (isError) return <p>Erreur de chargement</p>;
+    if (isError || averageRevenuePerCustomer === undefined) return <p>Erreur de chargement</p>;
 
-    const averageRevenuePerCustomer = calculateAverageRevenuePerActiveCustomer(orders);
     const parts = currencyFormatter.formatToParts(averageRevenuePerCustomer);
 
     // On sépare le nombre formaté (groupes de milliers, décimales) du symbole
@@ -30,6 +30,9 @@ export function AverageRevenuePerCustomer() {
     const unit = parts.find((part) => part.type === 'currency')?.value ?? '';
 
     return (
-        <KpiValue value={value} unit={unit} />
+        <div className="flex flex-col items-center gap-1">
+            <KpiValue value={value} unit={unit} />
+            <KpiDelta current={averageRevenuePerCustomer} previous={previousValue} polarity="higher-is-better" />
+        </div>
     );
 }

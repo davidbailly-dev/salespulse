@@ -2,8 +2,9 @@
 
 import { useOrders } from '../../lib/queries/useOrders';
 import { useTraffic } from '../../lib/queries/useTraffic';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi2 } from '../../lib/queries/useComparedKpi';
 import { calculateRevenuePerVisit } from '../../lib/kpis/revenuePerVisit';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -14,14 +15,16 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 export function RevenuePerVisit() {
-    const dateRange = useDateRangeFilter();
-    const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(dateRange);
-    const { data: traffic, isLoading: isTrafficLoading, isError: isTrafficError } = useTraffic(dateRange);
+    const { value: revenuePerVisit, previousValue, isLoading, isError } = useComparedKpi2(
+        useOrders,
+        useTraffic,
+        calculateRevenuePerVisit,
+    );
 
-    if (isOrdersLoading || isTrafficLoading) return <p>Chargement...</p>;
-    if (isOrdersError || isTrafficError) return <p>Erreur de chargement</p>;
+    if (isLoading) return <p>Chargement...</p>;
+    if (isError || revenuePerVisit === undefined) return <p>Erreur de chargement</p>;
 
-    const parts = currencyFormatter.formatToParts(calculateRevenuePerVisit(orders, traffic));
+    const parts = currencyFormatter.formatToParts(revenuePerVisit);
 
     // On sépare le nombre formaté (groupes de milliers, décimales) du symbole
     // monétaire, pour pouvoir les afficher dans deux tailles différentes via KpiValue.
@@ -35,6 +38,7 @@ export function RevenuePerVisit() {
         <div className="flex flex-col items-center gap-1">
             <KpiValue value={value} unit={unit} />
             <span className="text-xs text-gray-400">par visite</span>
+            <KpiDelta current={revenuePerVisit} previous={previousValue} polarity="higher-is-better" />
         </div>
     );
 }

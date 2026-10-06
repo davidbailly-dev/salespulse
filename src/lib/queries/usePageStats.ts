@@ -14,11 +14,12 @@ async function fetchPageStats(dateRange?: AnalyticsDateRange, shopId?: string): 
 }
 
 // Pages triées par vues décroissantes, déjà agrégées sur la plage par l'API.
-export function usePageStats(dateRange?: AnalyticsDateRange) {
+export function usePageStats(dateRange?: AnalyticsDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['analytics', 'pages', dateRange, shopId],
         queryFn: () => fetchPageStats(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }
