@@ -1,8 +1,9 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi } from '../../lib/queries/useComparedKpi';
 import { calculateCustomerLifetimeValue } from '../../lib/kpis/customerLifetimeValue';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -13,21 +14,25 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 export function CustomerLifetimeValue() {
-    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
+    const { value: customerLifetimeValue, previousValue, isLoading, isError } = useComparedKpi(useOrders, calculateCustomerLifetimeValue);
 
     if (isLoading) return <p>Chargement...</p>;
-    if (isError) return <p>Erreur de chargement</p>;
+    if (isError || customerLifetimeValue === undefined) return <p>Erreur de chargement</p>;
 
-    const customerLifetimeValue = calculateCustomerLifetimeValue(orders);
     const parts = currencyFormatter.formatToParts(customerLifetimeValue);
 
-    // On sépare le nombre formaté du symbole monétaire, pour pouvoir les afficher
-    // dans deux tailles différentes via KpiValue.
+    // On sépare le nombre formaté (groupes de milliers, décimales) du symbole
+    // monétaire, pour pouvoir les afficher dans deux tailles différentes via KpiValue.
     const value = parts
         .filter((part) => part.type !== 'currency' && part.type !== 'literal')
         .map((part) => part.value)
         .join('');
     const unit = parts.find((part) => part.type === 'currency')?.value ?? '';
 
-    return <KpiValue value={value} unit={unit} />;
+    return (
+        <div className="flex flex-col items-center gap-1">
+            <KpiValue value={value} unit={unit} />
+            <KpiDelta current={customerLifetimeValue} previous={previousValue} polarity="higher-is-better" />
+        </div>
+    );
 }

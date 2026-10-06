@@ -1,8 +1,9 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi } from '../../lib/queries/useComparedKpi';
 import { calculateAverageSellingPrice } from '../../lib/kpis/averageSellingPrice';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 const currencyFormatter = new Intl.NumberFormat('fr-FR', {
@@ -13,12 +14,11 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 });
 
 export function AverageSellingPrice() {
-    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
+    const { value: averageSellingPrice, previousValue, isLoading, isError } = useComparedKpi(useOrders, calculateAverageSellingPrice);
 
     if (isLoading) return <p>Chargement...</p>;
-    if (isError) return <p>Erreur de chargement</p>;
+    if (isError || averageSellingPrice === undefined) return <p>Erreur de chargement</p>;
 
-    const averageSellingPrice = calculateAverageSellingPrice(orders);
     const parts = currencyFormatter.formatToParts(averageSellingPrice);
 
     // On sépare le nombre formaté (groupes de milliers, décimales) du symbole
@@ -30,6 +30,9 @@ export function AverageSellingPrice() {
     const unit = parts.find((part) => part.type === 'currency')?.value ?? '';
 
     return (
-        <KpiValue value={value} unit={unit} />
+        <div className="flex flex-col items-center gap-1">
+            <KpiValue value={value} unit={unit} />
+            <KpiDelta current={averageSellingPrice} previous={previousValue} polarity="neutral" />
+        </div>
     );
 }

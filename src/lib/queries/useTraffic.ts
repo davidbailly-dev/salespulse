@@ -14,11 +14,12 @@ async function fetchTraffic(dateRange?: AnalyticsDateRange, shopId?: string): Pr
 }
 
 // Comme useOrders, la boutique est lue ici depuis l'URL et la plage de dates passée explicitement.
-export function useTraffic(dateRange?: AnalyticsDateRange) {
+export function useTraffic(dateRange?: AnalyticsDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['analytics', 'traffic', dateRange, shopId],
         queryFn: () => fetchTraffic(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }

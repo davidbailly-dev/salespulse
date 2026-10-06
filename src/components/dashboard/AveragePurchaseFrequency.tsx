@@ -1,17 +1,21 @@
 'use client';
 
 import { useOrders } from '../../lib/queries/useOrders';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi } from '../../lib/queries/useComparedKpi';
 import { calculateAveragePurchaseFrequency } from '../../lib/kpis/averagePurchaseFrequency';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 export function AveragePurchaseFrequency() {
-    const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
+    const { value: averagePurchaseFrequency, previousValue, isLoading, isError } = useComparedKpi(useOrders, calculateAveragePurchaseFrequency);
 
     if (isLoading) return <p>Chargement...</p>;
-    if (isError) return <p>Erreur de chargement</p>;
+    if (isError || averagePurchaseFrequency === undefined) return <p>Erreur de chargement</p>;
 
-    const averagePurchaseFrequency = calculateAveragePurchaseFrequency(orders);
-
-    return <KpiValue value={averagePurchaseFrequency} unit="commandes / client actif" />;
+    return (
+        <div className="flex flex-col items-center gap-1">
+            <KpiValue value={averagePurchaseFrequency} unit="commandes / client actif" />
+            <KpiDelta current={averagePurchaseFrequency} previous={previousValue} polarity="higher-is-better" />
+        </div>
+    );
 }
