@@ -79,3 +79,80 @@ export const DatasetSchema = z.object({
     orders: z.array(OrderSchema),
 });
 export type Dataset = z.infer<typeof DatasetSchema>;
+
+// --- Analytics (trafic) ---
+// Calqué sur ce qu'exposerait un connecteur GA4 (voir CLAUDE.md) : le trafic est stocké en
+// lignes agrégées par jour, boutique, canal et appareil, jamais en sessions individuelles.
+
+export const TrafficRowSchema = z.object({
+    // Début du jour (UTC) : la granularité est la journée.
+    date: z.string().datetime(),
+    shopId: z.string(),
+    channel: ChannelSchema,
+    device: DeviceSchema,
+    sessions: z.number().int().nonnegative(),
+    users: z.number().int().nonnegative(),
+    newUsers: z.number().int().nonnegative(),
+    engagedSessions: z.number().int().nonnegative(),
+    // Sessions allant au moins aux trois quarts de la page (sous-ensemble des sessions engagées).
+    deepScrollSessions: z.number().int().nonnegative(),
+    // Durée cumulée (et non moyenne) pour pouvoir agréger sans biais : moyenne = total / sessions.
+    totalSessionDurationSeconds: z.number().int().nonnegative(),
+    pageViews: z.number().int().nonnegative(),
+});
+export type TrafficRow = z.infer<typeof TrafficRowSchema>;
+
+export const TrafficRowListSchema = z.array(TrafficRowSchema);
+
+export const PageTypeSchema = z.enum(['product', 'other']);
+export type PageType = z.infer<typeof PageTypeSchema>;
+
+const pageFields = {
+    path: z.string(),
+    title: z.string(),
+    type: PageTypeSchema,
+    productId: z.string().optional(),
+    views: z.number().int().nonnegative(),
+    // Nombre de sessions ayant quitté le site depuis cette page.
+    exits: z.number().int().nonnegative(),
+};
+
+// Ligne quotidienne stockée côté serveur.
+export const PageViewRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    ...pageFields,
+});
+export type PageViewRow = z.infer<typeof PageViewRowSchema>;
+
+// Rapport renvoyé par l'API : une ligne par page, agrégée sur la plage de dates demandée.
+export const PageStatSchema = z.object(pageFields);
+export type PageStat = z.infer<typeof PageStatSchema>;
+
+export const PageStatListSchema = z.array(PageStatSchema);
+
+const searchFields = {
+    term: z.string(),
+    // false = recherche sans résultat, donc besoin non satisfait.
+    hasResults: z.boolean(),
+    searches: z.number().int().nonnegative(),
+};
+
+export const SearchRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    ...searchFields,
+});
+export type SearchRow = z.infer<typeof SearchRowSchema>;
+
+export const SearchTermStatSchema = z.object(searchFields);
+export type SearchTermStat = z.infer<typeof SearchTermStatSchema>;
+
+export const SearchTermStatListSchema = z.array(SearchTermStatSchema);
+
+export const AnalyticsDatasetSchema = z.object({
+    traffic: TrafficRowListSchema,
+    pageViews: z.array(PageViewRowSchema),
+    searches: z.array(SearchRowSchema),
+});
+export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;
