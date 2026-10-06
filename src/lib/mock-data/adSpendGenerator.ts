@@ -1,4 +1,5 @@
 import { SimpleFaker } from '@faker-js/faker';
+import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
 import type { AdSpendRow, Channel, TrafficRow } from './schemas';
 
 const AD_SPEND_SEED = 717171;
@@ -22,9 +23,9 @@ const CLICKS_PER_SESSION = 1.1;
  * rester cohérentes avec les sessions et les commandes déjà générées. Seedé à part : ajouter ce
  * module ne change ni le trafic ni les commandes existants.
  */
-export function generateAdSpend(traffic: TrafficRow[]): AdSpendRow[] {
+export function generateAdSpend(traffic: TrafficRow[], tuning: AnalyticsTuning = DEFAULT_ANALYTICS_TUNING): AdSpendRow[] {
     const random = new SimpleFaker();
-    random.seed(AD_SPEND_SEED);
+    random.seed(AD_SPEND_SEED + tuning.seedOffset);
     const jitter = (spread: number) => random.number.float({ min: 1 - spread, max: 1 + spread });
 
     // Sessions du jour, par boutique et par canal, tous appareils confondus.
@@ -43,7 +44,7 @@ export function generateAdSpend(traffic: TrafficRow[]): AdSpendRow[] {
         const clicks = Math.round(sessions * CLICKS_PER_SESSION * jitter(0.05));
         if (clicks <= 0) continue;
 
-        const cpc = AD_SPEND_CPC[channel] ?? 0;
+        const cpc = (AD_SPEND_CPC[channel] ?? 0) * tuning.cpcFactor;
         rows.push({ date, shopId, channel, spend: Math.round(clicks * cpc * jitter(0.1) * 100) / 100, clicks });
     }
 

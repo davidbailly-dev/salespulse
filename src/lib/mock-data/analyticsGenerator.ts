@@ -1,5 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { generateAdSpend } from './adSpendGenerator';
+import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
 import { generateEmails } from './emailGenerator';
 import { generateErrors } from './errorGenerator';
 import { WINDOW_DAYS } from './generator';
@@ -143,9 +144,13 @@ function buildCellShares(): { cells: CellShare[]; sessionsPerCompletedOrder: num
  * Seedé à part de `generateDataset` (instance `SimpleFaker` locale) : les données de base ne
  * dépendent pas de ce module, et inversement.
  */
-export function generateAnalyticsDataset(dataset: Dataset, now: Date = new Date()): AnalyticsDataset {
+export function generateAnalyticsDataset(
+    dataset: Dataset,
+    now: Date = new Date(),
+    tuning: AnalyticsTuning = DEFAULT_ANALYTICS_TUNING,
+): AnalyticsDataset {
     const random = new SimpleFaker();
-    random.seed(ANALYTICS_SEED);
+    random.seed(ANALYTICS_SEED + tuning.seedOffset);
     const jitter = (spread: number) => random.number.float({ min: 1 - spread, max: 1 + spread });
 
     const dayShares = buildDayShares(now);
@@ -157,7 +162,7 @@ export function generateAnalyticsDataset(dataset: Dataset, now: Date = new Date(
 
     for (const shop of dataset.shops) {
         const completedOrders = dataset.orders.filter((order) => order.shopId === shop.id && order.status === 'completed');
-        const shopSessions = completedOrders.length * sessionsPerCompletedOrder;
+        const shopSessions = (completedOrders.length * sessionsPerCompletedOrder) / tuning.conversionFactor;
 
         // Une page produit est d'autant plus consultée que le produit se vend : le poids de
         // consultation est 1 + unités vendues, ce qui laisse quand même une traîne de produits
@@ -273,9 +278,9 @@ export function generateAnalyticsDataset(dataset: Dataset, now: Date = new Date(
         traffic,
         pageViews,
         searches,
-        adSpend: generateAdSpend(traffic),
-        webVitals: generateWebVitals(traffic),
-        errors: generateErrors(traffic, dataset.orders),
-        emails: generateEmails(traffic),
+        adSpend: generateAdSpend(traffic, tuning),
+        webVitals: generateWebVitals(traffic, tuning),
+        errors: generateErrors(traffic, dataset.orders, tuning),
+        emails: generateEmails(traffic, tuning),
     };
 }

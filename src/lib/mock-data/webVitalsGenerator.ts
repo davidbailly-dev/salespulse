@@ -1,4 +1,5 @@
 import { SimpleFaker } from '@faker-js/faker';
+import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
 import type { Device, TrafficRow, WebVitalsRow } from './schemas';
 
 const WEB_VITALS_SEED = 818181;
@@ -18,9 +19,12 @@ const BASE_WEB_VITALS: Record<Device, { lcpMs: number; inpMs: number; cls: numbe
  * vues de l'appareil ce jour-là. Seedé à part, comme les autres jeux analytics, pour ne modifier
  * aucune donnée existante.
  */
-export function generateWebVitals(traffic: TrafficRow[]): WebVitalsRow[] {
+export function generateWebVitals(
+    traffic: TrafficRow[],
+    tuning: AnalyticsTuning = DEFAULT_ANALYTICS_TUNING,
+): WebVitalsRow[] {
     const random = new SimpleFaker();
-    random.seed(WEB_VITALS_SEED);
+    random.seed(WEB_VITALS_SEED + tuning.seedOffset);
     const jitter = (spread: number) => random.number.float({ min: 1 - spread, max: 1 + spread });
 
     const samplesByKey = new Map<string, { date: string; shopId: string; device: Device; samples: number }>();
@@ -39,10 +43,10 @@ export function generateWebVitals(traffic: TrafficRow[]): WebVitalsRow[] {
             shopId,
             device,
             samples,
-            lcpMs: Math.round(base.lcpMs * jitter(0.08)),
-            inpMs: Math.round(base.inpMs * jitter(0.08)),
+            lcpMs: Math.round(base.lcpMs * tuning.slownessFactor * jitter(0.08)),
+            inpMs: Math.round(base.inpMs * tuning.slownessFactor * jitter(0.08)),
             cls: Math.round(base.cls * jitter(0.1) * 1000) / 1000,
-            loadTimeMs: Math.round(base.loadTimeMs * jitter(0.08)),
+            loadTimeMs: Math.round(base.loadTimeMs * tuning.slownessFactor * jitter(0.08)),
         };
     });
 }
