@@ -190,11 +190,27 @@ export type WebVitalsRow = z.infer<typeof WebVitalsRowSchema>;
 
 export const WebVitalsRowListSchema = z.array(WebVitalsRowSchema);
 
+export const ErrorTypeSchema = z.enum(['not_found', 'payment_failed']);
+export type ErrorType = z.infer<typeof ErrorTypeSchema>;
+
+// Erreurs rencontrées par les visiteurs : un compteur par jour, boutique et type. Les taux se
+// calculent avec les autres jeux (404 / pages vues, échecs / (échecs + commandes completed)).
+export const ErrorRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    type: ErrorTypeSchema,
+    count: z.number().int().positive(),
+});
+export type ErrorRow = z.infer<typeof ErrorRowSchema>;
+
+export const ErrorRowListSchema = z.array(ErrorRowSchema);
+
 export const AnalyticsDatasetSchema = z.object({
     traffic: TrafficRowListSchema,
     pageViews: z.array(PageViewRowSchema),
     searches: z.array(SearchRowSchema),
     adSpend: AdSpendRowListSchema,
     webVitals: WebVitalsRowListSchema,
+    errors: ErrorRowListSchema,
 });
 export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;
