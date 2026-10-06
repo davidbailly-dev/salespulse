@@ -1,5 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { generateAdSpend } from './adSpendGenerator';
+import { generateEmails } from './emailGenerator';
 import { generateErrors } from './errorGenerator';
 import { WINDOW_DAYS } from './generator';
 import { generateWebVitals } from './webVitalsGenerator';
@@ -275,5 +276,6 @@ export function generateAnalyticsDataset(dataset: Dataset, now: Date = new Date(
         adSpend: generateAdSpend(traffic),
         webVitals: generateWebVitals(traffic),
         errors: generateErrors(traffic, dataset.orders),
+        emails: generateEmails(traffic),
     };
 }

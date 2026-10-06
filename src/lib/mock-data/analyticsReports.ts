@@ -1,4 +1,4 @@
-import type { AdSpendRow, ErrorRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow, WebVitalsRow } from './schemas';
+import type { AdSpendRow, EmailRow, ErrorRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow, WebVitalsRow } from './schemas';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -158,5 +158,25 @@ export function filterErrors(rows: ErrorRow[], params: ReportParams): ErrorRow[]
 
         const count = scaleCount(row.count, weight);
         return count > 0 ? [{ ...row, count }] : [];
+    });
+}
+
+/** Envois d'e-mails de la plage demandée, avec le même prorata de jours que `filterTraffic`. */
+export function filterEmails(rows: EmailRow[], params: ReportParams): EmailRow[] {
+    const getWeight = createDayWeight(params);
+
+    return rows.flatMap((row) => {
+        const weight = getWeight(row);
+        if (weight === 0) return [];
+        if (weight === 1) return [row];
+
+        return [
+            {
+                ...row,
+                sent: scaleCount(row.sent, weight),
+                opens: scaleCount(row.opens, weight),
+                clicks: scaleCount(row.clicks, weight),
+            },
+        ];
     });
 }

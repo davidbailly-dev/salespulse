@@ -205,6 +205,24 @@ export type ErrorRow = z.infer<typeof ErrorRowSchema>;
 
 export const ErrorRowListSchema = z.array(ErrorRowSchema);
 
+export const EmailCampaignSchema = z.enum(['newsletter', 'cart_recovery']);
+export type EmailCampaign = z.infer<typeof EmailCampaignSchema>;
+
+// Envois d'e-mails : un compteur par jour, boutique et type de campagne (newsletter ou relance de
+// panier). `opens` est le nombre d'ouvertures (la protection de confidentialité d'Apple Mail les
+// gonfle en pratique) et `clicks` celui de clics sur un lien, avec `clicks <= opens <= sent`.
+export const EmailRowSchema = z.object({
+    date: z.string().datetime(),
+    shopId: z.string(),
+    campaign: EmailCampaignSchema,
+    sent: z.number().int().nonnegative(),
+    opens: z.number().int().nonnegative(),
+    clicks: z.number().int().nonnegative(),
+});
+export type EmailRow = z.infer<typeof EmailRowSchema>;
+
+export const EmailRowListSchema = z.array(EmailRowSchema);
+
 export const AnalyticsDatasetSchema = z.object({
     traffic: TrafficRowListSchema,
     pageViews: z.array(PageViewRowSchema),
@@ -212,5 +230,6 @@ export const AnalyticsDatasetSchema = z.object({
     adSpend: AdSpendRowListSchema,
     webVitals: WebVitalsRowListSchema,
     errors: ErrorRowListSchema,
+    emails: EmailRowListSchema,
 });
 export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;
