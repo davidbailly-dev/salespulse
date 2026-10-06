@@ -16,16 +16,19 @@ const attributionFaker = new SimpleFaker();
 // donc les pondérations calibrées plus bas (clients fidèles, produits populaires) gardent leur effet.
 const PRODUCT_COUNT = 180;
 const CUSTOMER_COUNT = 600;
-const ORDER_COUNT = 600;
+export const ORDER_COUNT = 600;
 
 // Les `id` sont des slugs fixes (et non des uuid) : ils apparaissent dans l'URL (`?shop=`),
 // autant qu'ils soient lisibles et stables d'un démarrage à l'autre.
-type ShopConfig = Shop & { share: number };
+// `historyVolumeFactor` : volume de commandes de la fenêtre N-1 relativement à la fenêtre actuelle
+// (voir historyGenerator.ts). Il fixe la tendance de chaque boutique d'une année sur l'autre :
+// l'Armurerie progresse (N-1 plus bas), le Grimoire recule, les Reliques sont stables.
+type ShopConfig = Shop & { share: number; historyVolumeFactor: number };
 
-const SHOP_CONFIGS: ShopConfig[] = [
-    { id: 'armurerie-du-nord', name: 'L\'Armurerie du Nord', share: 0.5 },
-    { id: 'grimoire-errant', name: 'Le Grimoire Errant', share: 0.3 },
-    { id: 'reliques-d-ombre', name: 'Les Reliques d\'Ombre', share: 0.2 },
+export const SHOP_CONFIGS: ShopConfig[] = [
+    { id: 'armurerie-du-nord', name: 'L\'Armurerie du Nord', share: 0.5, historyVolumeFactor: 0.92 },
+    { id: 'grimoire-errant', name: 'Le Grimoire Errant', share: 0.3, historyVolumeFactor: 1.1 },
+    { id: 'reliques-d-ombre', name: 'Les Reliques d\'Ombre', share: 0.2, historyVolumeFactor: 0.98 },
 ];
 
 const CATEGORIES: Category[] = ['Armes', 'Armures', 'Potions', 'Grimoires', 'Artefacts'];
@@ -167,7 +170,7 @@ function generateCustomers(shopId: string, count: number): Customer[] {
 const LOYAL_CUSTOMER_SHARE = 0.06;
 const LOYAL_CUSTOMER_WEIGHT = 15;
 
-function buildWeightedCustomers(customers: Customer[]): { value: Customer; weight: number }[] {
+export function buildWeightedCustomers(customers: Customer[]): { value: Customer; weight: number }[] {
     const loyalCount = Math.round(customers.length * LOYAL_CUSTOMER_SHARE);
 
     return customers.map((customer, index) => ({
@@ -205,7 +208,7 @@ function pickStatus(): OrderStatus {
 const POPULAR_PRODUCT_SHARE = 0.2;
 const POPULAR_PRODUCT_WEIGHT = 15;
 
-function buildWeightedProducts(products: Product[]): { value: Product; weight: number }[] {
+export function buildWeightedProducts(products: Product[]): { value: Product; weight: number }[] {
     const popularCount = Math.round(products.length * POPULAR_PRODUCT_SHARE);
 
     return products.map((product, index) => ({
@@ -223,20 +226,27 @@ function buildWeightedProducts(products: Product[]): { value: Product; weight: n
 function pickWeightedProductsWithoutReplacement(
     weightedProducts: { value: Product; weight: number }[],
     count: number,
+    random: SimpleFaker = faker,
 ): Product[] {
     return weightedProducts
-        .map(({ value, weight }) => ({ value, key: faker.number.float({ min: 0, max: 1 }) ** (1 / weight) }))
+        .map(({ value, weight }) => ({ value, key: random.number.float({ min: 0, max: 1 }) ** (1 / weight) }))
         .sort((a, b) => b.key - a.key)
         .slice(0, count)
         .map(({ value }) => value);
 }
 
-function generateLines(weightedProducts: { value: Product; weight: number }[]): OrderLine[] {
-    const lineCount = faker.number.int({ min: 1, max: 4 });
-    const chosenProducts = pickWeightedProductsWithoutReplacement(weightedProducts, lineCount);
+// `random` et `lineCount` ne servent qu'à la fenêtre N-1 (historyGenerator.ts, qui a son propre
+// générateur aléatoire et sa propre répartition du nombre de lignes) : par défaut, rien ne change
+// pour les commandes actuelles.
+export function generateLines(
+    weightedProducts: { value: Product; weight: number }[],
+    random: SimpleFaker = faker,
+    lineCount: number = random.number.int({ min: 1, max: 4 }),
+): OrderLine[] {
+    const chosenProducts = pickWeightedProductsWithoutReplacement(weightedProducts, lineCount, random);
     return chosenProducts.map((product) => ({
         productId: product.id,
-        quantity: faker.number.int({ min: 1, max: 3 }),
+        quantity: random.number.int({ min: 1, max: 3 }),
         unitPrice: product.price,
     }));
 }

@@ -1,4 +1,5 @@
 import { SimpleFaker } from '@faker-js/faker';
+import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
 import type { EmailCampaign, EmailRow, TrafficRow } from './schemas';
 
 const EMAILS_SEED = 131313;
@@ -19,9 +20,9 @@ const CAMPAIGN_PROFILES: Record<EmailCampaign, { clickShare: number; openRate: n
  * envois et les ouvertures s'en déduisent par les taux de chaque campagne. Le canal `email` et
  * ses statistiques d'envoi restent ainsi cohérents. Seedé à part, comme les autres jeux analytics.
  */
-export function generateEmails(traffic: TrafficRow[]): EmailRow[] {
+export function generateEmails(traffic: TrafficRow[], tuning: AnalyticsTuning = DEFAULT_ANALYTICS_TUNING): EmailRow[] {
     const random = new SimpleFaker();
-    random.seed(EMAILS_SEED);
+    random.seed(EMAILS_SEED + tuning.seedOffset);
     const jitter = (spread: number) => random.number.float({ min: 1 - spread, max: 1 + spread });
 
     const sessionsByKey = new Map<string, { date: string; shopId: string; sessions: number }>();
