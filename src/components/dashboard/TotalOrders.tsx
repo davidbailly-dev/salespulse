@@ -2,22 +2,23 @@
 
 import { calculateTotalOrders } from '../../lib/kpis/totalOrders';
 import { useOrders } from '../../lib/queries/useOrders';
-import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
+import { useComparedKpi } from '../../lib/queries/useComparedKpi';
+import { KpiDelta } from './KpiDelta';
 import { KpiValue } from './KpiValue';
 
 export function TotalOrders() {
-    const {data: orders, isLoading, isError} = useOrders(useDateRangeFilter());
+    const { value: totalOrders, previousValue, isLoading, isError } = useComparedKpi(useOrders, calculateTotalOrders);
 
     if (isLoading) return <p>Chargement...</p>;
-    if (isError) return <p>Erreur de chargement</p>;
+    if (isError || totalOrders === undefined) return <p>Erreur de chargement</p>;
 
-    const totalOrders = calculateTotalOrders(orders);
     const label = totalOrders === 1 ? 'commande' : 'commandes';
 
     return (
         <div className="flex flex-col items-center gap-1">
             <KpiValue value={totalOrders} />
             <span className="text-xs text-gray-400">{label}</span>
+            <KpiDelta current={totalOrders} previous={previousValue} polarity="higher-is-better" />
         </div>
     )
 }

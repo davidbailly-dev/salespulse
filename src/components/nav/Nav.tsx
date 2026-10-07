@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { TrendingUp, Package, Users, Gauge, Menu, X } from 'lucide-react';
+import { TrendingUp, Package, Users, Gauge, ChartColumn, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { ShopSelector } from '../filters/ShopSelector';
@@ -33,6 +33,11 @@ const navItems: NavItemProps[] = [
         label : 'Clients',
         href: '/dashboard/customers',
         icon: Users
+    },
+    {
+        label : 'Analytics',
+        href: '/dashboard/analytics',
+        icon: ChartColumn
     },
 ];
 

@@ -25,11 +25,14 @@ async function fetchOrders(dateRange?: OrderDateRange, shopId?: string): Promise
 
 // La boutique est lue ici (et non passée par chaque composant KPI) : c'est un contexte
 // global de l'URL, un seul point d'entrée pour tous les hooks de données.
-export function useOrders(dateRange?: OrderDateRange) {
+// `enabled: false` sert à la requête N-1, inactive tant que la comparaison est désactivée (une
+// plage `undefined` signifierait "toutes les commandes", pas "rien").
+export function useOrders(dateRange?: OrderDateRange, options?: { enabled?: boolean }) {
     const shopId = useShopFilter();
 
     return useQuery({
         queryKey: ['orders', dateRange, shopId],
         queryFn: () => fetchOrders(dateRange, shopId),
+        enabled: options?.enabled ?? true,
     });
 }
