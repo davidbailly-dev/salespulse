@@ -21,15 +21,17 @@ npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 ```
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`).
-- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts` colocalisés à côté du code testé, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Fixtures via les builders déterministes de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`. Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
+- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts`, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
 - TypeScript est en `strict: false`. Les imports sont relatifs (pas d'alias `@/`).
 
 ## Workflow Git
 
-Le projet suit GitFlow, décrit dans un fichier générique partagé entre projets :
+Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers génériques partagés entre projets :
 
 @docs/gitflow.md
+
+@docs/commits.md
 
 Spécificités du projet :
 
@@ -39,17 +41,24 @@ Spécificités du projet :
 
 ### TDD (Test Driven Development)
 
-Tout changement de comportement suit le cycle **rouge → vert → refactor** :
+Tout changement de comportement suit le TDD, décrit dans un fichier générique partagé entre projets :
 
-1. **Rouge** : écrire (ou modifier) d'abord le test qui décrit le comportement attendu, lancer `npx vitest run <fichier>` et vérifier qu'il échoue **pour la bonne raison** (assertion, pas erreur d'import ou de syntaxe).
-2. **Vert** : écrire le minimum de code qui le fait passer.
-3. **Refactor** : nettoyer le code et les tests, suite toujours au vert.
+@docs/tdd.md
 
-- Une correction de bug commence par un test qui reproduit le bug.
-- Le test et le code vont dans le **même commit** : chaque commit garde la suite au vert.
-- La règle couvre tout le code : fonctions pures de `src/lib`, routes API, générateurs (tests d'invariants : contrat Zod, déterminisme du seed, jamais de valeurs exactes), hooks et composants (Testing Library + jsdom).
-- Tant que l'outillage de tests UI n'est pas en place (voir `docs/roadmap.md`), le TDD ne s'applique pas directement aux hooks et composants : extraire leur logique dans une fonction pure, testée d'abord.
-- Hors TDD : les changements sans comportement (styles, libellés, documentation, configuration).
+Spécificités du projet :
+
+- Lancer un seul fichier de test : `npx vitest run <fichier>`.
+- Fixtures via les builders de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
+- Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
+- Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (voir `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
+
+### Roadmap
+
+Les développements sont planifiés en jalons dans `docs/roadmap.md`, selon un format générique partagé entre projets :
+
+@docs/roadmap-conventions.md
+
+Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npx tsc --noEmit` sans erreur.
 
 ## Architecture
 
