@@ -1,4 +1,4 @@
-# Jalon 004 — Fichiers de jalons 🔄
+# Jalon 004 — Fichiers de jalons ✅
 
 Branche : `feature/milestone-files` (depuis `develop`). Livré dans : —
 
@@ -86,4 +86,17 @@ Un `docs:` pour ce plan, un `docs:` pour les conventions (phase A), un `docs:` p
 
 ## Bilan
 
-<Rempli à la clôture.>
+- `docs/roadmap-conventions.md` décrit désormais un index et un fichier par jalon, avec un
+  Objectif, des Décisions numérotées et datées, un Journal tenu en continu, des Critères
+  d'acceptation, une règle de reprise de session, un seuil d'ouverture de jalon et la ligne
+  « Livré dans ». Le grep de références au projet ne trouve rien.
+- `docs/roadmap.md` passe de 290 à une quarantaine de lignes : il ne garde que l'index et les
+  jalons futurs.
+- Les jalons 001 à 003 sont dans `docs/milestones/`, au texte identique à celui de `develop`
+  hormis l'en-tête (vérifié par `diff`). Ils restent à l'ancien format, comme prévu (D5).
+- Écart avec le plan : le premier commit ne met pas le jalon dans « En cours » de l'index,
+  puisque l'index n'existait qu'à partir du troisième commit.
+- Ajout hors plan : la piste « CHANGELOG » dans les jalons futurs (D6).
+- Reste à vérifier dans une nouvelle session (`/memory`) que l'import de
+  `docs/roadmap-conventions.md` est chargé, et qu'un agent trouve le jalon en cours depuis
+  l'index.

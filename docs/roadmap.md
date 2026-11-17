@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [004 — Fichiers de jalons](milestones/004-milestone-files.md)
+Aucun.
 
 ## Terminés
 
+- ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — non publié
 - ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — non publié
 - ✅ [002 — Correctifs de la revue de code](milestones/002-review-fixes.md) — v0.3.2
 - ✅ [001 — Tests unitaires](milestones/001-unit-tests.md) — v0.3.2
