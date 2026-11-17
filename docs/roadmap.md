@@ -26,9 +26,6 @@ Aucun.
   - points repris de la phase 3 du jalon 001 : `KpiDelta.tsx`, routes API
     (`GET(new NextRequest(url))` avec le store mocké via `vi.mock`), invariants du mock
     (`generateDataset` validé par `DatasetSchema.parse`).
-- ⬜ **CHANGELOG** : `CHANGELOG.md` au format Keep a Changelog, en français, alimenté à chaque
-  release à partir des Bilans des jalons livrés ; historique v0.1.0 à v0.3.2 reconstruit depuis
-  `git log`.
 
 Pistes relevées dans les commentaires du code, à valider et prioriser :
 

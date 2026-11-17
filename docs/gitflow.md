@@ -47,7 +47,10 @@ merges de branches temporaires.
   - majeure : changement incompatible.
 - Le passage de version se fait dans un **commit dédié** sur la branche `release/*` ou `hotfix/*`
   (par exemple `chore: passe la version à X.Y.Z`). Les fichiers à modifier sont définis par le
-  projet.
+  projet. Ce même commit ajoute l'entrée de la version au journal des modifications (voir
+  `docs/changelog.md`).
+- Une release n'est pas nécessaire pour des changements sans effet pour l'utilisateur
+  (documentation interne, outillage, tests) : ils partent avec la prochaine release qui en a un.
 - Un **tag annoté** `vX.Y.Z` est posé sur le commit de merge dans `main`, jamais ailleurs.
 
 ## Cycles pas à pas
@@ -79,7 +82,8 @@ git push origin develop
 git switch develop
 git pull
 git switch -c release/X.Y.Z
-# passer la version, puis commit dédié (ex. « chore: passe la version à X.Y.Z »)
+# passer la version et compléter le changelog, puis commit dédié
+# (ex. « chore: passe la version à X.Y.Z »)
 # seuls des correctifs de stabilisation sont admis sur cette branche
 
 # terminer
@@ -102,7 +106,7 @@ git push origin main develop --follow-tags
 git switch main
 git pull
 git switch -c hotfix/<nom>
-# correctif + commit dédié de passage de version (correctif X.Y.Z+1)
+# correctif + commit dédié de passage de version et de changelog (correctif X.Y.Z+1)
 
 # terminer
 git switch main
