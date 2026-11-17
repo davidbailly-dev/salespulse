@@ -16,9 +16,9 @@
     "node": ">=24.22.1 <25"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.105.0",
-    "lucide-react": "^1.62.0",
-    "next": "^16.4.3",
+    "@tanstack/react-query": "^5.108.0",
+    "lucide-react": "^1.74.0",
+    "next": "^16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-is": "^19.3.0",
@@ -27,13 +27,13 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
-    "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "26.6.2",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "~24.19.2",
     "@types/react": "^19.3.0",
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.4.3",
-    "tailwindcss": "^4.3.3",
+    "eslint-config-next": "^16.4.6",
+    "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0"
   },
