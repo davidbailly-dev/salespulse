@@ -61,14 +61,14 @@ describe('resolveComparisonRange', () => {
                 });
             });
 
-            // Comportement natif de `Date` assumé (voir subtractOneYear) : la borne haute du
-            // 29 février 2024 retombe le 1er mars 2023, donc la plage N-1 déborde d'un jour.
-            it('fait retomber le 29 février au 1er mars de l\'année précédente', () => {
+            // La borne haute du 29 février 2024 recule au 28 février 2023 (voir subtractOneYear) :
+            // la plage N-1 de "février" ne déborde pas sur le 1er mars.
+            it('compare février 2024 (29 jours) à février 2023 complet, sans déborder sur mars', () => {
                 const range = { from: '2024-02-01T00:00:00.000Z', to: '2024-02-29T23:59:59.999Z' };
 
                 expect(resolveComparisonRange(range, 'yoy')).toEqual({
                     from: '2023-02-01T00:00:00.000Z',
-                    to: '2023-03-01T23:59:59.999Z',
+                    to: '2023-02-28T23:59:59.999Z',
                 });
             });
         });

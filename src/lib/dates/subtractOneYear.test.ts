@@ -31,10 +31,17 @@ describe('subtractOneYear', () => {
     });
 
     describe('années bissextiles', () => {
-        it('fait retomber le 29 février au 1er mars de l\'année précédente', () => {
+        // Et non au 1er mars (comportement natif de `Date`), qui ferait déborder "février" sur mars.
+        it('fait reculer le 29 février au 28 février de l\'année précédente, à la même heure', () => {
             const result = subtractOneYear(new Date('2024-02-29T12:00:00.000Z'));
 
-            expect(result.toISOString()).toBe('2023-03-01T12:00:00.000Z');
+            expect(result.toISOString()).toBe('2023-02-28T12:00:00.000Z');
+        });
+
+        it('fait reculer le 29 février au 28 février jusqu\'à la dernière milliseconde', () => {
+            const result = subtractOneYear(new Date('2024-02-29T23:59:59.999Z'));
+
+            expect(result.toISOString()).toBe('2023-02-28T23:59:59.999Z');
         });
 
         it('conserve le 28 février tel quel', () => {
