@@ -29,7 +29,10 @@ Ce qu'on attend dans le README, dans cet ordre quand la section a lieu d'être :
 4. Prérequis : runtime et version, outils à installer.
 5. Installation et démarrage : les commandes, copiables telles quelles.
 6. Configuration utile à l'utilisateur : variables d'environnement, paramètres, fichiers.
-7. Licence, s'il y en a une.
+7. Stack technique : **uniquement des badges** des principales technologies du projet
+   (framework, langage, données, style, graphiques, tests…), sans texte ni justification. Le pourquoi
+   des choix relève de la documentation interne.
+8. Licence, s'il y en a une.
 
 On décrit **ce que l'utilisateur voit et fait**, pas comment c'est implémenté.
 
@@ -44,6 +47,7 @@ On décrit **ce que l'utilisateur voit et fait**, pas comment c'est implémenté
 | Commande d'installation, de lancement ou option modifiée | Mise à jour de dépendances sans effet visible |
 | Configuration ajoutée, renommée ou supprimée             | Outillage de développement (lint, CI, agent) |
 | Lien de démo ou capture d'écran devenue fausse           |                                              |
+| Technologie principale ajoutée, remplacée ou retirée     |                                              |
 
 La mise à jour se fait **sur la branche du changement, avant son merge** : dans le commit du
 changement s'il reste petit, sinon dans un commit `docs:` dédié juste après.
