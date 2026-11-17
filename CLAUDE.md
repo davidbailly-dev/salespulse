@@ -25,6 +25,16 @@ npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 - `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
 - TypeScript est en `strict: false`. Les imports sont relatifs (pas d'alias `@/`).
 
+## Workflow Git
+
+Le projet suit GitFlow, décrit dans un fichier générique partagé entre projets :
+
+@docs/gitflow.md
+
+Spécificités du projet :
+
+- La version est portée par `package.json` / `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version.
+
 ## Conventions de développement
 
 ### TDD (Test Driven Development)
