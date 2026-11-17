@@ -50,7 +50,7 @@ describe('subtractOneYear', () => {
             expect(result.toISOString()).toBe('2023-02-28T12:00:00.000Z');
         });
 
-        it('recule vers un 29 février quand l\'année précédente est bissextile', () => {
+        it('conserve le 28 février quand l\'année précédente est bissextile', () => {
             const result = subtractOneYear(new Date('2025-02-28T12:00:00.000Z'));
 
             expect(result.toISOString()).toBe('2024-02-28T12:00:00.000Z');

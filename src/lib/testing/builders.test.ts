@@ -74,4 +74,23 @@ describe('builders', () => {
             expect(buildOrder({ totalAmount: 0 }).totalAmount).toBe(0);
         });
     });
+
+    // Seule une page produit porte un `productId` : une autre page qui garderait celui du
+    // défaut ferait compter à tort ce produit comme consulté.
+    describe.each([
+        ['buildPageStat', buildPageStat],
+        ['buildPageViewRow', buildPageViewRow],
+    ] as const)('%s', (_name, build) => {
+        it('donne un productId à une page produit par défaut', () => {
+            expect(build().productId).toBe('product-1');
+        });
+
+        it('ne garde pas le productId par défaut pour une page non produit', () => {
+            expect(build({ type: 'other' })).not.toHaveProperty('productId');
+        });
+
+        it('respecte un productId explicite, même pour une page non produit', () => {
+            expect(build({ type: 'other', productId: 'product-2' }).productId).toBe('product-2');
+        });
+    });
 });

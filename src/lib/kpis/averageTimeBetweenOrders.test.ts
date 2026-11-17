@@ -94,13 +94,22 @@ describe('calculateAverageTimeBetweenOrdersDays', () => {
         expect(calculateAverageTimeBetweenOrdersDays(orders)).toBe(2);
     });
 
-    it('prend en compte les écarts inférieurs à un jour', () => {
+    it('compte les fractions de jour dans les écarts (1,5 jour -> 2)', () => {
         const orders = [
             buildOrder({ customerId: 'c1', date: '2026-01-01T00:00:00.000Z' }),
             buildOrder({ customerId: 'c1', date: '2026-01-02T12:00:00.000Z' }),
         ];
 
-        // 1,5 jour -> 2
         expect(calculateAverageTimeBetweenOrdersDays(orders)).toBe(2);
+    });
+
+    // Une troncature en jours entiers donnerait 0 : l'écart de 12 h doit compter pour 0,5 jour.
+    it('prend en compte les écarts inférieurs à un jour (12 h -> 0,5 -> 1)', () => {
+        const orders = [
+            buildOrder({ customerId: 'c1', date: '2026-01-01T00:00:00.000Z' }),
+            buildOrder({ customerId: 'c1', date: '2026-01-01T12:00:00.000Z' }),
+        ];
+
+        expect(calculateAverageTimeBetweenOrdersDays(orders)).toBe(1);
     });
 });

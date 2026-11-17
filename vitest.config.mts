@@ -10,7 +10,8 @@ export default defineConfig({
             include: ['src/lib/**'],
             exclude: [
                 // Générateurs Faker aléatoires et hooks TanStack : ROI de test trop faible.
-                'src/lib/mock-data/*Generator.ts',
+                // [gG] : couvre aussi `generator.ts` (le motif est sensible à la casse).
+                'src/lib/mock-data/*[gG]enerator.ts',
                 'src/lib/queries/**',
                 'src/lib/query/**',
                 'src/lib/testing/**',
