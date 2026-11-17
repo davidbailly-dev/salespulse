@@ -21,9 +21,25 @@ npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 ```
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`).
-- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts` colocalisés à côté du code testé, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Fixtures via les builders déterministes de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
+- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts` colocalisés à côté du code testé, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Fixtures via les builders déterministes de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`. Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
 - TypeScript est en `strict: false`. Les imports sont relatifs (pas d'alias `@/`).
+
+## Conventions de développement
+
+### TDD (Test Driven Development)
+
+Tout changement de comportement suit le cycle **rouge → vert → refactor** :
+
+1. **Rouge** : écrire (ou modifier) d'abord le test qui décrit le comportement attendu, lancer `npx vitest run <fichier>` et vérifier qu'il échoue **pour la bonne raison** (assertion, pas erreur d'import ou de syntaxe).
+2. **Vert** : écrire le minimum de code qui le fait passer.
+3. **Refactor** : nettoyer le code et les tests, suite toujours au vert.
+
+- Une correction de bug commence par un test qui reproduit le bug.
+- Le test et le code vont dans le **même commit** : chaque commit garde la suite au vert.
+- La règle couvre tout le code : fonctions pures de `src/lib`, routes API, générateurs (tests d'invariants : contrat Zod, déterminisme du seed, jamais de valeurs exactes), hooks et composants (Testing Library + jsdom).
+- Tant que l'outillage de tests UI n'est pas en place (voir `docs/roadmap.md`), le TDD ne s'applique pas directement aux hooks et composants : extraire leur logique dans une fonction pure, testée d'abord.
+- Hors TDD : les changements sans comportement (styles, libellés, documentation, configuration).
 
 ## Architecture
 
@@ -70,7 +86,7 @@ Comme ces filtres utilisent `useSearchParams`, `app/dashboard/layout.tsx` appell
 - `KpiDelta` / `lib/comparison/evolution.ts` : prennent une `polarity` (`higher-is-better`, `lower-is-better`, `neutral`) et un `mode` (`relative` en % pour montants/volumes, `points` pour les KPIs qui sont déjà des taux). Les listes, le CAC et le ratio LTV/CAC n'affichent volontairement pas d'évolution.
 - Les pages (`app/dashboard/*/page.tsx`) sont des composants serveur qui assemblent des `CardGroup` > `Card` > `CardTitle` + `CardContent` (`components/ui/Card.tsx`).
 
-Ajouter un KPI = fonction pure dans `lib/kpis/`, composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `schemas.ts`, un générateur, une route API et un hook.
+Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `schemas.ts`, un générateur, une route API et un hook.
 
 ### Style
 
