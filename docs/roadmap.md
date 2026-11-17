@@ -1,6 +1,6 @@
 # Roadmap SalesPulse
 
-Jalons des développements en cours et à venir. Version actuelle : **0.3.1**.
+Jalons des développements en cours et à venir. Version actuelle : **0.3.2**.
 
 Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
