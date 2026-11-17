@@ -27,9 +27,11 @@ npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 
 ## Workflow Git
 
-Le projet suit GitFlow, décrit dans un fichier générique partagé entre projets :
+Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers génériques partagés entre projets :
 
 @docs/gitflow.md
+
+@docs/commits.md
 
 Spécificités du projet :
 
