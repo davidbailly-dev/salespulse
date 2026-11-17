@@ -6,7 +6,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ---
 
-## Jalon en cours — Correctifs de la revue de code 🔄
+## Jalon terminé — Correctifs de la revue de code ✅
 
 Branche : `feature/review-fixes` (depuis `develop`).
 
@@ -28,34 +28,34 @@ Décisions :
   « Conventions de développement » du `CLAUDE.md`), pour tout le code. Ce jalon l'applique déjà :
   chaque correctif commence par un test qui échoue.
 
-### Phase A — Comportements métier ⬜
+### Phase A — Comportements métier ✅
 
-- [ ] `src/lib/comparison/evolution.ts` : le seuil de négligeabilité est comparé à la valeur
+- [x] `src/lib/comparison/evolution.ts` : le seuil de négligeabilité est comparé à la valeur
       **arrondie affichée** et non au flottant brut (`0.3 - 0.2` donne `0.0999…`, donc gris,
       alors que `2.2 - 2.1` donne vert pour le même « +0,1 pt » affiché). L'arrondi devient
       symétrique. Conséquence assumée : en relatif, 0,45 à 0,49 % s'affiche « 0,5 % » et n'est
       plus gris. Ajouter des tests à la limite exacts (`±1,25 → ±1,3` en mode points).
-- [ ] `src/lib/mock-data/analyticsReports.ts` (`createDayWeight`) : exclure le jour qui commence
+- [x] `src/lib/mock-data/analyticsReports.ts` (`createDayWeight`) : exclure le jour qui commence
       pile à `to` (`dayStart >= toTime`). Documenter la limite du jour de `to` compté entier
       dans le commentaire de tête et dans les noms des tests.
-- [ ] `src/lib/dates/subtractOneYear.ts` : le 29 février recule au **28 février** (et non au
+- [x] `src/lib/dates/subtractOneYear.ts` : le 29 février recule au **28 février** (et non au
       1er mars), pour que la plage N-1 de « février » ne déborde pas sur mars. Mettre à jour
       `subtractOneYear.test.ts` et `comparisonRange.test.ts`. Le mock utilise la même fonction,
       donc l'alignement est conservé.
 
-### Phase B — Tests et fixtures ⬜
+### Phase B — Tests et fixtures ✅
 
-- [ ] `averageTimeBetweenOrders.test.ts` : tester réellement un écart de moins d'un jour (12 h
+- [x] `averageTimeBetweenOrders.test.ts` : tester réellement un écart de moins d'un jour (12 h
       → 1), qu'une troncature en jours entiers ferait échouer.
-- [ ] `subtractOneYear.test.ts` : renommer « recule vers un 29 février… », qui vérifie en fait
+- [x] `subtractOneYear.test.ts` : renommer « recule vers un 29 février… », qui vérifie en fait
       un 28 février.
-- [ ] `src/lib/testing/builders.ts` : `buildPageViewRow` / `buildPageStat` ne gardent
+- [x] `src/lib/testing/builders.ts` : `buildPageViewRow` / `buildPageStat` ne gardent
       `productId` que pour une page de type `product`. Écrire d'abord le cas dans
       `builders.test.ts` (TDD).
 
-### Phase C — Configuration ⬜
+### Phase C — Configuration ✅
 
-- [ ] `vitest.config.mts` : le motif d'exclusion `*Generator.ts` est sensible à la casse et ne
+- [x] `vitest.config.mts` : le motif d'exclusion `*Generator.ts` est sensible à la casse et ne
       couvre pas `generator.ts`. Passer à `*[gG]enerator.ts`.
 
 ### Workflow Git
@@ -78,6 +78,17 @@ puis un `docs:` pour clore le jalon.
 - TDD : le test de chaque correctif (phase A et `productId`) a été vu en échec avant le
   correctif.
 - `/dashboard?compare=yoy` : les deltas N-1 s'affichent normalement.
+
+### Bilan
+
+- Les 4 correctifs écrits en TDD ont tous été vus en échec avant d'être corrigés. Les tests
+  sont passés de 604 à 620, et `tsc` et `eslint` ne remontent rien.
+- La phase rouge d'A1 a révélé un défaut absent de la revue : une baisse infime renvoyait
+  `-0`, affiché « −0,0 ». C'est corrigé dans le même commit.
+- La revue citait un type de page `category`, qui n'existe pas (`PageType` vaut `product` ou
+  `other`). Le test du builder utilise donc `other`.
+- Vérification visuelle sur les 5 pages avec `?compare=yoy` : 32 deltas N-1, aucun état de
+  chargement ou d'erreur, aucun `−0,0`.
 
 ---
 
