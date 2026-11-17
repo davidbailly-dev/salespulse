@@ -50,11 +50,11 @@ Spécificités du projet :
 - Lancer un seul fichier de test : `npx vitest run <fichier>`.
 - Fixtures via les builders de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
-- Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (voir `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
+- Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (jalon futur « Outillage de tests UI » de `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
 
 ### Roadmap
 
-Les développements sont planifiés en jalons dans `docs/roadmap.md`, selon un format générique partagé entre projets :
+Les développements sont planifiés en jalons : un fichier par jalon dans `docs/milestones/`, indexés par `docs/roadmap.md`, selon un format générique partagé entre projets :
 
 @docs/roadmap-conventions.md
 

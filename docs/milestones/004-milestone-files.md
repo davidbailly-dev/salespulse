@@ -45,24 +45,31 @@ défauts dans la pratique :
 - **D6 (2026-11-17) — Pas d'ADR ni de CHANGELOG dans ce jalon** : les ADR sont surdimensionnés
   pour un projet solo ; le CHANGELOG reste une piste dans les jalons futurs.
 
-## Phase A — Conventions génériques ⬜
+## Phase A — Conventions génériques ✅
 
-- [ ] `docs/roadmap-conventions.md` : structure de l'index, modèle de jalon (Objectif, Décisions
+- [x] `docs/roadmap-conventions.md` : structure de l'index, modèle de jalon (Objectif, Décisions
       datées, Journal, Critères d'acceptation), règles de reprise de session, de livraison et de
       seuil. Aucune référence au projet.
 
-## Phase B — Migration de la roadmap ⬜
+## Phase B — Migration de la roadmap ✅
 
-- [ ] `docs/milestones/001-unit-tests.md`, `002-review-fixes.md`, `003-shared-conventions.md` :
+- [x] `docs/milestones/001-unit-tests.md`, `002-review-fixes.md`, `003-shared-conventions.md` :
       contenu historique déplacé à l'identique, titres de sections remontés d'un niveau, en-tête
       `# Jalon NNN — …` et ligne « Livré dans ».
-- [ ] `docs/roadmap.md` : index (version, légende, En cours, Terminés, Jalons futurs).
-- [ ] `CLAUDE.md` : les mentions de `docs/roadmap.md` renvoient vers l'index et les fichiers de
+- [x] `docs/roadmap.md` : index (version, légende, En cours, Terminés, Jalons futurs).
+- [x] `CLAUDE.md` : les mentions de `docs/roadmap.md` renvoient vers l'index et les fichiers de
       jalons.
 
 ## Journal
 
 - 2026-11-17 : plan validé.
+- 2026-11-17 : conventions réécrites ; le grep de références au projet ne trouve rien.
+- 2026-11-17 : jalons 001 à 003 déplacés par script (extraction des plages de lignes, titres
+  remontés d'un niveau) ; un `diff` avec `develop:docs/roadmap.md` confirme que le texte est
+  identique hormis l'en-tête. Versions retrouvées avec `git tag --contains` sur les commits de
+  merge : 001 et 002 dans v0.3.2, 003 non publié.
+- 2026-11-17 : dans l'index, « phase 3 des tests unitaires » devient « phase 3 du jalon 001 »,
+  et la piste CHANGELOG est ajoutée aux jalons futurs (D6).
 
 ## Workflow Git
 
