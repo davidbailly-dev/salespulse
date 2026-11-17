@@ -35,7 +35,20 @@ Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers 
 
 Spécificités du projet :
 
-- La version est portée par `package.json` / `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version.
+- La version est portée par `package.json` / `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`.
+
+## Documentation utilisateur
+
+Le `README.md` et le `changelog.txt` s'adressent à l'utilisateur et sont tenus selon des fichiers génériques partagés entre projets :
+
+@docs/readme.md
+
+@docs/changelog.md
+
+Spécificités du projet :
+
+- README et changelog en français, comme l'interface.
+- Le README affiche une capture du Dashboard (`assets/screenshot-dashboard.png`) et le lien de la démo Render : signaler à l'utilisateur quand la capture ne correspond plus à l'interface.
 
 ## Conventions de développement
 
