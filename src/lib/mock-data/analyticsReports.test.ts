@@ -88,10 +88,11 @@ describe.each(RANGE_FILTERS)('%s : règles de plage communes', (_name, filter, b
             expect(filter([row], { to: '2026-01-15T00:00:01.000Z' })).toEqual([row]);
         });
 
-        it('conserve un jour qui commence pile à `to`', () => {
-            const row = build({ date: day(16) });
+        // `to` à minuit pile : aucune commande de ce jour n'est dans la plage, son trafic non plus.
+        it('exclut un jour qui commence pile à `to`', () => {
+            const rows = [build({ date: day(15) }), build({ date: day(16) })];
 
-            expect(filter([row], { to: day(16) })).toEqual([row]);
+            expect(filter(rows, { to: day(16) })).toEqual([rows[0]]);
         });
 
         it('exclut un jour qui commence une milliseconde après `to`', () => {
@@ -173,7 +174,10 @@ describe('filterTraffic', () => {
         expect(result.pageViews).toBe(25);
     });
 
-    it('ne proratise que le côté `from` quand `from` et `to` sont dans la même journée', () => {
+    // Limite connue (voir `createDayWeight`) : le jour de `to` n'est jamais proratisé. Exact pour
+    // `to` = maintenant ou fin de journée (seuls cas produits par l'UI), surcompte sinon : ici
+    // 12 h de trafic (50 %) pour une plage de 8 h.
+    it('ne proratise pas le côté `to`, même quand `from` et `to` sont dans la même journée (limite connue)', () => {
         const row = buildTrafficRow({ date: day(15), sessions: 100 });
 
         const result = filterTraffic([row], { from: FROM_NOON, to: '2026-01-15T20:00:00.000Z' });

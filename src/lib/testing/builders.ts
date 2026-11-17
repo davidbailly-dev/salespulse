@@ -99,7 +99,7 @@ export function buildTrafficRow(overrides: Partial<TrafficRow> = {}): TrafficRow
 }
 
 export function buildPageStat(overrides: Partial<PageStat> = {}): PageStat {
-    return {
+    const page: PageStat = {
         path: '/produits/epee-de-test',
         title: 'Épée de test',
         type: 'product',
@@ -108,15 +108,17 @@ export function buildPageStat(overrides: Partial<PageStat> = {}): PageStat {
         exits: 20,
         ...overrides,
     };
+
+    // Seule une page produit porte un `productId` : on ne garde celui du défaut que dans ce cas.
+    if (page.type !== 'product' && !('productId' in overrides)) delete page.productId;
+
+    return page;
 }
 
 export function buildPageViewRow(overrides: Partial<PageViewRow> = {}): PageViewRow {
-    return {
-        date: DEFAULT_DATE,
-        shopId: DEFAULT_SHOP_ID,
-        ...buildPageStat(),
-        ...overrides,
-    };
+    const { date = DEFAULT_DATE, shopId = DEFAULT_SHOP_ID, ...pageOverrides } = overrides;
+
+    return { date, shopId, ...buildPageStat(pageOverrides) };
 }
 
 export function buildSearchTermStat(overrides: Partial<SearchTermStat> = {}): SearchTermStat {

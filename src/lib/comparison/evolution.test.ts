@@ -73,17 +73,35 @@ describe('calculateEvolution', () => {
         });
 
         describe('seuil de négligeabilité (0,5 %)', () => {
-            it('considère stable une variation juste sous le seuil (+0,4 %)', () => {
+            it('considère stable une variation affichée sous le seuil (+0,4 %)', () => {
                 expect(calculateEvolution(100.4, 100, 'higher-is-better')).toMatchObject({
                     direction: 'flat',
                     tone: 'neutral',
                 });
             });
 
-            it('considère stable une baisse juste sous le seuil (-0,4 %)', () => {
+            it('considère stable une baisse affichée sous le seuil (-0,4 %)', () => {
                 expect(calculateEvolution(99.6, 100, 'higher-is-better')).toMatchObject({
                     direction: 'flat',
                     tone: 'neutral',
+                });
+            });
+
+            // Le seuil s'applique à la valeur affichée (arrondie) : +0,45 % s'affiche "+0,5 %",
+            // il ne peut donc pas rester gris.
+            it('ne considère plus stable une hausse qui s\'affiche au seuil (+0,45 % -> +0,5 %)', () => {
+                expect(calculateEvolution(100.45, 100, 'higher-is-better')).toEqual({
+                    change: 0.5,
+                    direction: 'up',
+                    tone: 'good',
+                });
+            });
+
+            it('ne considère plus stable une baisse qui s\'affiche au seuil (-0,45 % -> -0,5 %)', () => {
+                expect(calculateEvolution(99.55, 100, 'higher-is-better')).toEqual({
+                    change: -0.5,
+                    direction: 'down',
+                    tone: 'bad',
                 });
             });
 
@@ -130,7 +148,7 @@ describe('calculateEvolution', () => {
                 expect(calculateEvolution(2, 3, 'higher-is-better')?.change).toBe(-33.3);
             });
 
-            it('arrondit à la décimale supérieure à partir de ,05 (1,26 % -> 1,3)', () => {
+            it('arrondit à une décimale (1,26 % -> 1,3)', () => {
                 expect(calculateEvolution(101.26, 100, 'higher-is-better')?.change).toBe(1.3);
             });
         });
@@ -173,19 +191,58 @@ describe('calculateEvolution', () => {
             expect(calculateEvolution(12.34, 10, 'higher-is-better', 'points')?.change).toBe(2.3);
         });
 
+        // 1,25 est représentable exactement en binaire : pile à mi-chemin entre 1,2 et 1,3.
+        describe('arrondi à mi-chemin (symétrique)', () => {
+            it('arrondit une hausse de ,x5 vers le haut (+1,25 pt -> +1,3)', () => {
+                expect(calculateEvolution(1.25, 0, 'higher-is-better', 'points')?.change).toBe(1.3);
+            });
+
+            it('arrondit une baisse de ,x5 symétriquement (-1,25 pt -> -1,3, et non -1,2)', () => {
+                expect(calculateEvolution(0, 1.25, 'higher-is-better', 'points')?.change).toBe(-1.3);
+            });
+
+            it('ne renvoie jamais -0 pour une baisse arrondie à zéro', () => {
+                expect(Object.is(calculateEvolution(0, 0.01, 'higher-is-better', 'points')?.change, 0)).toBe(true);
+            });
+        });
+
         describe('seuil de négligeabilité (0,1 pt)', () => {
-            it('considère stable un écart juste sous le seuil (0,09 pt)', () => {
-                expect(calculateEvolution(0.09, 0, 'higher-is-better', 'points')).toMatchObject({
+            it('considère stable un écart affiché sous le seuil (0,04 pt -> 0,0)', () => {
+                expect(calculateEvolution(0.04, 0, 'higher-is-better', 'points')).toMatchObject({
                     direction: 'flat',
                     tone: 'neutral',
                 });
             });
 
-            it('considère stable un recul juste sous le seuil (-0,09 pt)', () => {
-                expect(calculateEvolution(0, 0.09, 'higher-is-better', 'points')).toMatchObject({
+            it('considère stable un recul affiché sous le seuil (-0,04 pt -> 0,0)', () => {
+                expect(calculateEvolution(0, 0.04, 'higher-is-better', 'points')).toMatchObject({
                     direction: 'flat',
                     tone: 'neutral',
                 });
+            });
+
+            it('ne considère plus stable un écart qui s\'affiche au seuil (0,05 pt -> 0,1)', () => {
+                expect(calculateEvolution(0.05, 0, 'higher-is-better', 'points')).toEqual({
+                    change: 0.1,
+                    direction: 'up',
+                    tone: 'good',
+                });
+            });
+
+            // Le seuil est comparé à la valeur arrondie, pas au flottant brut : 0,3 - 0,2 vaut
+            // 0,0999…98 et 2,2 - 2,1 vaut 0,1000…09, mais les deux s'affichent "+0,1 pt".
+            it('traite un même "+0,1 pt" affiché de la même façon, quelles que soient les valeurs', () => {
+                const expected = { change: 0.1, direction: 'up', tone: 'good' };
+
+                expect(calculateEvolution(0.3, 0.2, 'higher-is-better', 'points')).toEqual(expected);
+                expect(calculateEvolution(2.2, 2.1, 'higher-is-better', 'points')).toEqual(expected);
+            });
+
+            it('traite un même "-0,1 pt" affiché de la même façon, quelles que soient les valeurs', () => {
+                const expected = { change: -0.1, direction: 'down', tone: 'bad' };
+
+                expect(calculateEvolution(0.2, 0.3, 'higher-is-better', 'points')).toEqual(expected);
+                expect(calculateEvolution(2.1, 2.2, 'higher-is-better', 'points')).toEqual(expected);
             });
 
             it('ne considère plus stable un écart pile au seuil (0,1 pt)', () => {

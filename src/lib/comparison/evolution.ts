@@ -18,8 +18,16 @@ export type Evolution = {
 };
 
 // Sous ces seuils, la variation est considérée comme nulle (gris) : elle ne mérite ni vert ni rouge.
+// Ils s'appliquent à la valeur affichée (arrondie à une décimale), pas au flottant brut : sinon un
+// même "+0,1 pt" affiché serait gris ou vert selon les valeurs (0,3 - 0,2 = 0,0999…98).
 export const NEGLIGIBLE_RELATIVE_CHANGE = 0.5;
 export const NEGLIGIBLE_POINTS_CHANGE = 0.1;
+
+// Arrondi symétrique : `Math.round` arrondit les ,5 vers +∞ (-1,25 -> -1,2 mais +1,25 -> +1,3), on
+// arrondit donc la valeur absolue. Le `|| 0` évite un -0 (affiché "-0,0") pour une baisse infime.
+function roundToOneDecimal(value: number): number {
+    return (Math.sign(value) * Math.round(Math.abs(value) * 10)) / 10 || 0;
+}
 
 /**
  * Évolution de `current` par rapport à `previous`. `null` quand elle n'est pas calculable : en
@@ -39,9 +47,10 @@ export function calculateEvolution(
         change = ((current - previous) / Math.abs(previous)) * 100;
     }
 
+    const roundedChange = roundToOneDecimal(change);
     const threshold = mode === 'points' ? NEGLIGIBLE_POINTS_CHANGE : NEGLIGIBLE_RELATIVE_CHANGE;
-    const direction: EvolutionDirection = Math.abs(change) < threshold ? 'flat' : change > 0 ? 'up' : 'down';
-    const roundedChange = Math.round(change * 10) / 10;
+    const direction: EvolutionDirection =
+        Math.abs(roundedChange) < threshold ? 'flat' : roundedChange > 0 ? 'up' : 'down';
 
     if (direction === 'flat' || polarity === 'neutral') return { change: roundedChange, direction, tone: 'neutral' };
 

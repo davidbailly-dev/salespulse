@@ -18,7 +18,12 @@ export type ReportParams = {
  *
  * Côté `to`, le jour qui le contient est retenu entier : avec la plage glissante `to` = maintenant
  * et la ligne du jour courant ne couvre déjà que la part écoulée de la journée (voir
- * `buildDayShares` dans analyticsGenerator.ts), un second prorata la compterait deux fois.
+ * `buildDayShares` dans analyticsGenerator.ts), un second prorata la compterait deux fois. Un jour
+ * qui commence pile à `to` (borne à minuit) est exclu : aucune commande de ce jour n'est retenue.
+ *
+ * Limite connue : ce n'est exact que si `to` = maintenant ou fin de journée, les seuls cas que
+ * produit l'UI. Une plage qui finit au milieu d'un jour passé compte ce jour entier. Un prorata
+ * exact demanderait de connaître la couverture réelle de chaque ligne (via `generatedAt`).
  */
 function createDayWeight({ from, to, shop }: ReportParams) {
     const fromTime = from ? new Date(from).getTime() : null;
@@ -28,7 +33,7 @@ function createDayWeight({ from, to, shop }: ReportParams) {
         if (shop && row.shopId !== shop) return 0;
 
         const dayStart = new Date(row.date).getTime();
-        if (toTime !== null && dayStart > toTime) return 0;
+        if (toTime !== null && dayStart >= toTime) return 0;
         if (fromTime === null || fromTime <= dayStart) return 1;
 
         return Math.min(Math.max((dayStart + MS_PER_DAY - fromTime) / MS_PER_DAY, 0), 1);
