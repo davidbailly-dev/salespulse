@@ -50,6 +50,14 @@ Spécificités du projet :
 - Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
 - Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (voir `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
 
+### Roadmap
+
+Les développements sont planifiés en jalons dans `docs/roadmap.md`, selon un format générique partagé entre projets :
+
+@docs/roadmap-conventions.md
+
+Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npx tsc --noEmit` sans erreur.
+
 ## Architecture
 
 Flux de données d'un KPI, de bout en bout :
