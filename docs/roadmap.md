@@ -46,18 +46,18 @@ wrappers) et les générateurs Faker (aléatoires).
 - [x] Créer les builders de fixtures (+ `builders.test.ts` qui les valide contre les schémas Zod)
 - [x] Exclure `coverage/**` du lint
 
-### Phase 1 — Logique transverse (le plus critique) ⬜
+### Phase 1 — Logique transverse (le plus critique) ✅
 
-- [ ] `src/lib/comparison/evolution.ts` : modes `relative`/`points`, `previous === 0` → `null`,
+- [x] `src/lib/comparison/evolution.ts` : modes `relative`/`points`, `previous === 0` → `null`,
       seuils `NEGLIGIBLE_*` (juste sous / pile au seuil), polarités, arrondi à 1 décimale,
       `previous` négatif (`Math.abs`).
-- [ ] `src/lib/dates/subtractOneYear.ts` : cas standard, 29 février → 1er mars, enjambement
+- [x] `src/lib/dates/subtractOneYear.ts` : cas standard, 29 février → 1er mars, enjambement
       bissextile.
-- [ ] `src/lib/filters/dateRangePresets.ts` : chaque preset avec `now` injecté, `lastMonth` en
+- [x] `src/lib/filters/dateRangePresets.ts` : chaque preset avec `now` injecté, `lastMonth` en
       janvier (année précédente), mars bissextile/non bissextile (fin février), `isValidPreset`.
-- [ ] `src/lib/filters/comparisonRange.ts` : bornes absentes, décalage N-1,
+- [x] `src/lib/filters/comparisonRange.ts` : bornes absentes, décalage N-1,
       `isValidComparisonMode`.
-- [ ] `src/lib/mock-data/analyticsReports.ts` : `createDayWeight` via `filterTraffic` & co —
+- [x] `src/lib/mock-data/analyticsReports.ts` : `createDayWeight` via `filterTraffic` & co —
       prorata côté `from`, jour de `to` entier, filtre boutique, conservation des inégalités
       (`engagedSessions <= sessions`) après arrondi.
 
