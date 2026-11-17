@@ -6,9 +6,9 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ---
 
-## Jalon en cours — Conventions partagées 🔄
+## Jalon terminé — Conventions partagées ✅
 
-Branche : `feature/shared-conventions` (depuis `develop`).
+Branche : `feature/shared-conventions` (depuis `develop`), mergée dans `develop`.
 
 ### Contexte
 
@@ -29,21 +29,21 @@ Décisions :
   push sans confirmation » restent dans le `CLAUDE.md` global, car elles portent sur le travail
   avec Claude et non sur le projet.
 
-### Phase A — Fichiers génériques ⬜
+### Phase A — Fichiers génériques ✅
 
-- [ ] `docs/tdd.md` : cycle rouge → vert → refactor, règles (bug = test qui le reproduit, test
+- [x] `docs/tdd.md` : cycle rouge → vert → refactor, règles (bug = test qui le reproduit, test
       et code dans le même commit, exceptions), extraction en fonction pure, pratiques de test
       (colocalisation, builders déterministes, tests d'invariants pour l'aléatoire).
-- [ ] `docs/roadmap-conventions.md` : structure du fichier roadmap et d'un jalon, cycle de vie
+- [x] `docs/roadmap-conventions.md` : structure du fichier roadmap et d'un jalon, cycle de vie
       d'un jalon, modèle de jalon vide.
-- [ ] `docs/commits.md` : format Conventional Commits en français, types, granularité.
+- [x] `docs/commits.md` : format Conventional Commits en français, types, granularité.
 
-### Phase B — Branchement dans le projet ⬜
+### Phase B — Branchement dans le projet ✅
 
-- [ ] `CLAUDE.md` : importer les trois fichiers, ne garder à côté que les spécificités du projet
+- [x] `CLAUDE.md` : importer les trois fichiers, ne garder à côté que les spécificités du projet
       (commande Vitest, builders, schémas Zod, exception de l'outillage UI) et retirer les
       doublons de la section « Commandes ».
-- [ ] `~/.claude/CLAUDE.md` (hors repo) : la règle Conventional Commits renvoie vers
+- [x] `~/.claude/CLAUDE.md` (hors repo) : la règle Conventional Commits renvoie vers
       `docs/commits.md` quand il existe.
 
 ### Workflow Git
@@ -57,6 +57,23 @@ dans `CLAUDE.md`), puis un `docs:` pour clore le jalon.
 - Le `CLAUDE.md` du projet ne répète plus le contenu des fichiers importés.
 - Cette roadmap respecte `docs/roadmap-conventions.md`.
 - Les imports `@docs/…` sont chargés dans une nouvelle session (`/memory`).
+
+### Bilan
+
+- Trois fichiers génériques créés, en plus de `docs/gitflow.md` : `docs/tdd.md`,
+  `docs/roadmap-conventions.md` et `docs/commits.md`. Le grep de validation ne trouve aucune
+  référence au projet.
+- Le `CLAUDE.md` importe désormais quatre fichiers `@docs/…` et ne garde que les spécificités :
+  commande Vitest, builders, schémas Zod, exception de l'outillage UI, commandes de validation,
+  fichiers qui portent la version.
+- `docs/tdd.md` va plus loin que l'ancienne section du `CLAUDE.md` : pratiques de test
+  (déterminisme, cas limites, noms de tests) et règles pour un agent IA, tirées de la pratique
+  des jalons précédents.
+- `docs/commits.md` documente le style réellement suivi dans `git log` (présent de l'indicatif à
+  la 3ᵉ personne, sans portée), qui n'était écrit nulle part. Ses exemples ont été réécrits pour
+  ne plus citer de KPIs du projet.
+- Ce jalon est le premier écrit selon `docs/roadmap-conventions.md`.
+- Reste à vérifier dans une nouvelle session (`/memory`) que les quatre imports sont chargés.
 
 ---
 
