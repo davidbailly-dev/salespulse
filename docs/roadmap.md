@@ -38,43 +38,47 @@ wrappers) et les générateurs Faker (aléatoires).
   `buildCustomer`, `buildTrafficRow`, … avec `overrides`), typés via les types Zod de
   `src/lib/mock-data/schemas.ts`. Dates ISO fixes, aucun `Math.random`.
 
-### Phase 0 — Mise en place ⬜
+### Phase 0 — Mise en place ✅
 
-- [ ] Installer Vitest et la couverture v8
-- [ ] Créer `vitest.config.mts`
-- [ ] Corriger les scripts `test` du `package.json`
-- [ ] Créer les builders de fixtures
+- [x] Installer Vitest et la couverture v8
+- [x] Créer `vitest.config.mts`
+- [x] Corriger les scripts `test` du `package.json`
+- [x] Créer les builders de fixtures (+ `builders.test.ts` qui les valide contre les schémas Zod)
+- [x] Exclure `coverage/**` du lint
 
-### Phase 1 — Logique transverse (le plus critique) ⬜
+### Phase 1 — Logique transverse (le plus critique) ✅
 
-- [ ] `src/lib/comparison/evolution.ts` : modes `relative`/`points`, `previous === 0` → `null`,
+- [x] `src/lib/comparison/evolution.ts` : modes `relative`/`points`, `previous === 0` → `null`,
       seuils `NEGLIGIBLE_*` (juste sous / pile au seuil), polarités, arrondi à 1 décimale,
       `previous` négatif (`Math.abs`).
-- [ ] `src/lib/dates/subtractOneYear.ts` : cas standard, 29 février → 1er mars, enjambement
+- [x] `src/lib/dates/subtractOneYear.ts` : cas standard, 29 février → 1er mars, enjambement
       bissextile.
-- [ ] `src/lib/filters/dateRangePresets.ts` : chaque preset avec `now` injecté, `lastMonth` en
+- [x] `src/lib/filters/dateRangePresets.ts` : chaque preset avec `now` injecté, `lastMonth` en
       janvier (année précédente), mars bissextile/non bissextile (fin février), `isValidPreset`.
-- [ ] `src/lib/filters/comparisonRange.ts` : bornes absentes, décalage N-1,
+- [x] `src/lib/filters/comparisonRange.ts` : bornes absentes, décalage N-1,
       `isValidComparisonMode`.
-- [ ] `src/lib/mock-data/analyticsReports.ts` : `createDayWeight` via `filterTraffic` & co —
+- [x] `src/lib/mock-data/analyticsReports.ts` : `createDayWeight` via `filterTraffic` & co —
       prorata côté `from`, jour de `to` entier, filtre boutique, conservation des inégalités
       (`engagedSessions <= sessions`) après arrondi.
 
-### Phase 2 — KPIs (`src/lib/kpis/*`) ⬜
+### Phase 2 — KPIs (`src/lib/kpis/*`) ✅
 
 Un fichier de test par KPI, schéma commun : liste vide, uniquement des statuts non
 `completed`, cas nominal calculé à la main, arrondi, valeur sentinelle (`null` / 0).
 
 Points d'attention :
 
-- [ ] `revenue.ts` : `sumCompletedRevenue` non arrondi vs `calculateRevenue` arrondi.
-- [ ] `averageTimeBetweenOrders.ts` : `null` sans écart, moyenne des écarts (pas de moyennes).
-- [ ] `customerAcquisitionCost.ts` : première commande hors période, `null` sans nouveau client.
-- [ ] `salesConcentration.ts` : produits invendus inclus, `topShare`, `Math.max(1, …)`.
-- [ ] `customerRevenueSegments.ts` : bornes `[min, max)` (500 tombe dans « 500 - 1500€ »).
-- [ ] `webVitals.ts` : `rateWebVital` aux seuils exacts, pondération par `samples`, CLS à
+- [x] `revenue.ts` : `sumCompletedRevenue` non arrondi vs `calculateRevenue` arrondi.
+- [x] `averageTimeBetweenOrders.ts` : `null` sans écart, moyenne des écarts (pas de moyennes).
+- [x] `customerAcquisitionCost.ts` : première commande hors période, `null` sans nouveau client.
+- [x] `salesConcentration.ts` : produits invendus inclus, `topShare`, `Math.max(1, …)`.
+- [x] `customerRevenueSegments.ts` : bornes `[min, max)` (500 tombe dans « 500 - 1500€ »).
+- [x] `webVitals.ts` : `rateWebVital` aux seuils exacts, pondération par `samples`, CLS à
       3 décimales.
-- [ ] Autres KPIs selon le schéma commun.
+- [x] Autres KPIs selon le schéma commun.
+
+Livrée en 6 commits, un par famille de KPI : ventes, clients, produits et catalogue, trafic
+et engagement, acquisition et marketing, qualité du site et recherche.
 
 Exclu : `decliningProducts.ts` (placeholder aléatoire assumé).
 
@@ -90,7 +94,8 @@ Exclu : `decliningProducts.ts` (placeholder aléatoire assumé).
 ### Workflow Git
 
 Commits Conventional Commits en français, un par phase (`chore: installe vitest…`,
-`test: couvre le calcul d'évolution…`, `test: couvre les KPIs…`).
+`test: couvre la logique transverse…`), sauf la phase 2 découpée en un commit par famille de
+KPI (`test: couvre les KPIs de ventes`, `…clients`, etc.).
 
 ### Critères de validation
 
