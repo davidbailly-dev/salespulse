@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun.
+- 🔄 [005 — Vision et stack](milestones/005-vision-and-stack.md)
 
 ## Terminés
 
