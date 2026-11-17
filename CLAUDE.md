@@ -14,10 +14,14 @@ npm run dev        # http://localhost:3000 (redirige vers /dashboard)
 npm run build
 npm run lint       # eslint . (config next core-web-vitals + typescript)
 npx tsc --noEmit   # vérification de types (aucun script dédié)
+npm test           # Vitest, exécution unique
+npm run test:watch
+npm run test:coverage
+npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 ```
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`).
-- **Pas de tests** : aucun runner n'est installé, et le script `npm test` s'appelle lui-même (`"test": "npm test"`), donc il boucle à l'infini. Ne pas le lancer.
+- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts` colocalisés à côté du code testé, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Fixtures via les builders déterministes de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
 - TypeScript est en `strict: false`. Les imports sont relatifs (pas d'alias `@/`).
 

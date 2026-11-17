@@ -38,12 +38,13 @@ wrappers) et les générateurs Faker (aléatoires).
   `buildCustomer`, `buildTrafficRow`, … avec `overrides`), typés via les types Zod de
   `src/lib/mock-data/schemas.ts`. Dates ISO fixes, aucun `Math.random`.
 
-### Phase 0 — Mise en place ⬜
+### Phase 0 — Mise en place ✅
 
-- [ ] Installer Vitest et la couverture v8
-- [ ] Créer `vitest.config.mts`
-- [ ] Corriger les scripts `test` du `package.json`
-- [ ] Créer les builders de fixtures
+- [x] Installer Vitest et la couverture v8
+- [x] Créer `vitest.config.mts`
+- [x] Corriger les scripts `test` du `package.json`
+- [x] Créer les builders de fixtures (+ `builders.test.ts` qui les valide contre les schémas Zod)
+- [x] Exclure `coverage/**` du lint
 
 ### Phase 1 — Logique transverse (le plus critique) ⬜
 
