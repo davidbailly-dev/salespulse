@@ -83,11 +83,11 @@ technologie a été choisie.
 - [x] `CLAUDE.md` : `docs/stack.md` cité sans `@` (D4).
 - [x] Validation des justifications par l'utilisateur ; plus aucun `(à confirmer)`.
 
-## Phase D — Pistes futures ⬜
+## Phase D — Pistes futures ✅
 
-- [ ] `docs/roadmap.md` : ajout des pistes de D7 dans « Jalons futurs », les connecteurs en
+- [x] `docs/roadmap.md` : ajout des pistes de D7 dans « Jalons futurs », les connecteurs en
       sous-point de « Backend réel ».
-- [ ] `docs/roadmap.md` : ajout du jalon futur « **TypeScript strict** » (passer `strict` à `true`,
+- [x] `docs/roadmap.md` : ajout du jalon futur « **TypeScript strict** » (passer `strict` à `true`,
       32 erreurs de type mesurées le 2026-11-18, puis corriger la ligne « TypeScript est en
       `strict: false` » de `CLAUDE.md`).
 
@@ -121,6 +121,9 @@ technologie a été choisie.
   jalon du backend réel), et l'objectif est `strict: true` (32 erreurs de type mesurées). Hors
   périmètre, à traiter ailleurs : `@faker-js/faker` est en `devDependencies` alors que le serveur
   s'en sert à l'exécution.
+- 2026-11-18 : phase D, pistes de D7 et « TypeScript strict » ajoutées aux jalons futurs de
+  `docs/roadmap.md` ; « Backend réel » détaille les décisions prises (TypeScript, schémas Zod
+  partagés).
 
 ## Workflow Git
 
