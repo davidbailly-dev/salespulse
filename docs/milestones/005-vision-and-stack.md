@@ -52,9 +52,9 @@ technologie a été choisie.
   déduite du code ou de l'historique est marquée `(à confirmer)` jusqu'à validation par
   l'utilisateur — le pourquoi d'un choix ne se devine pas.
 
-## Phase A — Conventions génériques ⬜
+## Phase A — Conventions génériques ✅
 
-- [ ] `docs/project-docs-conventions.md` : rôle de `vision.md` (problème, utilisateurs,
+- [x] `docs/project-docs-conventions.md` : rôle de `vision.md` (problème, utilisateurs,
       proposition de valeur, non-objectifs, contraintes et principes sans bibliothèque) et de
       `stack.md` (une entrée par technologie : rôle, pourquoi, alternatives écartées, principe
       servi) ; critère « technologie structurante » ; quand les mettre à jour ; règles pour un
@@ -98,6 +98,8 @@ technologie a été choisie.
 ## Journal
 
 - 2026-11-17 : plan validé, phase E (skill `/next-task`) incluse dans le jalon.
+- 2026-11-18 : phase A faite, `docs/project-docs-conventions.md` écrit ; le grep des critères
+  d'acceptation (références au projet) ne trouve rien.
 
 ## Workflow Git
 
