@@ -14,7 +14,7 @@ export function ConversionByDevice() {
     const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(dateRange);
     const { data: traffic, isLoading: isTrafficLoading, isError: isTrafficError } = useTraffic(dateRange);
 
-    if (isOrdersLoading || isTrafficLoading) return <p>Chargement...</p>;
+    if (isOrdersLoading || isTrafficLoading || !orders || !traffic) return <p>Chargement...</p>;
     if (isOrdersError || isTrafficError) return <p>Erreur de chargement</p>;
 
     const items = calculateConversionByDevice(orders, traffic).map(({ device, rate }) => ({

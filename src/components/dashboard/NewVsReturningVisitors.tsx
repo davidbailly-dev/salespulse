@@ -8,7 +8,7 @@ import { KpiValue } from './KpiValue';
 export function NewVsReturningVisitors() {
     const { data: traffic, isLoading, isError } = useTraffic(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !traffic) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const newVisitorsRate = calculateNewVisitorsRate(traffic);

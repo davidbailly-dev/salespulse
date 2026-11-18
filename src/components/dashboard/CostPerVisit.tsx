@@ -19,7 +19,7 @@ export function CostPerVisit() {
     const { data: adSpend, isLoading: isAdSpendLoading, isError: isAdSpendError } = useAdSpend(dateRange);
     const { data: traffic, isLoading: isTrafficLoading, isError: isTrafficError } = useTraffic(dateRange);
 
-    if (isAdSpendLoading || isTrafficLoading) return <p>Chargement...</p>;
+    if (isAdSpendLoading || isTrafficLoading || !adSpend || !traffic) return <p>Chargement...</p>;
     if (isAdSpendError || isTrafficError) return <p>Erreur de chargement</p>;
 
     const items = calculateCostPerVisit(adSpend, traffic).map(({ channel, cost }) => ({

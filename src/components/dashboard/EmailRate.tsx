@@ -16,7 +16,7 @@ const rateFormatter = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1,
 export function EmailRate({ metric }: { metric: EmailMetric }) {
     const { data: emails, isLoading, isError } = useEmails(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !emails) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const items = calculateEmailRates(emails, metric).map(({ campaign, rate }) => ({

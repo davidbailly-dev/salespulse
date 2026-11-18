@@ -12,7 +12,7 @@ export function NeverConvertedCustomers() {
     const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: customers, isLoading: isCustomersLoading, isError: isCustomersError } = useCustomers();
 
-    if (isOrdersLoading || isCustomersLoading) return <p>Chargement...</p>;
+    if (isOrdersLoading || isCustomersLoading || !orders || !customers) return <p>Chargement...</p>;
     if (isOrdersError || isCustomersError) return <p>Erreur de chargement</p>;
 
     const neverConvertedCustomers = calculateNeverConvertedCustomers(orders, customers);

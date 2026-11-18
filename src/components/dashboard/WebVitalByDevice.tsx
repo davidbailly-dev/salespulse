@@ -24,7 +24,7 @@ function formatValue(metric: WebVitalMetric, value: number): string {
 export function WebVitalByDevice({ metric }: { metric: WebVitalMetric }) {
     const { data: webVitals, isLoading, isError } = useWebVitals(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !webVitals) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const items = calculateWebVitalByDevice(webVitals, metric)

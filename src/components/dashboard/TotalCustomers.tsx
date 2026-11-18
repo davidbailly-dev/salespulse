@@ -7,7 +7,7 @@ import { KpiValue } from './KpiValue';
 export function TotalCustomers() {
     const { data: customers, isLoading, isError } = useCustomers();
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !customers) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const totalCustomers = calculateTotalCustomers(customers);

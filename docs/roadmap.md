@@ -44,9 +44,6 @@ Pistes relevées dans les commentaires du code, à valider et prioriser :
 
 Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
 
-- ⬜ **TypeScript strict** : passer `strict` à `true` dans `tsconfig.json` (32 erreurs de type
-  mesurées le 2026-11-18), puis corriger la ligne « TypeScript est en `strict: false` » de
-  `CLAUDE.md`.
 - ⬜ **Authentification et rôles** : à concevoir avec le backend réel.
 - ⬜ **Alertes et notifications** : prévenir l'utilisateur quand un indicateur sort de sa plage
   habituelle.

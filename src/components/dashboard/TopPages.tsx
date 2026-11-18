@@ -10,7 +10,7 @@ const numberFormatter = new Intl.NumberFormat('fr-FR');
 export function TopPages({ type }: { type: TopPagesType }) {
     const { data: pages, isLoading, isError } = usePageStats(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !pages) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const items = calculateTopPages(pages, type).map((page) => ({

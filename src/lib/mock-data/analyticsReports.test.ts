@@ -35,14 +35,25 @@ type RangeFilterCase = [
     (overrides?: Partial<DatedRow>) => DatedRow,
 ];
 
+// Chaque filtre est typé sur sa propre ligne analytics : on les range dans un même tableau en les
+// ramenant à `DatedRow`, seul sous-ensemble de champs que ces tests utilisent (le cast évite que le
+// mode strict refuse un paramètre plus étroit que `DatedRow`).
+function rangeFilterCase<Row extends DatedRow>(
+    name: string,
+    filter: (rows: Row[], params: ReportParams) => Row[],
+    build: (overrides?: Partial<Row>) => Row,
+): RangeFilterCase {
+    return [name, filter as unknown as RangeFilterCase[1], build as unknown as RangeFilterCase[2]];
+}
+
 // Les cinq filtres de lignes quotidiennes s'appuient sur le même `createDayWeight` (non exporté) :
 // on teste donc ses règles de plage une fois pour chacun d'eux.
 const RANGE_FILTERS: RangeFilterCase[] = [
-    ['filterTraffic', filterTraffic, buildTrafficRow],
-    ['filterAdSpend', filterAdSpend, buildAdSpendRow],
-    ['filterWebVitals', filterWebVitals, buildWebVitalsRow],
-    ['filterErrors', filterErrors, buildErrorRow],
-    ['filterEmails', filterEmails, buildEmailRow],
+    rangeFilterCase('filterTraffic', filterTraffic, buildTrafficRow),
+    rangeFilterCase('filterAdSpend', filterAdSpend, buildAdSpendRow),
+    rangeFilterCase('filterWebVitals', filterWebVitals, buildWebVitalsRow),
+    rangeFilterCase('filterErrors', filterErrors, buildErrorRow),
+    rangeFilterCase('filterEmails', filterEmails, buildEmailRow),
 ];
 
 describe.each(RANGE_FILTERS)('%s : règles de plage communes', (_name, filter, build) => {
