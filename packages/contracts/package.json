@@ -1,0 +1,19 @@
+{
+  "name": "@salespulse/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Schémas Zod et types partagés entre l'interface et le backend",
+  "author": "David Bailly",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

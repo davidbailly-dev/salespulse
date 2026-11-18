@@ -43,7 +43,4 @@ L'application est ensuite accessible sur [http://localhost:3000](http://localhos
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-8884d8?style=flat)
 ![Faker](https://img.shields.io/badge/Faker-slategray?style=flat)
-
-## Méthode de travail
-
-SalesPulse a été conçu et développé avec l'aide de Claude Code, utilisé comme outil d'assistance. Je définis l'architecture et les choix techniques (structure des pages, gestion des données avec TanStack Query, validation avec Zod), puis je relis et valide chaque modification avant de l'intégrer. Les commits portant la mention « Co-authored-by » correspondent à ce fonctionnement.
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
