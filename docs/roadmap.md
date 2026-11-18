@@ -23,7 +23,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
   - jsdom + `@testing-library/react`, avec un environnement jsdom limité aux `*.test.tsx` et
     `include` Vitest étendu aux `.tsx` ;
   - hooks testés via `renderHook` avec un `QueryClient` de test ;
-  - couverture étendue à `src/components` ;
+  - couverture étendue à `apps/web/src/components` ;
   - points repris de la phase 3 du jalon 001 : `KpiDelta.tsx`, routes API
     (`GET(new NextRequest(url))` avec le store mocké via `vi.mock`), invariants du mock
     (`generateDataset` validé par `DatasetSchema.parse`).
@@ -31,11 +31,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 Pistes relevées dans les commentaires du code, à valider et prioriser :
 
 - ⬜ **Produits en déclin réels** : remplacer le placeholder aléatoire de
-  `src/lib/kpis/decliningProducts.ts` par une vraie comparaison entre la période courante et la
+  `apps/web/src/lib/kpis/decliningProducts.ts` par une vraie comparaison entre la période courante et la
   période de comparaison.
 - ⬜ **Comparaison à la période précédente** : ajouter un mode à `ComparisonMode`
-  (`src/lib/filters/comparisonRange.ts`), en plus du N-1.
-- ⬜ **Backend réel** : remplacer les données mockées (`src/lib/mock-data/store.ts`) par une
+  (`apps/web/src/lib/filters/comparisonRange.ts`), en plus du N-1.
+- ⬜ **Backend réel** : remplacer les données mockées (`apps/web/src/lib/mock-data/store.ts`) par une
   vraie source de données, en plusieurs jalons après le monorepo (006) :
   - backend en TypeScript avec Express (décidé), dans `apps/api`, qui valide requêtes et
     réponses avec Zod ; schémas partagés via `packages/contracts` ;

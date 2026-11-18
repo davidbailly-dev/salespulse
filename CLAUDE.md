@@ -9,22 +9,39 @@ Vision, utilisateurs, non-objectifs et principes techniques : `docs/vision.md` (
 
 ## Commandes
 
+Toutes les commandes se lancent **depuis la racine** du dépôt ; les scripts d'application sont délégués au paquet `@salespulse/web`.
+
 ```bash
 npm install
 npm run dev        # http://localhost:3000 (redirige vers /dashboard)
 npm run build
-npm run lint       # eslint . (config next core-web-vitals + typescript)
-npx tsc --noEmit   # vérification de types (aucun script dédié)
+npm run lint       # eslint . sur tout le dépôt (config next core-web-vitals + typescript)
+npm run typecheck  # tsc --noEmit dans chaque paquet
 npm test           # Vitest, exécution unique
 npm run test:watch
 npm run test:coverage
-npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
+npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts   # un seul fichier (chemin relatif à apps/web)
 ```
 
-- Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`).
-- **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts`, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
-- `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
-- TypeScript est en `strict: true`. Les imports sont relatifs (pas d'alias `@/`).
+- Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`), à la racine.
+- **Tests** : Vitest en environnement `node` (`apps/web/vitest.config.mts`), fichiers `*.test.ts`, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
+- `apps/web/next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer. Il déclare aussi `transpilePackages` pour `@salespulse/contracts`.
+- TypeScript est en `strict: true` (options communes dans `tsconfig.base.json`).
+
+## Structure du dépôt
+
+Monorepo npm workspaces :
+
+```
+apps/web/            application Next.js (@salespulse/web), tout le code décrit plus bas
+packages/contracts/  schémas Zod et types partagés (@salespulse/contracts)
+docs/                documentation du projet (vision, stack, roadmap, jalons, conventions)
+```
+
+- **Sauf mention contraire, les chemins `src/…` de ce fichier sont relatifs à `apps/web/`.**
+- Imports : relatifs à l'intérieur d'un paquet (pas d'alias `@/`), par nom de paquet entre paquets (`import { OrderSchema } from '@salespulse/contracts'`).
+- `@salespulse/contracts` est publié en TypeScript source, sans étape de build : Next le compile (`transpilePackages`). Il ne dépend que de `zod` ; le garder indépendant de React, de Next et de Faker.
+- Un seul `package-lock.json`, à la racine.
 
 ## Workflow Git
 
@@ -36,7 +53,7 @@ Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers 
 
 Spécificités du projet :
 
-- La version est portée par `package.json` / `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`.
+- La version est portée par le `package.json` **racine** et son `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`, lancé à la racine) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`. Les paquets des workspaces restent à `0.0.0`.
 
 ## Documentation utilisateur
 
@@ -61,7 +78,7 @@ Tout changement de comportement suit le TDD, décrit dans un fichier générique
 
 Spécificités du projet :
 
-- Lancer un seul fichier de test : `npx vitest run <fichier>`.
+- Lancer un seul fichier de test : `npm test -w @salespulse/web -- <chemin relatif à apps/web>`.
 - Fixtures via les builders de `src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
 - Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (jalon futur « Outillage de tests UI » de `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
@@ -72,7 +89,7 @@ Les développements sont planifiés en jalons : un fichier par jalon dans `docs/
 
 @docs/roadmap-conventions.md
 
-Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npx tsc --noEmit` sans erreur.
+Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
 
 ### Vision et stack
 
@@ -98,7 +115,7 @@ mock-data (singleton mémoire) → route API /api/... (filtre + Zod) → hook Ta
 - Deux fenêtres de `WINDOW_DAYS` (90) jours sont générées : la fenêtre actuelle (`generator.ts`) et la fenêtre **N-1** un an plus tôt (`historyGenerator.ts` + `HISTORY_ANALYTICS_TUNING` dans `analyticsTuning.ts`), avec des tendances volontairement mixtes (hausses/baisses) pour la comparaison. Les deux fenêtres sont exposées ensemble ; c'est la plage de dates de la requête qui les distingue.
 - Génération **déterministe** : chaque générateur a son propre seed (`SEED`, `ATTRIBUTION_SEED`, `HISTORY_SEED`, etc.), souvent via une instance `SimpleFaker` dédiée. Ajouter un tirage aléatoire dans un générateur existant décale toute la séquence et change toutes les données (donc tous les KPIs déjà calibrés) : pour un nouveau champ aléatoire, utiliser une instance Faker séparée avec son propre seed, comme `attributionFaker`.
 - Les boutiques et leur poids / tendance N-1 sont dans `SHOP_CONFIGS` (`generator.ts`). Leurs `id` sont des slugs stables car ils apparaissent dans l'URL.
-- `schemas.ts` contient tous les schémas Zod et types (`Order`, `TrafficRow`, …) : source de vérité partagée entre serveur et client.
+- Les schémas Zod et types (`Order`, `TrafficRow`, …) vivent dans `packages/contracts/src/schemas.ts` (`@salespulse/contracts`) : source de vérité partagée entre serveur et client.
 - `analyticsReports.ts` filtre/agrège les données analytics côté serveur. Les lignes analytics sont journalières alors que `from`/`to` sont des instants : les jours partiellement couverts sont **proratisés** (voir le commentaire de tête du fichier). Réutiliser ces fonctions pour toute nouvelle route analytics plutôt que de filtrer à la main.
 
 ### Routes API (`src/app/api/`)
@@ -129,7 +146,7 @@ Comme ces filtres utilisent `useSearchParams`, `app/dashboard/layout.tsx` appell
 - `KpiDelta` / `lib/comparison/evolution.ts` : prennent une `polarity` (`higher-is-better`, `lower-is-better`, `neutral`) et un `mode` (`relative` en % pour montants/volumes, `points` pour les KPIs qui sont déjà des taux). Les listes, le CAC et le ratio LTV/CAC n'affichent volontairement pas d'évolution.
 - Les pages (`app/dashboard/*/page.tsx`) sont des composants serveur qui assemblent des `CardGroup` > `Card` > `CardTitle` + `CardContent` (`components/ui/Card.tsx`).
 
-Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `schemas.ts`, un générateur, une route API et un hook.
+Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `packages/contracts/src/schemas.ts`, un générateur, une route API et un hook.
 
 ### Style
 

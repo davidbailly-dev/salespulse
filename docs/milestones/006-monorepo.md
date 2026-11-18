@@ -92,17 +92,18 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
 - [x] Script `typecheck` à la racine : `tsc --noEmit` sur `apps/web` et sur `packages/contracts`.
 - [x] `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
 
-## Phase C — Documentation ⬜
+## Phase C — Documentation ✅
 
-- [ ] `CLAUDE.md` : commandes (scripts racine, `typecheck`, lancer un seul fichier de test :
+- [x] `CLAUDE.md` : commandes (scripts racine, `typecheck`, lancer un seul fichier de test :
       `npm test -w @salespulse/web -- <chemin relatif à apps/web>`, vérifié en phase A), phrase
       « les chemins `src/…` sont relatifs à `apps/web/` », structure du dépôt (`apps/web`,
       `packages/contracts`), règle d'import entre paquets (D5), version portée par le
       `package.json` racine (D8) à la place de « `package.json` / `package-lock.json` », critères
       de validation des jalons (`npm run typecheck` à la place de `npx tsc --noEmit`).
-- [ ] `docs/stack.md` : entrée Zod — l'emplacement commun est le paquet `packages/contracts`.
-- [ ] `docs/roadmap.md` : le jalon passe dans « Terminés » à la clôture.
-- [ ] `README.md` : vérifier que les commandes d'installation et de démarrage fonctionnent telles
+- [x] `docs/stack.md` : entrée Zod — l'emplacement commun est le paquet `packages/contracts`.
+- [x] `docs/roadmap.md` : les chemins `src/…` des jalons futurs deviennent `apps/web/src/…`
+      (le passage du jalon dans « Terminés » se fait à la clôture, dernier commit).
+- [x] `README.md` : vérifier que les commandes d'installation et de démarrage fonctionnent telles
       quelles depuis la racine ; aucune modification attendue (changement invisible pour
       l'utilisateur). La capture d'écran reste valable.
 
@@ -153,6 +154,17 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
   quelques secondes d'écart dans l'ordre A, B, A, donnent des empreintes identiques. Conséquence :
   la comparaison finale se fait contre un build de `develop` lancé au même moment, pas contre
   une base ancienne (phase D et critères ajustés).
+- 2026-11-18 : phase C faite. `CLAUDE.md` : commandes, section « Structure du dépôt », chemins,
+  imports entre paquets, version portée par la racine, critères de validation. `docs/stack.md` :
+  l'emplacement des schémas partagés est tranché (entrée Zod). `docs/roadmap.md` : quatre chemins
+  `src/…` des jalons futurs préfixés par `apps/web/` (écart avec le plan, qui ne le prévoyait pas).
+  Aucune référence périmée (`npx tsc`, `npx vitest`, `mock-data/schemas`) ne reste dans
+  `CLAUDE.md`, le README, les fichiers génériques de `docs/` ni la skill `/next-task`.
+- 2026-11-18 : README vérifié sans modification : `npm run dev` lancé depuis la racine sert
+  `/` (307 vers `/dashboard`), `/dashboard` (200) et `/api/shops`, et `next dev` ne modifie ni
+  `AGENTS.md` ni `CLAUDE.md` (`agentRules: false` toujours effectif). `npm version X.Y.Z
+  --no-git-tag-version` testé sur une copie hors dépôt : il ne change que le `package.json` racine
+  et le lockfile, les workspaces restent à `0.0.0` (D8 confirmée).
 - 2026-11-18 : écarts avec le plan : `lint` retiré des scripts de `apps/web` (doublon du script
   racine) et `typecheck` ajouté ; version du paquet `@salespulse/web` à `0.0.0` (D8). `npm install`
   signale 17 vulnérabilités « high » : elles viennent de dépendances existantes, dont aucune
