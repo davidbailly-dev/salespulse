@@ -74,19 +74,22 @@ technologie a été choisie.
 - [x] `CLAUDE.md` : paragraphe « Projet » réduit à deux lignes avec un lien vers
       `docs/vision.md` (D5) ; import `@docs/project-docs-conventions.md`.
 
-## Phase C — Stack ⬜
+## Phase C — Stack ✅
 
-- [ ] `docs/stack.md` : une entrée pour chaque badge du README (Next.js, React, TypeScript,
+- [x] `docs/stack.md` : une entrée pour chaque badge du README (Next.js, React, TypeScript,
       TanStack Query, Zod, Tailwind CSS, Recharts, Faker, Vitest), chacune renvoyant à un
       principe de `docs/vision.md` ; justifications déduites marquées `(à confirmer)` (D9) ;
       MSW cité comme alternative écartée pour les données.
-- [ ] `CLAUDE.md` : `docs/stack.md` cité sans `@` (D4).
-- [ ] Validation des justifications par l'utilisateur ; plus aucun `(à confirmer)`.
+- [x] `CLAUDE.md` : `docs/stack.md` cité sans `@` (D4).
+- [x] Validation des justifications par l'utilisateur ; plus aucun `(à confirmer)`.
 
 ## Phase D — Pistes futures ⬜
 
 - [ ] `docs/roadmap.md` : ajout des pistes de D7 dans « Jalons futurs », les connecteurs en
       sous-point de « Backend réel ».
+- [ ] `docs/roadmap.md` : ajout du jalon futur « **TypeScript strict** » (passer `strict` à `true`,
+      32 erreurs de type mesurées le 2026-11-18, puis corriger la ligne « TypeScript est en
+      `strict: false` » de `CLAUDE.md`).
 
 ## Phase E — Skill `/next-task` ⬜
 
@@ -108,6 +111,16 @@ technologie a été choisie.
   repris par `docs/stack.md` en phase C) ; le nom du produit y a été ajouté (D10), le grep de
   la vision ne cherchant plus « salespulse ». `CLAUDE.md` : paragraphe « Projet » réduit, import des
   conventions dans une sous-section « Vision et stack ».
+- 2026-11-18 : phase C, `docs/stack.md` écrit (neuf entrées + MSW en technologie retirée) et cité
+  dans `CLAUDE.md`. Seul le choix de MSW est documenté par l'historique (commit `6f2ff21`) ; toutes
+  les autres justifications sont déduites du code et marquées `(à confirmer)` en attente de
+  validation.
+- 2026-11-18 : justifications de `docs/stack.md` validées une à une avec l'utilisateur ; plus
+  aucun `(à confirmer)`. Décisions prises au passage : le futur backend sera en TypeScript, les
+  schémas Zod seront partagés entre le backend et l'interface (emplacement à trancher dans le
+  jalon du backend réel), et l'objectif est `strict: true` (32 erreurs de type mesurées). Hors
+  périmètre, à traiter ailleurs : `@faker-js/faker` est en `devDependencies` alors que le serveur
+  s'en sert à l'exécution.
 
 ## Workflow Git
 

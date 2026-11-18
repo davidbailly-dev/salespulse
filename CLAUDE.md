@@ -81,6 +81,9 @@ générique partagé entre projets :
 
 @docs/project-docs-conventions.md
 
+`docs/vision.md` et `docs/stack.md` ne sont pas importés (lus à la demande) : lire `docs/stack.md`
+avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
+
 ## Architecture
 
 Flux de données d'un KPI, de bout en bout :
