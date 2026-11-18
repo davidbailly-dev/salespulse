@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 /**
  * Taux de réachat : % de clients ayant au moins une commande completed qui en ont passé

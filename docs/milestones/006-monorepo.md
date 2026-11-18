@@ -79,18 +79,18 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
 - [x] Mêmes nombres de fichiers et de tests qu'à la base (l'historique d'un fichier déplacé
       se vérifie après le commit : critères d'acceptation).
 
-## Phase B — Paquet `contracts` ⬜
+## Phase B — Paquet `contracts` ✅
 
-- [ ] `packages/contracts/package.json` (`@salespulse/contracts`, `private`, `exports` vers
+- [x] `packages/contracts/package.json` (`@salespulse/contracts`, `private`, `exports` vers
       `./src/index.ts`, seule dépendance : `zod`) et `tsconfig.json` étendant la base.
-- [ ] `git mv` de `apps/web/src/lib/mock-data/schemas.ts` vers `packages/contracts/src/schemas.ts`,
+- [x] `git mv` de `apps/web/src/lib/mock-data/schemas.ts` vers `packages/contracts/src/schemas.ts`,
       réexporté par `packages/contracts/src/index.ts`.
-- [ ] Tous les imports des schémas et types (y compris les `./schemas` internes à `mock-data`)
+- [x] Tous les imports des schémas et types (y compris les `./schemas` internes à `mock-data`)
       pointent vers `@salespulse/contracts` ; `git grep "mock-data/schemas"` ne trouve plus rien.
-- [ ] `apps/web/package.json` dépend de `@salespulse/contracts` ; `next.config.ts` ajoute
+- [x] `apps/web/package.json` dépend de `@salespulse/contracts` ; `next.config.ts` ajoute
       `transpilePackages: ['@salespulse/contracts']` (D3).
-- [ ] Script `typecheck` à la racine : `tsc --noEmit` sur `apps/web` et sur `packages/contracts`.
-- [ ] `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
+- [x] Script `typecheck` à la racine : `tsc --noEmit` sur `apps/web` et sur `packages/contracts`.
+- [x] `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
 
 ## Phase C — Documentation ⬜
 
@@ -111,7 +111,9 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
 - [ ] `npm ci` sur un clone propre, puis `npm run build` et `npm start` : `/dashboard` s'affiche.
 - [ ] Les empreintes des routes API (`orders`, `products`, `customers`, `shops`,
       `analytics/traffic`, `analytics/ad-spend`), champs `date` et `registeredAt` retirés, sont
-      identiques à celles relevées en phase A (aucune donnée mockée n'a bougé).
+      identiques à celles d'un build de `develop` lancé **au même moment** (worktree jetable) :
+      aucune donnée mockée n'a bougé. Une base relevée plus tôt ne convient pas, le trafic et
+      les dépenses pub dérivent avec l'heure (voir le Journal du 2026-11-18).
 - [ ] Noter dans le Bilan les commandes de build et de démarrage à appliquer au service Render
       avant la prochaine release (réglage hors dépôt).
 
@@ -137,6 +139,20 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
   respecté). `allowScripts` est resté dans le `package.json` racine, sans avertissement à
   l'installation ; non vérifié que npm l'exploite à cet endroit (le champ n'est pas documenté
   dans npm que je connais). `settings.next.rootDir` ajouté à la config ESLint par précaution.
+- 2026-11-18 : phase B faite. 91 fichiers (92 imports) réécrits vers `@salespulse/contracts` ;
+  `packages/contracts` ne dépend que de `zod` (plus `typescript` en dev, pour son `typecheck`).
+  Mêmes 58 fichiers et 620 tests, `npm run lint` et `npm run typecheck` sans erreur (le
+  typage couvre bien `@salespulse/web` et `@salespulse/contracts`), `npm run build` réussi,
+  lockfile sans aucune version externe modifiée.
+- 2026-11-18 : **correction de la découverte précédente** : les empreintes de `analytics/traffic`
+  et `analytics/ad-spend` ne sont pas stables à l'échelle de l'heure. `buildDayShares` pondère le
+  premier et le dernier jour de la fenêtre au prorata de l'heure de démarrage, à la milliseconde :
+  deux relevés espacés de plusieurs dizaines de minutes diffèrent (les valeurs arrondies ne
+  bougent pas sur quelques minutes, d'où l'apparente stabilité observée avant). Preuve que ce n'est
+  pas le déplacement : le commit de la phase A (worktree jetable) et la phase B, relevés à
+  quelques secondes d'écart dans l'ordre A, B, A, donnent des empreintes identiques. Conséquence :
+  la comparaison finale se fait contre un build de `develop` lancé au même moment, pas contre
+  une base ancienne (phase D et critères ajustés).
 - 2026-11-18 : écarts avec le plan : `lint` retiré des scripts de `apps/web` (doublon du script
   racine) et `typecheck` ajouté ; version du paquet `@salespulse/web` à `0.0.0` (D8). `npm install`
   signale 17 vulnérabilités « high » : elles viennent de dépendances existantes, dont aucune
@@ -153,8 +169,8 @@ clore le jalon. Chaque commit garde `npm test`, `npm run lint` et le typage au v
 - `npm ci` à la racine, puis `npm test`, `npm run lint` et `npm run typecheck` sans erreur, avec
   les mêmes nombres de fichiers et de tests qu'avant le déplacement.
 - `npm run build` puis `npm start` : `/dashboard` s'affiche, et les réponses des routes API ont
-  les mêmes empreintes qu'avant le déplacement (champs `date` et `registeredAt` retirés : ils
-  dépendent de l'heure de démarrage du serveur).
+  les mêmes empreintes que celles d'un build de `develop` lancé au même moment (champs `date` et
+  `registeredAt` retirés : ils dépendent de l'heure de démarrage du serveur).
 - `git grep "mock-data/schemas"` ne trouve rien ; `packages/contracts` ne dépend que de `zod`.
 - `git log --follow` retrouve l'historique de `apps/web/src/lib/kpis/revenue.ts` et de
   `packages/contracts/src/schemas.ts`.

@@ -1,6 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
-import type { AdSpendRow, Channel, TrafficRow } from './schemas';
+import type { AdSpendRow, Channel, TrafficRow } from '@salespulse/contracts';
 
 const AD_SPEND_SEED = 717171;
 

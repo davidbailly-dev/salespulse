@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

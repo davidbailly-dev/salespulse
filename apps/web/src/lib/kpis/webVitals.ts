@@ -1,4 +1,4 @@
-import { Device, WebVitalsRow } from '../mock-data/schemas';
+import { Device, WebVitalsRow } from '@salespulse/contracts';
 
 export type WebVitalMetric = 'lcp' | 'inp' | 'cls' | 'loadTime';
 export type WebVitalRating = 'good' | 'needs-improvement' | 'poor';

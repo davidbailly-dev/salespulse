@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 export type CustomerOrderCount = {
     customerId: string;

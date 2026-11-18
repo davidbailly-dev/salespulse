@@ -14,7 +14,7 @@ import {
     ShopSchema,
     TrafficRowSchema,
     WebVitalsRowSchema,
-} from '../mock-data/schemas';
+} from '@salespulse/contracts';
 import {
     buildAdSpendRow,
     buildCustomer,

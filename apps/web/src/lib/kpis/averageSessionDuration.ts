@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /**
  * Durée moyenne de session, en secondes : Σ totalSessionDurationSeconds / Σ sessions. Moyenne

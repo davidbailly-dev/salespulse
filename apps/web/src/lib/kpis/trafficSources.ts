@@ -1,4 +1,4 @@
-import { Channel, TrafficRow } from '../mock-data/schemas';
+import { Channel, TrafficRow } from '@salespulse/contracts';
 
 export type TrafficSource = {
     channel: Channel;

@@ -1,4 +1,4 @@
-import { Device, Order, TrafficRow } from '../mock-data/schemas';
+import { Device, Order, TrafficRow } from '@salespulse/contracts';
 
 export type DeviceSessions = {
     device: Device;

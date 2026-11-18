@@ -1,4 +1,4 @@
-import { ErrorRow, Order } from '../mock-data/schemas';
+import { ErrorRow, Order } from '@salespulse/contracts';
 
 /**
  * Taux d'échec de paiement : échecs / tentatives de paiement, en % avec 1 décimale. Une tentative

@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /** Pages par session : Σ pageViews / Σ sessions, arrondi à une décimale. */
 export function calculatePagesPerSession(traffic: TrafficRow[]): number {

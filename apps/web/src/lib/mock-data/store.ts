@@ -3,7 +3,7 @@ import { generateAnalyticsDataset } from './analyticsGenerator';
 import { HISTORY_ANALYTICS_TUNING } from './analyticsTuning';
 import { generateDataset } from './generator';
 import { generateHistoryOrders } from './historyGenerator';
-import type { AnalyticsDataset, Dataset, Order } from './schemas';
+import type { AnalyticsDataset, Dataset, Order } from '@salespulse/contracts';
 
 // Fenêtre actuelle (les `WINDOW_DAYS` derniers jours) et fenêtre N-1 (mêmes jours, un an plus tôt),
 // générées séparément : la seconde sert à la comparaison d'une année sur l'autre. Les deux sont

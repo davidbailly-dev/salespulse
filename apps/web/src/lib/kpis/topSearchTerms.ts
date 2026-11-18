@@ -1,4 +1,4 @@
-import { SearchTermStat } from '../mock-data/schemas';
+import { SearchTermStat } from '@salespulse/contracts';
 
 /** Termes de recherche interne les plus tapés, avec ou sans résultat. */
 export function calculateTopSearchTerms(stats: SearchTermStat[], limit = 5): SearchTermStat[] {

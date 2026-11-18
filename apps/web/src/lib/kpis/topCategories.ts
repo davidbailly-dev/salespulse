@@ -1,4 +1,4 @@
-import { Category, Order, Product } from '../mock-data/schemas';
+import { Category, Order, Product } from '@salespulse/contracts';
 
 export type CategoryAggregate = {
     category: Category;

@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 /**
  * Prix pondéré par les quantités réellement vendues (commandes completed),

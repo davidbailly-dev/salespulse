@@ -1,4 +1,4 @@
-import { Order, Product } from '../mock-data/schemas';
+import { Order, Product } from '@salespulse/contracts';
 
 /**
  * Analyse de Pareto : part du CA total réalisée par les X% de produits qui

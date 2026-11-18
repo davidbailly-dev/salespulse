@@ -13,7 +13,7 @@ import {
     Shop,
     TrafficRow,
     WebVitalsRow,
-} from '../mock-data/schemas';
+} from '@salespulse/contracts';
 
 // Builders de fixtures pour les tests : chaque builder renvoie un objet valide au regard de son
 // schéma Zod, avec des valeurs par défaut fixes (aucun aléatoire) que l'on surcharge via

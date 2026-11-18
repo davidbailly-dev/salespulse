@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { WebVitalsRowListSchema, type WebVitalsRow } from '../mock-data/schemas';
+import { WebVitalsRowListSchema, type WebVitalsRow } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchWebVitals(dateRange?: AnalyticsDateRange, shopId?: string): Promise<WebVitalsRow[]> {

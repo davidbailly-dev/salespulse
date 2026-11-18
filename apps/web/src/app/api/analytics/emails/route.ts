@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getAnalyticsDataset } from '../../../../lib/mock-data/store';
 import { filterEmails } from '../../../../lib/mock-data/analyticsReports';
-import { EmailRowListSchema } from '../../../../lib/mock-data/schemas';
+import { EmailRowListSchema } from '@salespulse/contracts';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);

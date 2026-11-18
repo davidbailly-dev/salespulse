@@ -1,4 +1,4 @@
-import { Order, TrafficRow } from '../mock-data/schemas';
+import { Order, TrafficRow } from '@salespulse/contracts';
 import { sumCompletedRevenue } from './revenue';
 
 /**

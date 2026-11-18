@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ShopListSchema, type Shop } from '../mock-data/schemas';
+import { ShopListSchema, type Shop } from '@salespulse/contracts';
 
 async function fetchShops(): Promise<Shop[]> {
     const response = await fetch('/api/shops');

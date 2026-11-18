@@ -1,4 +1,4 @@
-import type { Channel, Device } from './schemas';
+import type { Channel, Device } from '@salespulse/contracts';
 
 // Paramètres partagés par les deux générateurs : `generator.ts` s'en sert pour attribuer un
 // canal et un appareil aux commandes (poids `orderWeight`), `analyticsGenerator.ts` pour

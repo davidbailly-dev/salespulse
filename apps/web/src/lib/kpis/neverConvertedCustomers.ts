@@ -1,4 +1,4 @@
-import { Customer, Order } from '../mock-data/schemas';
+import { Customer, Order } from '@salespulse/contracts';
 
 export type NeverConvertedCustomer = {
     customerId: string;

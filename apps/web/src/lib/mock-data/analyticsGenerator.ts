@@ -5,8 +5,8 @@ import { generateEmails } from './emailGenerator';
 import { generateErrors } from './errorGenerator';
 import { WINDOW_DAYS } from './generator';
 import { generateWebVitals } from './webVitalsGenerator';
-import type { AnalyticsDataset, Channel, Dataset, Device, PageViewRow, SearchRow, TrafficRow } from './schemas';
-import { CategorySchema } from './schemas';
+import type { AnalyticsDataset, Channel, Dataset, Device, PageViewRow, SearchRow, TrafficRow } from '@salespulse/contracts';
+import { CategorySchema } from '@salespulse/contracts';
 import {
     CHANNEL_PROFILES,
     CHANNELS,

@@ -1,4 +1,4 @@
-import type { AdSpendRow, EmailRow, ErrorRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow, WebVitalsRow } from './schemas';
+import type { AdSpendRow, EmailRow, ErrorRow, PageStat, PageViewRow, SearchRow, SearchTermStat, TrafficRow, WebVitalsRow } from '@salespulse/contracts';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 type RevenueSegment = { label: string; minRevenue: number; maxRevenue: number | null };
 

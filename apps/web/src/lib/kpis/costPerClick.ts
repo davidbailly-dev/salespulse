@@ -1,4 +1,4 @@
-import { AdSpendRow, Channel } from '../mock-data/schemas';
+import { AdSpendRow, Channel } from '@salespulse/contracts';
 
 export type ChannelCost = {
     channel: Channel;

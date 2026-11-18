@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 /**
  * Option A (voir CLAUDE.md) : un client est "récurrent" s'il a ≥2 commandes completed

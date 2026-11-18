@@ -1,4 +1,4 @@
-import { Customer, Order } from '../mock-data/schemas';
+import { Customer, Order } from '@salespulse/contracts';
 
 export function calculateCustomerActivationRate(orders: Order[], customers: Customer[]): number {
     if (customers.length === 0) return 0;

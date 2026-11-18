@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 export function calculateAveragePurchaseFrequency(orders: Order[]): number {
     const completedOrders = orders.filter((order) => order.status === 'completed');

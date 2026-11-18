@@ -1,4 +1,4 @@
-import { Product } from '../mock-data/schemas';
+import { Product } from '@salespulse/contracts';
 
 export type DecliningProductsMetric = 'revenue' | 'quantity';
 

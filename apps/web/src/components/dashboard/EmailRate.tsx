@@ -3,7 +3,7 @@
 import { calculateEmailRates, type EmailMetric } from '../../lib/kpis/emailRates';
 import { useEmails } from '../../lib/queries/useEmails';
 import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
-import type { EmailCampaign } from '../../lib/mock-data/schemas';
+import type { EmailCampaign } from '@salespulse/contracts';
 import { CardList } from '../ui/Card';
 
 const campaignLabels: Record<EmailCampaign, string> = {

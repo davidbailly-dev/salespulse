@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 export function calculateAbandonedCartsRate(orders: Order[]): number {
     if (orders.length === 0) return 0;

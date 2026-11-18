@@ -4,7 +4,7 @@ import { useOrders } from '../../lib/queries/useOrders';
 import { useDateRangeFilter } from '../../lib/filters/useDateRangeFilter';
 import { calculateRevenueByStatus } from '../../lib/kpis/revenueByStatus';
 import { CardList } from '../ui/Card';
-import { OrderStatus } from '../../lib/mock-data/schemas';
+import { OrderStatus } from '@salespulse/contracts';
 
 const currencyFormatter = new Intl.NumberFormat('fr-FR', {
     style: 'currency',

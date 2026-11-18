@@ -1,5 +1,5 @@
 import { faker, SimpleFaker } from '@faker-js/faker';
-import type { Category, Channel, Customer, Dataset, Device, Order, OrderLine, OrderStatus, Product, Shop } from './schemas';
+import type { Category, Channel, Customer, Dataset, Device, Order, OrderLine, OrderStatus, Product, Shop } from '@salespulse/contracts';
 import { CHANNEL_PROFILES, CHANNELS, DEVICE_PROFILES, DEVICES } from './trafficProfiles';
 
 const SEED = 424242;

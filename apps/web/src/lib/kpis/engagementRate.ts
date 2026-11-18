@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /**
  * Taux d'engagement : Σ engagedSessions / Σ sessions, en %. Comme GA4, on ne calcule que ce

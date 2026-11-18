@@ -1,4 +1,4 @@
-import type { Channel } from '../../lib/mock-data/schemas';
+import type { Channel } from '@salespulse/contracts';
 
 export const channelLabels: Record<Channel, string> = {
     organic: 'Organique',

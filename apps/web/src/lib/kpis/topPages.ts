@@ -1,4 +1,4 @@
-import { PageStat, PageType } from '../mock-data/schemas';
+import { PageStat, PageType } from '@salespulse/contracts';
 
 export type TopPagesType = 'all' | PageType;
 

@@ -8,7 +8,7 @@ import {
     SHOP_CONFIGS,
     WINDOW_DAYS,
 } from './generator';
-import type { Channel, Dataset, Device, Order, OrderStatus } from './schemas';
+import type { Channel, Dataset, Device, Order, OrderStatus } from '@salespulse/contracts';
 import { CHANNEL_PROFILES, CHANNELS, DEVICE_PROFILES, DEVICES } from './trafficProfiles';
 
 const HISTORY_SEED = 626262;

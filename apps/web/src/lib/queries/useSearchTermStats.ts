@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { SearchTermStatListSchema, type SearchTermStat } from '../mock-data/schemas';
+import { SearchTermStatListSchema, type SearchTermStat } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchSearchTermStats(dateRange?: AnalyticsDateRange, shopId?: string): Promise<SearchTermStat[]> {

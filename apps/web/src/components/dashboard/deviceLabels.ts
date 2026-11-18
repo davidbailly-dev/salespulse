@@ -1,4 +1,4 @@
-import type { Device } from '../../lib/mock-data/schemas';
+import type { Device } from '@salespulse/contracts';
 
 export const deviceLabels: Record<Device, string> = {
     desktop: 'Desktop',

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { ErrorRowListSchema, type ErrorRow } from '../mock-data/schemas';
+import { ErrorRowListSchema, type ErrorRow } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchErrors(dateRange?: AnalyticsDateRange, shopId?: string): Promise<ErrorRow[]> {

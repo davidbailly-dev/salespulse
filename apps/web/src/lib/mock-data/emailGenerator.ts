@@ -1,6 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
-import type { EmailCampaign, EmailRow, TrafficRow } from './schemas';
+import type { EmailCampaign, EmailRow, TrafficRow } from '@salespulse/contracts';
 
 const EMAILS_SEED = 131313;
 

@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /** Sessions : volume brut de trafic, somme des sessions sur la période filtrée. */
 export function calculateSessions(traffic: TrafficRow[]): number {

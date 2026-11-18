@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { OrderListSchema, type Order } from '../mock-data/schemas';
+import { OrderListSchema, type Order } from '@salespulse/contracts';
 
 export type OrderDateRange = {
     from?: string;

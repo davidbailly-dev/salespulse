@@ -1,6 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
-import type { ErrorRow, Order, TrafficRow } from './schemas';
+import type { ErrorRow, Order, TrafficRow } from '@salespulse/contracts';
 
 const ERRORS_SEED = 919191;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;

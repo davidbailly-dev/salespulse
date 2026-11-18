@@ -1,4 +1,4 @@
-import { SearchTermStat } from '../mock-data/schemas';
+import { SearchTermStat } from '@salespulse/contracts';
 
 export type NoResultSearches = {
     // Part des recherches sans résultat : Σ searches sans résultat / Σ searches, en %.

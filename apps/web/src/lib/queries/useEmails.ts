@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { EmailRowListSchema, type EmailRow } from '../mock-data/schemas';
+import { EmailRowListSchema, type EmailRow } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchEmails(dateRange?: AnalyticsDateRange, shopId?: string): Promise<EmailRow[]> {

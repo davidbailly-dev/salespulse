@@ -1,4 +1,4 @@
-import { PageStat } from '../mock-data/schemas';
+import { PageStat } from '@salespulse/contracts';
 
 export type ExitPage = {
     path: string;

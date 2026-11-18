@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /**
  * Visiteurs uniques : somme des `users` des lignes de la période filtrée.

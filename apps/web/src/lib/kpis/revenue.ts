@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 // Somme non arrondie : les KPIs qui divisent le CA (revenu par visite, ROAS) ne doivent pas
 // hériter de l'arrondi à l'euro de `calculateRevenue`.

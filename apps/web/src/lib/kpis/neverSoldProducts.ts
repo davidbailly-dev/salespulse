@@ -1,4 +1,4 @@
-import { Order, Product } from '../mock-data/schemas';
+import { Order, Product } from '@salespulse/contracts';
 
 export type NeverSoldProduct = {
     productId: string;

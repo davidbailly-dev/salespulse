@@ -1,4 +1,4 @@
-import { ErrorRow, TrafficRow } from '../mock-data/schemas';
+import { ErrorRow, TrafficRow } from '@salespulse/contracts';
 
 /** Taux de 404 : Σ erreurs `not_found` / Σ pages vues, en % avec 2 décimales. */
 export function calculateNotFoundRate(errors: ErrorRow[], traffic: TrafficRow[]): number {

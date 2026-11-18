@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { AdSpendRowListSchema, type AdSpendRow } from '../mock-data/schemas';
+import { AdSpendRowListSchema, type AdSpendRow } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchAdSpend(dateRange?: AnalyticsDateRange, shopId?: string): Promise<AdSpendRow[]> {

@@ -1,4 +1,4 @@
-import { Order, Product } from '../mock-data/schemas';
+import { Order, Product } from '@salespulse/contracts';
 
 export function calculateCatalogCoverage(orders: Order[], products: Product[]): number {
     if (products.length === 0) return 0;

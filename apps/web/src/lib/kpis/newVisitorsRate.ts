@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /**
  * Part de nouveaux visiteurs : Σ newUsers / Σ users, en %. Les visiteurs récurrents en sont le

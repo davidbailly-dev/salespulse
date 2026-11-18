@@ -1,6 +1,6 @@
 import { SimpleFaker } from '@faker-js/faker';
 import { DEFAULT_ANALYTICS_TUNING, type AnalyticsTuning } from './analyticsTuning';
-import type { Device, TrafficRow, WebVitalsRow } from './schemas';
+import type { Device, TrafficRow, WebVitalsRow } from '@salespulse/contracts';
 
 const WEB_VITALS_SEED = 818181;
 

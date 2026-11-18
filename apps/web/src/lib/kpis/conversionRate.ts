@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 
 /**
  * Pas de notion de "visite" dans le mock (voir CLAUDE.md) : proxy sur les commandes

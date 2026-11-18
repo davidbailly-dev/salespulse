@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { CustomerListSchema, type Customer } from '../mock-data/schemas';
+import { CustomerListSchema, type Customer } from '@salespulse/contracts';
 
 async function fetchCustomers(shopId?: string): Promise<Customer[]> {
     const query = shopId ? `?shop=${encodeURIComponent(shopId)}` : '';

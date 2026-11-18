@@ -13,7 +13,7 @@
     "build": "npm run build -w @salespulse/web",
     "start": "npm run start -w @salespulse/web",
     "lint": "eslint .",
-    "typecheck": "npm run typecheck -w @salespulse/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm test -w @salespulse/web",
     "test:watch": "npm run test:watch -w @salespulse/web",
     "test:coverage": "npm run test:coverage -w @salespulse/web"

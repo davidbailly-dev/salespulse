@@ -1,4 +1,4 @@
-import { TrafficRow } from '../mock-data/schemas';
+import { TrafficRow } from '@salespulse/contracts';
 
 /**
  * Scroll profond : part des sessions (toutes, pas seulement les engagées) allant au moins aux

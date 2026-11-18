@@ -1,4 +1,4 @@
-import { Order, OrderStatus } from '../mock-data/schemas';
+import { Order, OrderStatus } from '@salespulse/contracts';
 
 export type StatusRevenue = {
     status: OrderStatus;

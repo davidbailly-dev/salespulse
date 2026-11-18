@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { TrafficRowListSchema, type TrafficRow } from '../mock-data/schemas';
+import { TrafficRowListSchema, type TrafficRow } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchTraffic(dateRange?: AnalyticsDateRange, shopId?: string): Promise<TrafficRow[]> {

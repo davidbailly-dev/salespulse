@@ -1,4 +1,4 @@
-import { EmailCampaign, EmailRow } from '../mock-data/schemas';
+import { EmailCampaign, EmailRow } from '@salespulse/contracts';
 
 export type EmailMetric = 'open' | 'click';
 

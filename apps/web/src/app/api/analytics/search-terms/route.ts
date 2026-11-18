@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getAnalyticsDataset } from '../../../../lib/mock-data/store';
 import { buildSearchTermStats } from '../../../../lib/mock-data/analyticsReports';
-import { SearchTermStatListSchema } from '../../../../lib/mock-data/schemas';
+import { SearchTermStatListSchema } from '@salespulse/contracts';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);

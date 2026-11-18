@@ -1,4 +1,4 @@
-import { AdSpendRow, Order } from '../mock-data/schemas';
+import { AdSpendRow, Order } from '@salespulse/contracts';
 import { sumCompletedRevenue } from './revenue';
 
 /**

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getDataset } from '../../../lib/mock-data/store';
-import { OrderListSchema } from '../../../lib/mock-data/schemas';
+import { OrderListSchema } from '@salespulse/contracts';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);

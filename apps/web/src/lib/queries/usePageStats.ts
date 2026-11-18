@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useShopFilter } from '../filters/useShopFilter';
-import { PageStatListSchema, type PageStat } from '../mock-data/schemas';
+import { PageStatListSchema, type PageStat } from '@salespulse/contracts';
 import { buildAnalyticsUrl, type AnalyticsDateRange } from './analyticsQuery';
 
 async function fetchPageStats(dateRange?: AnalyticsDateRange, shopId?: string): Promise<PageStat[]> {

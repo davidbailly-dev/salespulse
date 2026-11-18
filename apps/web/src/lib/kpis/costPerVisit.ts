@@ -1,4 +1,4 @@
-import { AdSpendRow, Channel, TrafficRow } from '../mock-data/schemas';
+import { AdSpendRow, Channel, TrafficRow } from '@salespulse/contracts';
 import type { ChannelCost } from './costPerClick';
 
 /**

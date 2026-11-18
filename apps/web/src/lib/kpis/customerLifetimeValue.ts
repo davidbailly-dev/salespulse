@@ -1,4 +1,4 @@
-import { Order } from '../mock-data/schemas';
+import { Order } from '@salespulse/contracts';
 import { calculateAverageOrderValue } from './averageOrderValue';
 import { calculateRepurchaseRate } from './repurchaseRate';
 
