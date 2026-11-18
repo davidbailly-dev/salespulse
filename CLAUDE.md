@@ -24,7 +24,7 @@ npx vitest run src/lib/kpis/revenue.test.ts   # un seul fichier
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`).
 - **Tests** : Vitest en environnement `node` (`vitest.config.mts`), fichiers `*.test.ts`, couverture limitée à `src/lib/**` (hors générateurs Faker et hooks). Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - `next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer.
-- TypeScript est en `strict: false`. Les imports sont relatifs (pas d'alias `@/`).
+- TypeScript est en `strict: true`. Les imports sont relatifs (pas d'alias `@/`).
 
 ## Workflow Git
 

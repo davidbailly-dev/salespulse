@@ -59,9 +59,9 @@ linter) n'ont pas d'entrée.
     de données avec l'interface ;
   - les mêmes types décrivent les données de bout en bout, de la source à l'affichage (P7), et
     le compilateur signale une dérive du format avant l'exécution (P4).
-- **Mode strict** : l'objectif est `strict: true`. Le projet est aujourd'hui en `strict: false`
-  (32 erreurs de type à corriger en l'activant) : tant que ce n'est pas fait, la vérification de
-  types est plus faible que ce que le choix du langage promet.
+- **Mode strict** : `strict: true`, pour que la vérification de types tienne ce que le choix du
+  langage promet. Activé le 2026-11-18 après correction des 32 erreurs de type que le mode
+  non strict laissait passer.
 - **Alternatives écartées** :
   - JavaScript seul : pas de vérification de types, une dérive du format de données (P4)
     apparaît à l'exécution plutôt qu'à la compilation ;
