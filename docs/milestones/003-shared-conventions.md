@@ -1,6 +1,6 @@
 # Jalon 003 — Conventions partagées ✅
 
-Branche : `feature/shared-conventions` (depuis `develop`). Livré dans : —
+Branche : `feature/shared-conventions` (depuis `develop`). Livré dans : v0.3.3
 
 ## Contexte
 
