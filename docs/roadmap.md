@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [006 — Monorepo](milestones/006-monorepo.md)
+Aucun
 
 ## Terminés
 
+- ✅ [006 — Monorepo](milestones/006-monorepo.md) — non publié
 - ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — non publié
 - ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — non publié
 - ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — non publié

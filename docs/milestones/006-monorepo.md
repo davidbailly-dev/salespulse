@@ -1,4 +1,4 @@
-# Jalon 006 — Monorepo 🔄
+# Jalon 006 — Monorepo ✅
 
 Branche : `feature/monorepo` (depuis `develop`). Livré dans : —
 
@@ -54,6 +54,10 @@ racine.
 - **D8 (2026-11-18) — La version produit reste à la racine** : le `package.json` racine porte la
   version du produit (`0.3.2`), les paquets des workspaces sont à `0.0.0` — un seul numéro à
   faire évoluer à la release, au lieu de plusieurs qui divergeraient.
+- **D9 (2026-11-18) — Render reste en configuration manuelle** : pas de `render.yaml` dans le
+  dépôt, les réglages du service se font dans le back office Render — décision de l'utilisateur.
+  Les scripts `build` et `start` de la racine délèguent à `@salespulse/web`, pour que des
+  commandes Render standard continuent de fonctionner sans changement.
 
 ## Phase A — Workspaces et déplacement de l'application ✅
 
@@ -107,16 +111,16 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
       quelles depuis la racine ; aucune modification attendue (changement invisible pour
       l'utilisateur). La capture d'écran reste valable.
 
-## Phase D — Vérification et déploiement ⬜
+## Phase D — Vérification et déploiement ✅
 
-- [ ] `npm ci` sur un clone propre, puis `npm run build` et `npm start` : `/dashboard` s'affiche.
-- [ ] Les empreintes des routes API (`orders`, `products`, `customers`, `shops`,
+- [x] `npm ci` sur un clone propre, puis `npm run build` et `npm start` : `/dashboard` s'affiche.
+- [x] Les empreintes des routes API (`orders`, `products`, `customers`, `shops`,
       `analytics/traffic`, `analytics/ad-spend`), champs `date` et `registeredAt` retirés, sont
-      identiques à celles d'un build de `develop` lancé **au même moment** (worktree jetable) :
+      identiques à celles d'un build de `develop` lancé **au même moment** (clone jetable) :
       aucune donnée mockée n'a bougé. Une base relevée plus tôt ne convient pas, le trafic et
       les dépenses pub dérivent avec l'heure (voir le Journal du 2026-11-18).
-- [ ] Noter dans le Bilan les commandes de build et de démarrage à appliquer au service Render
-      avant la prochaine release (réglage hors dépôt).
+- [x] Vérifier les commandes de build et de démarrage du service Render (réglage hors dépôt, D9)
+      et les reporter dans le Bilan à la clôture.
 
 ## Journal
 
@@ -165,6 +169,27 @@ Un seul commit : tant que tout n'est pas déplacé, rien ne tourne.
   `AGENTS.md` ni `CLAUDE.md` (`agentRules: false` toujours effectif). `npm version X.Y.Z
   --no-git-tag-version` testé sur une copie hors dépôt : il ne change que le `package.json` racine
   et le lockfile, les workspaces restent à `0.0.0` (D8 confirmée).
+- 2026-11-18 : décision D9 : Render reste en configuration manuelle (pas de `render.yaml`).
+- 2026-11-18 : phase D faite, sur deux clones propres de `feature/monorepo` (`492619e`) et de
+  `develop` (`f2cc295`). `npm ci` (435 paquets) puis `npm run build` réussissent dans les deux.
+  Démarrage comme le ferait Render, depuis la racine du clone : `PORT=3100 npm start` sert `/`
+  (307 vers `/dashboard`), `/dashboard` et ses quatre sous-pages (200), et `/api/orders` (200).
+- 2026-11-18 : empreintes des six routes API, relevées en alternance develop, monorepo, develop,
+  monorepo à quelques secondes d'écart : identiques entre `develop` et le monorepo, et d'un
+  relevé à l'autre. Celles de `orders`, `products`, `customers` et `shops` sont aussi identiques
+  à la toute première base relevée en phase A ; seules celles de `analytics/traffic` et
+  `analytics/ad-spend` diffèrent de cette base ancienne, à cause de la dérive horaire expliquée
+  plus haut.
+- 2026-11-18 : pour Render, aucune commande n'a besoin de changer si le service est configuré
+  avec le dépôt entier comme racine et les commandes `npm run build` (précédé de `npm install` ou
+  `npm ci`) et `npm start` : c'est exactement ce qui vient d'être testé. À vérifier dans le back
+  office avant la prochaine release : champ « Root Directory » vide, et aucune commande de
+  build ou de démarrage qui suppose `next` ou `src/` à la racine (par exemple `npx next start`,
+  ou `cd src`). Les réglages actuels du service n'ont pas été consultés (hors dépôt).
+- 2026-11-18 : l'utilisateur confirme que Render surveille `main`. Le jalon n'étant pas publié
+  (D7), `main` ne bouge pas et le service n'est pas touché : la vérification du back office se
+  fait au moment de préparer la prochaine release.
+- 2026-11-18 : jalon clos, Bilan rédigé, index de la roadmap mis à jour.
 - 2026-11-18 : écarts avec le plan : `lint` retiré des scripts de `apps/web` (doublon du script
   racine) et `typecheck` ajouté ; version du paquet `@salespulse/web` à `0.0.0` (D8). `npm install`
   signale 17 vulnérabilités « high » : elles viennent de dépendances existantes, dont aucune
@@ -191,4 +216,68 @@ clore le jalon. Chaque commit garde `npm test`, `npm run lint` et le typage au v
 
 ## Bilan
 
-Rempli à la clôture.
+Livré : le dépôt est un monorepo npm workspaces. L'application Next.js vit dans `apps/web`
+(`@salespulse/web`), les schémas Zod et leurs types dans `packages/contracts`
+(`@salespulse/contracts`, TypeScript source, seule dépendance `zod`). Les commandes se lancent
+depuis la racine, les scripts d'application sont délégués. `CLAUDE.md`, `docs/stack.md` et les
+chemins de `docs/roadmap.md` décrivent la nouvelle structure. Aucun comportement n'a changé.
+
+Chiffres : 237 fichiers déplacés avec `git mv` (historique conservé), 91 fichiers dont les imports
+sont réécrits vers `@salespulse/contracts`, un seul `package-lock.json` sans aucune version
+externe modifiée. Suite de tests identique avant et après : 58 fichiers, 620 tests, couverture
+toujours produite.
+
+Écarts avec le plan :
+- **D8 et D9 ajoutées en cours de route** : version produit portée par le `package.json` racine
+  (workspaces à `0.0.0`), Render laissé en configuration manuelle.
+- Le script `lint` d'`apps/web` est retiré (doublon du script racine) ; `typecheck` est ajouté
+  à la racine et dans chaque paquet.
+- Quatre chemins `src/…` de `docs/roadmap.md` ont été préfixés par `apps/web/`, ce que le plan ne
+  prévoyait pas.
+- `CLAUDE.md` gagne une règle que le plan ne nommait pas : `@salespulse/contracts` reste
+  indépendant de React, de Next et de Faker (traduction du critère « ne dépend que de `zod` »).
+- La méthode de comparaison des données mockées a changé : une empreinte brute de l'API ne tient
+  pas d'un démarrage à l'autre (`generateDataset(now)` date commandes et clients à l'heure du
+  démarrage ; `buildDayShares` pondère le premier et le dernier jour du trafic à la
+  milliseconde). Les empreintes sont donc calculées sans les champs `date` et `registeredAt`, et
+  comparées à un build de `develop` lancé au même moment.
+
+Vérifications réellement faites le 2026-11-18 :
+- `npm test` (58 fichiers, 620 tests), `npm run lint` (236 fichiers lus en phase A, dont 73
+  `.tsx`) et `npm run typecheck` (`@salespulse/web` et `@salespulse/contracts`) sans erreur ;
+  `npm run test:coverage` passe ;
+- `npm ci` puis `npm run build` sur deux clones propres (`feature/monorepo` et `develop`), puis
+  `PORT=… npm start` depuis la racine : `/`, `/dashboard` et ses quatre sous-pages, `/api/orders`
+  répondent ;
+- empreintes des six routes API (`orders`, `products`, `customers`, `shops`, `analytics/traffic`,
+  `analytics/ad-spend`) identiques entre `develop` et le monorepo, relevées en alternance à
+  quelques secondes d'écart ;
+- `git log --follow` retrouve l'historique de `apps/web/src/lib/kpis/revenue.ts` et de
+  `packages/contracts/src/schemas.ts` au-delà des déplacements ;
+- `npm run dev` depuis la racine sert l'application sans modifier `AGENTS.md` ni `CLAUDE.md` ;
+  `npm version X.Y.Z --no-git-tag-version` ne change que le `package.json` racine et le lockfile
+  (testé sur une copie hors dépôt) ;
+- `git grep "mock-data/schemas"` ne trouve plus rien.
+
+Non vérifié :
+- que npm lit le champ `allowScripts` à la racine (aucun avertissement à l'installation, rien de
+  plus) ;
+- que `npm run typecheck` échoue sur une erreur de type dans `packages/contracts` : seule la liste
+  des fichiers couverts par `tsc` a été contrôlée ;
+- les réglages actuels du service Render, hors dépôt.
+
+Avant la prochaine release, dans le back office Render (le service surveille `main`, D9) :
+« Root Directory » vide, et aucune commande de build ou de démarrage qui suppose `next` ou `src/`
+à la racine (par exemple `npx next start`). Des commandes standard, `npm run build` précédé de
+`npm install` ou `npm ci`, puis `npm start`, fonctionnent sans changement.
+
+Points relevés, non traités :
+- `npm install` signale 17 vulnérabilités « high », issues de dépendances existantes : correctif
+  séparé à planifier.
+- Les données mockées dépendent de l'heure de démarrage (voir ci-dessus) : c'est voulu, mais ça
+  interdit toute comparaison d'empreintes entre deux moments distincts.
+
+Décisions reportées dans la documentation durable : D1, D3, D5 et D8 sont dans `CLAUDE.md`
+(structure du dépôt, imports, version) et D1 dans `docs/stack.md` (entrée Zod). **D9 n'est
+reportée nulle part** : `CLAUDE.md` ne décrit pas le déploiement ; elle se documentera au jalon de
+déploiement du backend réel. Aucune règle d'architecture nouvelle au-delà.
