@@ -91,11 +91,11 @@ technologie a été choisie.
       32 erreurs de type mesurées le 2026-11-18, puis corriger la ligne « TypeScript est en
       `strict: false` » de `CLAUDE.md`).
 
-## Phase E — Skill `/next-task` ⬜
+## Phase E — Skill `/next-task` ✅
 
-- [ ] `.claude/skills/next-task/SKILL.md` : ne propose une release que si un jalon `non publié`
+- [x] `.claude/skills/next-task/SKILL.md` : ne propose une release que si un jalon `non publié`
       apporte un changement visible pour l'utilisateur (règle de `docs/gitflow.md`).
-- [ ] `.claude/skills/next-task/SKILL.md` : quand aucun jalon n'est en cours, classe les
+- [x] `.claude/skills/next-task/SKILL.md` : quand aucun jalon n'est en cours, classe les
       « Jalons futurs » selon `docs/vision.md` (proposition de valeur, utilisateurs servis) et
       signale ceux qui touchent un non-objectif. Ne propose que des pistes présentes dans
       « Jalons futurs » : une idée nouvelle inspirée par la vision est mentionnée en une ligne,
@@ -124,6 +124,9 @@ technologie a été choisie.
 - 2026-11-18 : phase D, pistes de D7 et « TypeScript strict » ajoutées aux jalons futurs de
   `docs/roadmap.md` ; « Backend réel » détaille les décisions prises (TypeScript, schémas Zod
   partagés).
+- 2026-11-18 : phase E, `/next-task` : release proposée seulement si un jalon `non publié` apporte
+  un changement visible (Bilan + `git log` depuis le dernier tag) ; sans jalon en cours, classement
+  des jalons futurs selon `docs/vision.md`.
 
 ## Workflow Git
 

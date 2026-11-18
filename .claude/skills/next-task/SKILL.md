@@ -49,11 +49,22 @@ Applique le premier cas qui correspond, dans cet ordre :
 4. **Sur `develop` avec un jalon dans « En cours »** : propose de reprendre ce jalon. Indique la
    branche à rejoindre et la première case restante (lis le fichier du jalon).
 5. **Sur `develop` ou `main`, aucun jalon en cours** :
-   - si des jalons terminés sont marqués `non publié`, propose d'abord une release, avec la
-     version SemVer suggérée (mineure s'il y a des fonctionnalités, correctif sinon) ;
-   - sinon, propose le jalon futur le plus prioritaire de l'index et rappelle qu'il faut d'abord
-     rédiger son fichier de jalon et le faire valider (cycle « Planifier »). Cite les alternatives
-     en une ligne chacune.
+   - si des jalons terminés sont marqués `non publié`, vérifie qu'ils apportent un **changement
+     visible pour l'utilisateur** (règle de `docs/gitflow.md` : une release n'est pas nécessaire
+     pour de la documentation interne, de l'outillage ou des tests). Lis le Bilan de chacun et
+     `git log --no-merges --format='%s' v<version actuelle de l'index>..HEAD` : un `feat:` ou un
+     `fix:` visible (`docs/changelog.md`) justifie une release, rien d'autre. Dans ce cas, propose
+     d'abord une release, avec la version SemVer suggérée (mineure s'il y a des fonctionnalités,
+     correctif sinon). Sinon, dis que les jalons non publiés n'en justifient pas et passe au point
+     suivant ;
+   - sinon, lis `docs/vision.md` et classe les « Jalons futurs » de l'index selon la proposition
+     de valeur et les utilisateurs servis. Propose le plus prioritaire et rappelle qu'il faut
+     d'abord rédiger son fichier de jalon et le faire valider (cycle « Planifier »). Signale tout
+     jalon futur qui touche un non-objectif de la vision. Cite les alternatives en une ligne
+     chacune ;
+   - ne propose que des pistes **présentes** dans « Jalons futurs ». Une idée nouvelle inspirée
+     par la vision se mentionne en une ligne, comme suggestion à ajouter à l'index, jamais
+     comme tâche proposée. Tu restes en lecture seule : tu n'ajoutes rien à l'index.
 
 ## Réponse attendue
 
