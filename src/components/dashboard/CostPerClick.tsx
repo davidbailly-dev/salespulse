@@ -16,7 +16,7 @@ const currencyFormatter = new Intl.NumberFormat('fr-FR', {
 export function CostPerClick() {
     const { data: adSpend, isLoading, isError } = useAdSpend(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !adSpend) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const items = calculateCostPerClick(adSpend).map(({ channel, cost }) => ({

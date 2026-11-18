@@ -10,7 +10,7 @@ const numberFormatter = new Intl.NumberFormat('fr-FR');
 export function TopSearchTerms() {
     const { data: stats, isLoading, isError } = useSearchTermStats(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !stats) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const items = calculateTopSearchTerms(stats).map((stat) => ({

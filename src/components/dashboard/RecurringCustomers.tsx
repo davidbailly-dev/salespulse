@@ -8,7 +8,7 @@ import { KpiValue } from './KpiValue';
 export function RecurringCustomers() {
     const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !orders) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const recurringOrdersRate = calculateRecurringOrdersRate(orders);

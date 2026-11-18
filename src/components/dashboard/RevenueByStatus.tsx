@@ -28,7 +28,7 @@ const statusTones: Record<OrderStatus, 'default' | 'danger' | 'success'> = {
 export function RevenueByStatus() {
     const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !orders) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const revenueByStatus = calculateRevenueByStatus(orders);

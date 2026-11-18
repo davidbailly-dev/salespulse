@@ -12,7 +12,7 @@ export function LtvCacRatio() {
     const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { customerAcquisitionCost, isLoading: isCacLoading, isError: isCacError } = useCustomerAcquisitionCost();
 
-    if (isOrdersLoading || isCacLoading) return <p>Chargement...</p>;
+    if (isOrdersLoading || isCacLoading || !orders) return <p>Chargement...</p>;
     if (isOrdersError || isCacError) return <p>Erreur de chargement</p>;
 
     const ratio = calculateLtvCacRatio(orders, customerAcquisitionCost);

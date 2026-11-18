@@ -8,7 +8,7 @@ import { CardList } from '../ui/Card';
 export function CustomerRevenueSegments() {
     const { data: orders, isLoading, isError } = useOrders(useDateRangeFilter());
 
-    if (isLoading) return <p>Chargement...</p>;
+    if (isLoading || !orders) return <p>Chargement...</p>;
     if (isError) return <p>Erreur de chargement</p>;
 
     const segments = calculateCustomerRevenueSegments(orders);

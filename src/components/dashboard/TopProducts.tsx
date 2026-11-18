@@ -24,7 +24,7 @@ export function TopProducts() {
     const { data: orders, isLoading: isOrdersLoading, isError: isOrdersError } = useOrders(useDateRangeFilter());
     const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
 
-    if (isOrdersLoading || isProductsLoading) return <p>Chargement...</p>;
+    if (isOrdersLoading || isProductsLoading || !orders || !products) return <p>Chargement...</p>;
     if (isOrdersError || isProductsError) return <p>Erreur de chargement</p>;
 
     // Récupère tous les produits pour mapper récupérer le nom d'un produit par son id
