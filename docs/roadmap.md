@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun.
+Aucun
 
 ## Terminés
 
+- ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — non publié
 - ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — non publié
 - ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — non publié
 - ✅ [002 — Correctifs de la revue de code](milestones/002-review-fixes.md) — v0.3.2
@@ -35,4 +36,19 @@ Pistes relevées dans les commentaires du code, à valider et prioriser :
 - ⬜ **Comparaison à la période précédente** : ajouter un mode à `ComparisonMode`
   (`src/lib/filters/comparisonRange.ts`), en plus du N-1.
 - ⬜ **Backend réel** : remplacer les données mockées (`src/lib/mock-data/store.ts`) par une
-  vraie source de données.
+  vraie source de données :
+  - backend en TypeScript (décidé), qui valide requêtes et réponses avec Zod ;
+  - schémas Zod partagés entre le backend et l'interface (décidé) ; emplacement commun (dépôt
+    unique ou paquet partagé) à trancher dans ce jalon ;
+  - connecteurs aux plateformes e-commerce pour alimenter les données.
+
+Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
+
+- ⬜ **TypeScript strict** : passer `strict` à `true` dans `tsconfig.json` (32 erreurs de type
+  mesurées le 2026-11-18), puis corriger la ligne « TypeScript est en `strict: false` » de
+  `CLAUDE.md`.
+- ⬜ **Authentification et rôles** : à concevoir avec le backend réel.
+- ⬜ **Alertes et notifications** : prévenir l'utilisateur quand un indicateur sort de sa plage
+  habituelle.
+- ⬜ **Exports** : exporter les données ou les indicateurs affichés.
+- ⬜ **Prévisions** : projeter les indicateurs sur la période à venir.
