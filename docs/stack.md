@@ -99,8 +99,9 @@ linter) n'ont pas d'entrée.
   - une réponse qui ne respecte pas le contrat est refusée là où elle apparaît (P4), ce qui
     sécurise le remplacement des données de démonstration par un vrai backend (P2) ;
   - le futur backend, en TypeScript, validera lui aussi les requêtes et les réponses avec Zod, et
-    les schémas seront partagés entre le backend et l'interface (décidé). L'emplacement commun
-    (dépôt unique ou paquet partagé) se tranchera dans le jalon du backend réel.
+    les schémas seront partagés entre le backend et l'interface (décidé). Ils vivent dans le
+    paquet `packages/contracts` du monorepo (jalon 006), que l'interface importe sous le nom
+    `@salespulse/contracts` et que le backend importera de la même façon.
 - **Alternatives écartées** :
   - types TypeScript seuls, sans validation : les types disparaissent à la compilation, une
     réponse hors contrat ne serait pas détectée à l'exécution (P4).
