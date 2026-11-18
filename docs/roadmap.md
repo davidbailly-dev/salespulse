@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [005 — Vision et stack](milestones/005-vision-and-stack.md)
+Aucun
 
 ## Terminés
 
+- ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — non publié
 - ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — non publié
 - ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — non publié
 - ✅ [002 — Correctifs de la revue de code](milestones/002-review-fixes.md) — v0.3.2

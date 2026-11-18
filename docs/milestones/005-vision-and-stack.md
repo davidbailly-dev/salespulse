@@ -1,4 +1,4 @@
-# Jalon 005 — Vision et stack 🔄
+# Jalon 005 — Vision et stack ✅
 
 Branche : `feature/vision-and-stack` (depuis `develop`). Livré dans : —
 
@@ -149,4 +149,36 @@ Un `docs:` pour ce plan, un `docs:` par phase A à D, un `chore:` pour la skill 
 
 ## Bilan
 
-<Rempli à la clôture.>
+Livré : `docs/project-docs-conventions.md` (règles génériques), `docs/vision.md` (problème,
+utilisateurs, proposition de valeur, non-objectifs, principes P1 à P10), `docs/stack.md` (neuf
+entrées validées une à une avec l'utilisateur, plus MSW en technologie retirée), citation et
+import dans `CLAUDE.md`, pistes futures dans `docs/roadmap.md`, et skill `/next-task` ajustée
+(release seulement pour un changement visible, priorisation selon la vision).
+
+Écarts avec le plan :
+- **D10** : le nom du produit figure dans la vision ; le grep de `docs/vision.md` ne cherche plus
+  « salespulse ».
+- Quatre principes ajoutés à ceux du plan pour que chaque technologie serve un principe : P3
+  (données de démonstration reproductibles), P4 (contrat de données vérifié), P6 (calculs
+  vérifiables) et P7 (un seul vocabulaire de types).
+- Décisions prises pendant la revue de la stack : backend futur en TypeScript, schémas Zod
+  partagés entre backend et interface (emplacement à trancher dans le jalon du backend réel),
+  objectif `strict: true`. Elles sont reportées dans `docs/stack.md` et dans « Jalons futurs » de
+  `docs/roadmap.md` (« Backend réel », « TypeScript strict »).
+- Point relevé, non traité : `@faker-js/faker` est en `devDependencies` alors que le serveur s'en
+  sert à l'exécution.
+
+Vérifications réellement faites le 2026-11-18 :
+- les trois `grep` des critères d'acceptation (conventions, vision, `à confirmer` dans la stack)
+  ne trouvent rien ;
+- chaque badge du README a une entrée dans `docs/stack.md`, et tous les principes cités existent
+  dans `docs/vision.md` ;
+- `CLAUDE.md` : paragraphe « Projet » de deux lignes avec le lien, conventions importées avec
+  `@`, `docs/vision.md` et `docs/stack.md` cités sans `@` ;
+- `npm test` (58 fichiers, 620 tests), `npm run lint` et `npx tsc --noEmit` sans erreur.
+
+Non vérifié : `/memory` (import des conventions) et `/next-task` sur `develop` (pas de release
+pour les seuls jalons 003 à 005) demandent une nouvelle session après le merge.
+
+Décisions reportées dans la documentation durable : D1 à D9 sont reflétées dans `docs/vision.md`,
+`docs/stack.md` et `CLAUDE.md` ; aucune règle d'architecture nouvelle au-delà.
