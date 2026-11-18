@@ -1,7 +1,7 @@
 # Roadmap SalesPulse
 
 Jalons des développements en cours et à venir, un fichier par jalon dans `docs/milestones/`.
-Version actuelle : **0.3.2**.
+Version actuelle : **0.3.3**.
 
 Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
@@ -11,10 +11,10 @@ Aucun
 
 ## Terminés
 
-- ✅ [006 — Monorepo](milestones/006-monorepo.md) — non publié
-- ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — non publié
-- ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — non publié
-- ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — non publié
+- ✅ [006 — Monorepo](milestones/006-monorepo.md) — v0.3.3
+- ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — v0.3.3
+- ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — v0.3.3
+- ✅ [003 — Conventions partagées](milestones/003-shared-conventions.md) — v0.3.3
 - ✅ [002 — Correctifs de la revue de code](milestones/002-review-fixes.md) — v0.3.2
 - ✅ [001 — Tests unitaires](milestones/001-unit-tests.md) — v0.3.2
 

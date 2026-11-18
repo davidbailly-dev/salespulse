@@ -1,6 +1,6 @@
 # Jalon 005 — Vision et stack ✅
 
-Branche : `feature/vision-and-stack` (depuis `develop`). Livré dans : —
+Branche : `feature/vision-and-stack` (depuis `develop`). Livré dans : v0.3.3
 
 ## Objectif
 

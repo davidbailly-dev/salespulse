@@ -1,6 +1,6 @@
 # Jalon 004 — Fichiers de jalons ✅
 
-Branche : `feature/milestone-files` (depuis `develop`). Livré dans : —
+Branche : `feature/milestone-files` (depuis `develop`). Livré dans : v0.3.3
 
 ## Objectif
 

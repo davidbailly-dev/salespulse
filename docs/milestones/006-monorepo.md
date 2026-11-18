@@ -1,6 +1,6 @@
 # Jalon 006 — Monorepo ✅
 
-Branche : `feature/monorepo` (depuis `develop`). Livré dans : —
+Branche : `feature/monorepo` (depuis `develop`). Livré dans : v0.3.3
 
 ## Objectif
 

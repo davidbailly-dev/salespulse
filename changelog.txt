@@ -4,6 +4,16 @@ Les versions les plus récentes sont en haut. Chaque entrée décrit ce qui chan
 l'utilisateur.
 
 
+Version 0.3.3 — 2026-11-18
+--------------------------
+
+Corrigé
+- Les cartes du dashboard n'affichent plus d'erreur quand leurs données ne sont pas encore
+  disponibles : elles montrent « Chargement... » le temps qu'elles arrivent.
+- Le déploiement en production fonctionne : la bibliothèque qui génère les données de démonstration
+  est désormais installée avec l'application.
+
+
 Version 0.3.2 — 2026-11-17
 --------------------------
 
