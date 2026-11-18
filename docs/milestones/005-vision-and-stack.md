@@ -51,6 +51,10 @@ technologie a été choisie.
 - **D9 (2026-11-17) — Justifications à confirmer** : dans `docs/stack.md`, toute justification
   déduite du code ou de l'historique est marquée `(à confirmer)` jusqu'à validation par
   l'utilisateur — le pourquoi d'un choix ne se devine pas.
+- **D10 (2026-11-18) — Nom du produit dans la vision** : `docs/vision.md` nomme le produit
+  (« SalesPulse ») — c'est un document propre au projet, seules les bibliothèques en sont
+  exclues ; le grep de `docs/vision.md` ne cherche donc plus « salespulse » (celui du fichier
+  générique le garde).
 
 ## Phase A — Conventions génériques ✅
 
@@ -61,13 +65,13 @@ technologie a été choisie.
       agent IA (lire `stack.md` avant d'ajouter, remplacer ou retirer une dépendance structurante,
       lire `vision.md` avant de proposer une fonctionnalité). Aucune référence au projet.
 
-## Phase B — Vision ⬜
+## Phase B — Vision ✅
 
-- [ ] `docs/vision.md` : problème, utilisateurs (gérant, analyste), proposition de valeur,
+- [x] `docs/vision.md` : problème, utilisateurs (gérant, analyste), proposition de valeur,
       non-objectifs (D6), contraintes et principes techniques (fonctionner sans backend réel,
       backend branchable sans réécrire l'interface, état dans l'URL, français et euros, desktop
       et mobile). Aucune bibliothèque nommée.
-- [ ] `CLAUDE.md` : paragraphe « Projet » réduit à deux lignes avec un lien vers
+- [x] `CLAUDE.md` : paragraphe « Projet » réduit à deux lignes avec un lien vers
       `docs/vision.md` (D5) ; import `@docs/project-docs-conventions.md`.
 
 ## Phase C — Stack ⬜
@@ -100,6 +104,10 @@ technologie a été choisie.
 - 2026-11-17 : plan validé, phase E (skill `/next-task`) incluse dans le jalon.
 - 2026-11-18 : phase A faite, `docs/project-docs-conventions.md` écrit ; le grep des critères
   d'acceptation (références au projet) ne trouve rien.
+- 2026-11-18 : phase B faite. `docs/vision.md` écrit avec les principes P1 à P10 (identifiants
+  repris par `docs/stack.md` en phase C) ; le nom du produit y a été ajouté (D10), le grep de
+  la vision ne cherchant plus « salespulse ». `CLAUDE.md` : paragraphe « Projet » réduit, import des
+  conventions dans une sous-section « Vision et stack ».
 
 ## Workflow Git
 
@@ -110,7 +118,7 @@ Un `docs:` pour ce plan, un `docs:` par phase A à D, un `chore:` pour la skill 
 
 - `grep -niE "salespulse|next\.js|react|vitest|npm|zod|tanstack|recharts|src/" docs/project-docs-conventions.md`
   ne trouve rien.
-- `docs/vision.md` ne nomme aucune bibliothèque (même grep).
+- `docs/vision.md` ne nomme aucune bibliothèque (même grep, sans « salespulse » : D10).
 - Chaque badge du README a une entrée dans `docs/stack.md`, et chaque entrée renvoie à un
   principe présent dans `docs/vision.md`.
 - `grep -n "à confirmer" docs/stack.md` ne trouve rien.

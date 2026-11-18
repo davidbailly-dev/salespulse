@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projet
 
-SalesPulse : dashboard Next.js (App Router) de monitoring des ventes e-commerce multi-boutiques. Toutes les données sont **mockées côté serveur** (trois boutiques fictives heroic fantasy) ; il n'y a pas de backend réel, mais l'architecture est pensée pour en brancher un plus tard en ne remplaçant que la couche API. L'UI et les libellés sont en français.
+SalesPulse : dashboard Next.js de monitoring des ventes e-commerce multi-boutiques, en lecture seule, avec des données mockées côté serveur (trois boutiques fictives heroic fantasy) ; l'UI et les libellés sont en français.
+Vision, utilisateurs, non-objectifs et principes techniques : `docs/vision.md` (à lire avant de proposer une fonctionnalité).
 
 ## Commandes
 
@@ -72,6 +73,13 @@ Les développements sont planifiés en jalons : un fichier par jalon dans `docs/
 @docs/roadmap-conventions.md
 
 Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npx tsc --noEmit` sans erreur.
+
+### Vision et stack
+
+Le rôle et la tenue de `docs/vision.md` et de `docs/stack.md` sont décrits dans un fichier
+générique partagé entre projets :
+
+@docs/project-docs-conventions.md
 
 ## Architecture
 
