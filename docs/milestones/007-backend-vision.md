@@ -1,4 +1,4 @@
-# Jalon 007 — Vision du backend 🔄
+# Jalon 007 — Vision du backend ✅
 
 Branche : `feature/backend-vision` (depuis `develop`). Livré dans : —
 
@@ -395,6 +395,7 @@ démarrés un par un.
   ajoutée, issue de la revue de la stack.
 - 2026-11-19 : phase D faite, le paragraphe « Projet » de `CLAUDE.md` signale la transition vers
   un SaaS multi-commerçant et renvoie à la roadmap.
+- 2026-11-19 : jalon clos. Critères d'acceptation vérifiés, Bilan rempli.
 
 ## Workflow Git
 
@@ -414,4 +415,64 @@ Un `docs:` pour ce plan (fichier du jalon et index de la roadmap), un `docs:` po
 
 ## Bilan
 
-<Rempli à la clôture.>
+Livré :
+- `docs/vision.md` réécrit pour un SaaS multi-commerçant sur abonnement :
+  - utilisateurs : gérant, analyste, administrateur du compte, visiteur de la démonstration ;
+  - non-objectifs revus : multi-commerçant supprimé, multi-devises sorti au profit d'une piste,
+    accès restreint par boutique et fichier client nominatif ajoutés ;
+  - principes P1 à P21, dont P1, P2, P4, P6 et P7 réécrits.
+- `docs/stack.md` aligné :
+  - sept entrées revues (Next.js, React, TypeScript, TanStack Query, Zod, Faker, Vitest) ;
+  - cinq entrées « Statut : prévu » (Express, PostgreSQL, Render, GitHub Actions, Sentry) ;
+  - toutes les justifications validées par l'utilisateur.
+- `docs/roadmap.md` : suite ordonnée de 12 jalons du backend, chacun avec ses prérequis, son
+  périmètre et ses sujets ouverts, et pistes existantes réorganisées.
+- `CLAUDE.md` : le paragraphe « Projet » signale la transition.
+- 25 décisions (D1 à D25), issues du brainstorm avec l'utilisateur.
+
+Écarts avec le plan :
+- Les décisions D16 à D25 sont nées pendant le jalon, au fil des questions de l'utilisateur :
+  - hébergement gratuit et synchronisation par tâches reprenables (D16) ;
+  - multi-devises prévu dans le modèle, sans être livré (D17) ;
+  - sécurité : inscription sur invitation, rate limit, anti-spam, P20 (D18 à D20) ;
+  - pas d'e-mail transactionnel en phase de test (D21) ;
+  - serveur unique (D22), intégration continue (D23), observabilité (D24) ;
+  - P21 (D25).
+- La vision compte 21 principes au lieu des 19 prévus : P20 pour la protection contre les abus,
+  P21 pour les défauts détectés avant l'utilisateur, ce dernier ajouté parce que Sentry ne
+  servait aucun principe.
+- Le multi-devises n'est plus un non-objectif mais une piste de la roadmap (D17). La règle
+  « refuser les boutiques hors euros » vit désormais dans P9.
+- Phases C et D commitées séparément, alors que le plan les regroupait. Le commit de la vision
+  a été amendé pour y inclure la case de la phase A, oubliée par un script en échec (branche
+  locale, non poussée).
+- Ajout d'une piste « Server Components à la place de TanStack Query », à réévaluer après le
+  MVP, issue de la discussion sur la stack.
+- Évoqué sans être retenu pour l'instant : le monolithe modulaire (un seul backend découpé par
+  contexte DDD, sans microservices).
+
+Vérifications réellement faites le 2026-11-19 :
+- le grep de `docs/vision.md` (critère d'acceptation, élargi à Sentry, GitHub, ALTCHA et
+  Cloudflare) ne trouve rien ;
+- chaque principe cité dans `docs/stack.md` existe dans `docs/vision.md`, et chaque entrée de
+  la stack sert au moins un principe ;
+- `grep -c "à confirmer" docs/stack.md` renvoie 0 ;
+- chaque décision qui a une suite pratique (D1 à D11, D15 à D19, D21 à D24) apparaît dans
+  `docs/roadmap.md`. D12 à D14, D20 et D25 sont des règles de documentation, déjà appliquées ;
+- les 18 sujets ouverts sont rattachés à un jalon de la roadmap ;
+- aucune ligne de plus de 100 caractères dans la roadmap, la vision et la stack ;
+- `npm test` (58 fichiers, 620 tests), `npm run lint` et `npm run typecheck` sans erreur.
+
+Non vérifié, à faire dans les jalons concernés : la durée de rétention des journaux sur
+l'offre gratuite de Render (environ 7 jours), et celle des sauvegardes sur l'offre gratuite de
+Neon.
+
+Décisions reportées dans la documentation durable :
+- D1 à D11, D15, D17, D20 et D25 dans `docs/vision.md` ;
+- D8, D16 et D22 à D24 dans `docs/stack.md` ;
+- toutes les décisions qui ont une suite pratique dans les pistes de `docs/roadmap.md`.
+
+Les règles d'architecture du backend (découpage de `apps/api`, serveur unique) entreront dans
+la section « Architecture » de `CLAUDE.md` au jalon Socle API, quand le code existera. Aucun
+changement visible pour l'utilisateur : le README reste inchangé, et aucune release n'est
+nécessaire.

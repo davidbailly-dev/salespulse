@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [007 — Vision du backend](milestones/007-backend-vision.md)
+Aucun
 
 ## Terminés
 
+- ✅ [007 — Vision du backend](milestones/007-backend-vision.md) — non publié
 - ✅ [006 — Monorepo](milestones/006-monorepo.md) — v0.3.3
 - ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — v0.3.3
 - ✅ [004 — Fichiers de jalons](milestones/004-milestone-files.md) — v0.3.3
