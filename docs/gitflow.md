@@ -42,8 +42,9 @@ Le dépôt protège les deux branches pour que la règle ne repose pas sur la di
   merge commit » de la pull request. Chaque branche laisse un commit de merge, l'historique
   garde la trace de ce qui a été livré ensemble.
 - Message de merge par défaut de git (`Merge branch 'feature/xxx' into develop`,
-  `Merge branch 'release/X.Y.Z'` sur `main`), imposé au merge avec `--subject` à la place du
-  message de la plateforme (`Merge pull request #N from …`).
+  `Merge branch 'release/X.Y.Z'` sur `main`), sans corps, comme un `git merge`. Il est imposé au
+  merge avec `--subject` et `--body ""` : sinon la plateforme écrit son propre message
+  (`Merge pull request #N from …`) et ajoute le titre de la pull request en corps.
 - Une `release/*` ou un `hotfix/*` se merge par **deux pull requests** : vers `main`, puis vers
   `develop` (ou la `release/*` en cours).
 - Supprimer la branche, locale et distante, une fois fusionnée partout.
@@ -105,7 +106,7 @@ gh pr create --draft --base develop --title "<titre>" --body "<description>"
 
 # terminer, une fois les vérifications au vert
 gh pr ready
-gh pr merge --merge --subject "Merge branch 'feature/<nom>' into develop"
+gh pr merge --merge --subject "Merge branch 'feature/<nom>' into develop" --body ""
 git switch develop
 git pull
 git branch -d feature/<nom>
@@ -126,7 +127,7 @@ git push -u origin release/X.Y.Z
 
 # terminer : première pull request, vers main, puis tag sur le commit de merge
 gh pr create --base main --title "Release X.Y.Z" --body "<description>"
-gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z'"
+gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z'" --body ""
 git switch main
 git pull
 git tag -a vX.Y.Z -m "vX.Y.Z"
@@ -135,7 +136,7 @@ git push origin vX.Y.Z
 # seconde pull request, vers develop
 gh pr create --base develop --head release/X.Y.Z --title "Release X.Y.Z dans develop" \
     --body "<description>"
-gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z' into develop"
+gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z' into develop" --body ""
 git switch develop
 git pull
 git branch -d release/X.Y.Z
@@ -154,7 +155,7 @@ git push -u origin hotfix/<nom>
 
 # terminer : première pull request, vers main, puis tag sur le commit de merge
 gh pr create --base main --title "Hotfix X.Y.Z" --body "<description>"
-gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>'"
+gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>'" --body ""
 git switch main
 git pull
 git tag -a vX.Y.Z -m "vX.Y.Z"
@@ -163,7 +164,7 @@ git push origin vX.Y.Z
 # seconde pull request, vers develop (ou la branche release/* en cours s'il y en a une)
 gh pr create --base develop --head hotfix/<nom> --title "Hotfix X.Y.Z dans develop" \
     --body "<description>"
-gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>' into develop"
+gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>' into develop" --body ""
 git switch develop
 git pull
 git branch -d hotfix/<nom>
