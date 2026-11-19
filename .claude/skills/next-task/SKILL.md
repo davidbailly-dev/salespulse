@@ -2,7 +2,7 @@
 name: next-task
 description: Détermine la prochaine tâche de développement du projet à partir de la roadmap, des jalons et de la branche git courante, puis la propose sans rien modifier.
 disable-model-invocation: true
-allowed-tools: Bash(git branch:*), Bash(git status:*), Bash(git log:*), Bash(ls:*), Bash(grep:*), Bash(sed:*), Bash(head:*), Bash(cat:*), Read, Grep, Glob
+allowed-tools: Bash(git branch:*), Bash(git status:*), Bash(git log:*), Bash(.claude/skills/next-task/current-milestone.sh), Bash(ls:*), Bash(grep:*), Bash(cat:*), Read, Grep, Glob
 ---
 
 # Prochaine tâche
@@ -28,7 +28,7 @@ Derniers commits :
 Jalon associé à la branche courante, avec ses phases et les cases restant à cocher
 (le jalon porte le nom de la branche sans son préfixe) :
 
-!`f=$(ls docs/milestones/*-$(git branch --show-current | sed 's|^[^/]*/||').md 2>/dev/null | head -1); if [ -n "$f" ]; then echo "$f"; grep -nE '^# |^## Phase|^- \[ \]' "$f"; else echo "Aucun jalon associé à la branche courante."; fi`
+!`.claude/skills/next-task/current-milestone.sh`
 
 Roadmap (index) :
 
