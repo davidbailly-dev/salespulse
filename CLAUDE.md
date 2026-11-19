@@ -73,6 +73,13 @@ Spécificités du projet :
 
 ## Conventions de développement
 
+### Vocabulaire technique
+
+Dans les échanges avec l'utilisateur et dans la documentation interne (`CLAUDE.md`, `docs/`, jalons), les concepts clés du code se nomment par leur terme anglais, sans traduction : « value object » et non « objet-valeur », de même pour « entity », « aggregate », « bounded context », « repository », « middleware », « hook », « query key », etc. Les phrases restent en français.
+
+- La documentation existante s'aligne au fil de ses modifications, sans réécriture d'ensemble.
+- Le README et le `changelog.txt` ne sont pas concernés : ils s'adressent à l'utilisateur du produit, en français et sans jargon interne (voir `docs/readme.md`).
+
 ### TDD (Test Driven Development)
 
 Tout changement de comportement suit le TDD, décrit dans un fichier générique partagé entre projets :
@@ -85,6 +92,15 @@ Spécificités du projet :
 - Fixtures via les builders de `apps/web/src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
 - Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (jalon futur « Outillage de tests UI » de `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
+
+### Relecture du code
+
+L'utilisateur relit et valide chaque partie du code produit : le travail avance par lots humainement relisibles.
+
+- Seuils indicatifs : moins de **300 lignes de code de production par commit** et moins de **800 lignes par pull request, tests compris**. La documentation, `package-lock.json` et les fichiers générés ne comptent pas.
+- Un lot qui menace de dépasser se découpe (commit, phase ou jalon) : le signaler avant de continuer, plutôt qu'après.
+- À la fin de chaque lot, présenter le diff (test rouge, puis code) et attendre la validation de l'utilisateur avant de proposer le commit. Chaque phase d'un jalon se termine par un point d'arrêt de relecture.
+- La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge.
 
 ### Roadmap
 
