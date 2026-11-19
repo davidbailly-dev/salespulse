@@ -195,9 +195,9 @@ démarrés un par un.
   service et consomme le quota d'heures) et une stack de métriques (disproportionnée pour un
   développeur seul).
 
-## Phase A — Vision ⬜
+## Phase A — Vision ✅
 
-- [ ] `docs/vision.md` : problème (chiffres éparpillés, travail refait par chaque personne qui
+- [x] `docs/vision.md` : problème (chiffres éparpillés, travail refait par chaque personne qui
       suit l'activité) ; utilisateurs (gérant, analyste, administrateur du compte, visiteur de
       la démo) ; proposition de valeur (service sur abonnement, boutiques branchées en quelques
       minutes, N-1 dès le premier jour, les mêmes chiffres pour toute l'équipe) ; non-objectifs
@@ -354,6 +354,8 @@ démarrés un par un.
 - 2026-11-19 : observabilité tranchée (D24) : Sentry en région UE côté API et navigateur,
   journaux JSON structurés, suivi des synchronisations en base, `/health`. Pas de conservation
   des journaux au-delà de Render.
+- 2026-11-19 : phase A faite, `docs/vision.md` réécrit (principes P1 à P20). Le grep des
+  critères d'acceptation ne trouve aucune bibliothèque, plateforme ni hébergeur dans la vision.
 
 ## Workflow Git
 
