@@ -1,4 +1,4 @@
-# Jalon 008 — Intégration continue 🔄
+# Jalon 008 — Intégration continue ✅
 
 Branche : `feature/continuous-integration` (depuis `develop`). Livré dans : —
 
@@ -209,6 +209,8 @@ relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le J
   - `README.md` relu : il ne parle ni de merge ni d'outillage, aucune modification.
   - `git grep` ne trouve plus de `git merge` local ni de `--follow-tags` dans la documentation
     en vigueur.
+- 2026-11-19 : jalon clos, Bilan rédigé, index de la roadmap mis à jour. Le merge dans `develop`
+  par la pull request #1 suit ce commit.
 
 ## Workflow Git
 
@@ -230,4 +232,55 @@ le message de D7 : ce merge vérifie le nouveau cycle de bout en bout.
 
 ## Bilan
 
-<Rempli à la clôture.>
+Livré :
+- `.github/workflows/ci.yml` : un job `checks` qui lance `npm ci`, `npm run lint`,
+  `npm run typecheck`, `npm test` et `npm run build` sur chaque pull request vers `develop` ou
+  `main` et chaque push sur ces branches, avec Node lu dans `.node-version` et le cache npm.
+- Réglages GitHub faits par l'utilisateur (D11) : merge commits seuls, suppression automatique
+  des branches désactivée, ruleset « develop et main » (pull request obligatoire, `checks`
+  exigé, ni force push ni suppression, aucun contournement), alertes Dependabot sans mises à
+  jour automatiques (D12).
+- Render ne déploie plus `main` qu'une fois `checks` passé (*After CI Checks Pass*).
+- `docs/gitflow.md` décrit le merge par pull request et les réglages de dépôt qu'il suppose ;
+  `CLAUDE.md`, `docs/stack.md` et la skill `/next-task` sont alignés.
+
+Chiffres : une exécution de `checks` dure environ 55 s sur GitHub (27 s en local) ; suite
+inchangée, 58 fichiers et 620 tests.
+
+Écarts avec le plan :
+- D12 ajoutée en cours de route : `npm audit` ne trouve plus aucune vulnérabilité, alors que D10
+  le laissait hors du CI à cause des 17 relevées au jalon 006 ; il reste hors du CI pour une
+  autre raison (une faille publiée ailleurs bloquerait tous les merges), et les alertes
+  Dependabot le remplacent.
+- Le premier push a été refusé faute du scope `workflow` sur le jeton de `gh` ; la commande de
+  correction est notée dans `CLAUDE.md`.
+- Les critères de validation des jalons (`CLAUDE.md`) gagnent `npm run build`, pour rester
+  alignés sur le CI ; le plan ne le prévoyait pas.
+- La phase C a aussi levé le point laissé ouvert par le jalon 006 sur les commandes Render : le
+  redéploiement de `main` (v0.3.3, déjà en monorepo) a réussi.
+- Les commits du plan ont été suivis, plus un `docs:` intermédiaire pour l'avancement des phases
+  A et B.
+
+Vérifications réellement faites le 2026-11-19 :
+- en local : `npm test` (58 fichiers, 620 tests), `npm run lint`, `npm run typecheck` et
+  `npm run build` sans erreur, sur la branche et sur un clone propre ;
+- `checks` au vert sur la pull request #1 (commit `f96e986`) ;
+- pull request jetable #2 au test cassé : `checks` en échec à l'étape `npm test` seulement,
+  `mergeStateStatus` à `BLOCKED`, `gh pr merge --merge` refusé ; pull request fermée, branches
+  supprimées ;
+- réglages du dépôt, ruleset et alertes Dependabot relus avec `gh api`, conformes à D6 et D12 ;
+- réglage *After CI Checks Pass* de Render confirmé par l'utilisateur, avec un redéploiement
+  réussi.
+
+Non vérifié :
+- l'effet du réglage Render, qui ne s'observe qu'au prochain push sur `main` : à la prochaine
+  release, constater que le déploiement attend le passage de `checks` ;
+- le refus de `gh pr merge --admin`, non tenté (un succès mettrait un test cassé dans
+  `develop`) ; le ruleset indique `current_user_can_bypass: never` ;
+- les cycles Release et Hotfix réécrits dans `docs/gitflow.md`, qui serviront pour la première
+  fois à la prochaine release ; le cycle Feature est éprouvé par le merge de ce jalon.
+
+Décisions reportées dans la documentation durable : D1, D6, D7 et D8 dans `docs/gitflow.md`
+(merge par pull request, réglages du dépôt, message de merge) ; D2 à D5, D11 et D12 dans
+`CLAUDE.md` (CI, job `checks`, réglages hors dépôt) ; D2 et D3 dans `docs/stack.md` (rôle de
+GitHub Actions).
