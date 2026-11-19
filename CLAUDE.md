@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projet
 
-SalesPulse : dashboard Next.js de monitoring des ventes e-commerce multi-boutiques, en lecture seule, avec des données mockées côté serveur (trois boutiques fictives heroic fantasy) ; l'UI et les libellés sont en français.
+SalesPulse : dashboard Next.js de monitoring des ventes e-commerce multi-boutiques, en lecture seule ; l'UI et les libellés sont en français. Aujourd'hui alimenté par des données mockées côté serveur (trois boutiques fictives heroic fantasy), il est en transition vers un SaaS multi-commerçant qui synchronise de vraies boutiques (section « Backend, dans l'ordre » de `docs/roadmap.md`, décisions du jalon 007).
 Vision, utilisateurs, non-objectifs et principes techniques : `docs/vision.md` (à lire avant de proposer une fonctionnalité).
 
 ## Commandes

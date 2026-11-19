@@ -334,9 +334,9 @@ démarrés un par un.
     - procédure en cas de fuite de données (notification à la CNIL sous 72 h) ;
     - cookies limités au strict nécessaire, donc sans bandeau.
 
-## Phase D — CLAUDE.md ⬜
+## Phase D — CLAUDE.md ✅
 
-- [ ] `CLAUDE.md` : le paragraphe « Projet » dit que le dashboard, aujourd'hui alimenté par des
+- [x] `CLAUDE.md` : le paragraphe « Projet » dit que le dashboard, aujourd'hui alimenté par des
       données de démonstration, est en transition vers un SaaS multi-commerçant, avec un renvoi à
       `docs/vision.md`.
 
@@ -393,6 +393,8 @@ démarrés un par un.
   sujet ouvert est rattaché à un jalon. Les pistes « Backend réel » et « Authentification et
   rôles » sont remplacées. Une piste « Server Components à la place de TanStack Query » est
   ajoutée, issue de la revue de la stack.
+- 2026-11-19 : phase D faite, le paragraphe « Projet » de `CLAUDE.md` signale la transition vers
+  un SaaS multi-commerçant et renvoie à la roadmap.
 
 ## Workflow Git
 
