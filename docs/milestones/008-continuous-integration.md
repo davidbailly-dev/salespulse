@@ -80,25 +80,25 @@ ces vérifications sont passées.
   pas ; l'agent ne les modifie pas et se limite à les relire avec `gh api` en lecture pour
   vérifier qu'ils correspondent à D6 — décision de l'utilisateur.
 
-## Phase A — Workflow 🔄
+## Phase A — Workflow ✅
 
 - [x] `.github/workflows/ci.yml` : déclencheurs (D3), job `checks` (D4) configuré selon D5,
       étapes `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` (D2).
 - [x] Même séquence lancée en local sur un clone propre de la branche : tout passe.
-- [ ] Branche poussée et pull request brouillon ouverte vers `develop` (sur confirmation) : le
+- [x] Branche poussée et pull request brouillon ouverte vers `develop` (sur confirmation) : le
       workflow passe au vert ; durée de l'exécution notée dans le Journal.
 
-## Phase B — Réglages GitHub ⬜
+## Phase B — Réglages GitHub ✅
 
 Réglages faits par l'utilisateur dans l'interface de GitHub, guidé pas à pas (D11), puis
 relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le Journal.
 
-- [ ] Dépôt : merge commits seuls, suppression automatique des branches mergées désactivée
+- [x] Dépôt : merge commits seuls, suppression automatique des branches mergées désactivée
       (D6).
-- [ ] Protection de `develop` et de `main` selon D6, vérification `checks` exigée. Elle ne peut
+- [x] Protection de `develop` et de `main` selon D6, vérification `checks` exigée. Elle ne peut
       être choisie qu'après une première exécution du workflow (phase A).
-- [ ] Relecture par `gh api` : les réglages correspondent à D6.
-- [ ] Preuve du blocage : pull request jetable avec un test volontairement cassé, vers
+- [x] Relecture par `gh api` : les réglages correspondent à D6.
+- [x] Preuve du blocage : pull request jetable avec un test volontairement cassé, vers
       `develop` ; `checks` échoue et `gh pr merge` refuse le merge. Pull request fermée et
       branche jetable supprimée ensuite.
 
@@ -138,6 +138,39 @@ relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le J
 - 2026-11-19 : découverte : `npm audit` ne trouve plus aucune vulnérabilité, sur le clone comme
   dans le dépôt, alors que le jalon 006 en relevait 17 « high ». La raison donnée par D10 pour
   laisser `npm audit` hors du CI ne tient plus ; la question est soumise à l'utilisateur.
+- 2026-11-19 : surprise : le premier push de la branche est refusé par GitHub (`refusing to
+  allow an OAuth App to create or update workflow … without workflow scope`). Le remote est en
+  HTTPS et git s'identifie avec le jeton de `gh`, qui n'avait pas le scope `workflow`, exigé
+  pour tout push qui touche `.github/workflows/`. Corrigé par l'utilisateur avec
+  `gh auth refresh -h github.com -s workflow`, puis push réussi.
+- 2026-11-19 : pull request brouillon #1 ouverte vers `develop` par l'utilisateur ; `checks`
+  passe au vert en 55 s : installation de Node 24.22.1 lue dans `.node-version` (5 s),
+  `npm ci` (13 s), lint (5 s), typecheck (5 s), tests (58 fichiers, 4 s), build (14 s). Phase A
+  terminée.
+- 2026-11-19 : réglages GitHub faits par l'utilisateur (D11), relus avec `gh api` :
+  - dépôt : `allow_merge_commit` vrai, `allow_squash_merge`, `allow_rebase_merge`,
+    `delete_branch_on_merge`, `allow_update_branch` et `allow_auto_merge` faux ;
+  - ruleset « develop et main » (actif, cible `refs/heads/develop` et `refs/heads/main`, aucun
+    contournement, `current_user_can_bypass: never`) : `deletion`, `non_fast_forward`,
+    `pull_request` (0 approbation, méthode `merge` seule), `required_status_checks` (`checks`
+    de GitHub Actions, `strict` faux) ; pas d'historique linéaire.
+  - Les rulesets ont été préférés à la protection de branche classique : un seul ensemble de
+    règles pour les deux branches, et le choix des méthodes de merge y est possible.
+  - Le ruleset limite déjà les merges vers `develop` et `main` à la méthode `merge` ; le
+    réglage du dépôt est gardé en plus, comme prévu par D6, pour le cas où le ruleset serait
+    modifié.
+  - Option « Require an additional approval for unattributed Copilot pull requests » laissée
+    cochée par défaut : sans effet avec 0 approbation exigée.
+- 2026-11-19 : preuve du blocage. Branche jetable `feature/ci-blocking-probe` (depuis la branche
+  du jalon, pour avoir le workflow) avec un test qui échoue (`expect(1).toBe(2)`), pull request
+  #2 vers `develop` : `checks` échoue en 32 s à l'étape `npm test` seulement (1 test en échec,
+  620 au vert), `mergeStateStatus` vaut `BLOCKED`, et `gh pr merge --merge` est refusé : « the
+  base branch policy prohibits the merge ». Le message suggère `--admin`, non tenté : le ruleset
+  n'a aucun contournement (`current_user_can_bypass: never`), et un essai réussi mettrait un
+  test cassé dans `develop`.
+- 2026-11-19 : pull request #2 fermée, branche jetable supprimée en local et sur `origin` par
+  l'utilisateur ; vérifié : plus aucune branche `feature/ci-*`, test sonde absent de la branche
+  du jalon. Phase B terminée.
 
 ## Workflow Git
 
