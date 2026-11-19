@@ -93,6 +93,15 @@ Spécificités du projet :
 - Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
 - Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (jalon futur « Outillage de tests UI » de `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
 
+### Relecture du code
+
+L'utilisateur relit et valide chaque partie du code produit : le travail avance par lots humainement relisibles.
+
+- Seuils indicatifs : moins de **300 lignes de code de production par commit** et moins de **800 lignes par pull request, tests compris**. La documentation, `package-lock.json` et les fichiers générés ne comptent pas.
+- Un lot qui menace de dépasser se découpe (commit, phase ou jalon) : le signaler avant de continuer, plutôt qu'après.
+- À la fin de chaque lot, présenter le diff (test rouge, puis code) et attendre la validation de l'utilisateur avant de proposer le commit. Chaque phase d'un jalon se termine par un point d'arrêt de relecture.
+- La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge.
+
 ### Roadmap
 
 Les développements sont planifiés en jalons : un fichier par jalon dans `docs/milestones/`, indexés par `docs/roadmap.md`, selon un format générique partagé entre projets :
