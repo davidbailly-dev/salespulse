@@ -230,33 +230,33 @@ démarrés un par un.
 - [x] `docs/stack.md` : chaque « Principe servi » renvoie à un principe existant de la nouvelle
       vision (D13).
 
-## Phase C — Roadmap ⬜
+## Phase C — Roadmap ✅
 
-- [ ] `docs/roadmap.md` : remplacer les pistes « Backend réel » et « Authentification et
+- [x] `docs/roadmap.md` : remplacer les pistes « Backend réel » et « Authentification et
       rôles » par la suite ordonnée des jalons du backend : intégration continue (D23), socle
       API, authentification et
       organisations, synchronisation et plateforme de démonstration, indicateurs côté serveur
       et gestion des boutiques, connecteur WooCommerce, déploiement UE et journal d'audit,
       facturation, connecteurs Shopify puis PrestaShop. Chaque piste dit son périmètre et ses
       prérequis.
-- [ ] `docs/roadmap.md` : le déploiement se fait sur les plans gratuits (démonstration et
+- [x] `docs/roadmap.md` : le déploiement se fait sur les plans gratuits (démonstration et
       testeurs), avec des tâches de synchronisation reprenables et des déclencheurs gratuits
       (D16). Le passage en plan payant est rattaché à la facturation.
-- [ ] `docs/roadmap.md` : le socle API inclut des montants en unités mineures avec leur devise
+- [x] `docs/roadmap.md` : le socle API inclut des montants en unités mineures avec leur devise
       et une devise de référence par organisation. Nouvelle piste « Multi-devises » (D17) :
       taux quotidiens de la BCE, conversion au taux du jour de la commande figée à la synchro,
       remboursements au taux de la commande d'origine, montant dans la devise de la boutique
       pour les boutiques à plusieurs devises d'encaissement, choix de la devise de référence,
       levée du refus des boutiques hors euros, et en option une comparaison à taux constant.
-- [ ] `docs/roadmap.md` : la piste Authentification inclut l'inscription sur invitation (D18), le
+- [x] `docs/roadmap.md` : la piste Authentification inclut l'inscription sur invitation (D18), le
       rate limit et les protections anti-spam (D19), ainsi que les bases de sécurité (mots de
       passe hachés en argon2id, cookie de session `HttpOnly` / `Secure` / `SameSite`, protection
       CSRF, CORS limité au domaine de l'interface, en-têtes de sécurité). La piste « ouverture
       commerciale » (facturation) inclut l'ouverture de l'inscription libre.
-- [ ] `docs/roadmap.md` : garder « Analytics réel », et rattacher « Exports » à la réversibilité
+- [x] `docs/roadmap.md` : garder « Analytics réel », et rattacher « Exports » à la réversibilité
       des données (D9).
 
-- [ ] `docs/roadmap.md` : rattacher chaque sujet ouvert ci-dessous à la piste où il sera tranché
+- [x] `docs/roadmap.md` : rattacher chaque sujet ouvert ci-dessous à la piste où il sera tranché
       (piste visée entre parenthèses), ou en faire une piste à part.
   - **Définitions métier (indicateurs côté serveur)** :
     - le chiffre d'affaires est-il HT ou TTC, et inclut-il la livraison et les remises ?
@@ -383,6 +383,16 @@ démarrés un par un.
   P21 ajouté à la vision (D25).
 - 2026-11-19 : justifications de `docs/stack.md` validées par l'utilisateur, plus aucun
   `(à confirmer)`. Phase B terminée.
+- 2026-11-19 : phase C faite. Les « Jalons futurs » de `docs/roadmap.md` présentent la suite
+  ordonnée du backend en 12 jalons : intégration continue, socle API, authentification et
+  organisations, synchronisation et démonstration, indicateurs côté serveur et gestion des
+  boutiques, WooCommerce, ouverture aux testeurs, facturation, ouverture commerciale, Shopify,
+  PrestaShop, multi-devises. Choix de l'utilisateur : un déploiement minimal dans le socle API
+  (chaque release sur `main` est redéployée par Render, il faut donc que le backend y soit
+  déployable dès la première), et la facturation séparée de l'ouverture commerciale. Chaque
+  sujet ouvert est rattaché à un jalon. Les pistes « Backend réel » et « Authentification et
+  rôles » sont remplacées. Une piste « Server Components à la place de TanStack Query » est
+  ajoutée, issue de la revue de la stack.
 
 ## Workflow Git
 
