@@ -80,11 +80,11 @@ ces vérifications sont passées.
   pas ; l'agent ne les modifie pas et se limite à les relire avec `gh api` en lecture pour
   vérifier qu'ils correspondent à D6 — décision de l'utilisateur.
 
-## Phase A — Workflow ⬜
+## Phase A — Workflow 🔄
 
-- [ ] `.github/workflows/ci.yml` : déclencheurs (D3), job `checks` (D4) configuré selon D5,
+- [x] `.github/workflows/ci.yml` : déclencheurs (D3), job `checks` (D4) configuré selon D5,
       étapes `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` (D2).
-- [ ] Même séquence lancée en local sur un clone propre de la branche : tout passe.
+- [x] Même séquence lancée en local sur un clone propre de la branche : tout passe.
 - [ ] Branche poussée et pull request brouillon ouverte vers `develop` (sur confirmation) : le
       workflow passe au vert ; durée de l'exécution notée dans le Journal.
 
@@ -128,6 +128,16 @@ relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le J
 - 2026-11-19 : plan rédigé, en attente de validation. Variante complète (D1) et build dans le CI
   (D2) choisis par l'utilisateur.
 - 2026-11-19 : l'utilisateur fera lui-même les réglages GitHub de la phase B (D11).
+- 2026-11-19 : workflow écrit, avec `actions/checkout@v7` et `actions/setup-node@v7` (dernières
+  versions majeures publiées, v7.0.1 et v7.1.0). `cache: npm` est explicite : sans champ
+  `packageManager` dans le `package.json`, le cache automatique de `setup-node` reste désactivé.
+  `persist-credentials: false` sur le checkout, le job n'ayant pas à pousser.
+- 2026-11-19 : séquence du workflow lancée sur un clone propre de la branche, Node 24.22.1 :
+  `npm ci` (6 s), `npm run lint` (5 s), `npm run typecheck` (4 s), `npm test` (58 fichiers,
+  620 tests, 2 s), `npm run build` (10 s), soit 27 s au total, sans erreur.
+- 2026-11-19 : découverte : `npm audit` ne trouve plus aucune vulnérabilité, sur le clone comme
+  dans le dépôt, alors que le jalon 006 en relevait 17 « high ». La raison donnée par D10 pour
+  laisser `npm audit` hors du CI ne tient plus ; la question est soumise à l'utilisateur.
 
 ## Workflow Git
 

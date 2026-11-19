@@ -1,0 +1,38 @@
+# Intégration continue : vérifie chaque pull request vers develop ou main, et chaque push sur
+# ces branches (Render attend ce statut sur main pour déployer). Jalon 008, D2 à D5.
+name: CI
+
+on:
+    pull_request:
+        branches: [develop, main]
+    push:
+        branches: [develop, main]
+
+permissions:
+    contents: read
+
+# Une exécution plus récente sur la même référence annule la précédente
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    # Nom exigé par la protection de develop et de main : ne pas le renommer sans la mettre à jour
+    checks:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version-file: .node-version
+                  cache: npm
+
+            - run: npm ci
+            - run: npm run lint
+            - run: npm run typecheck
+            - run: npm test
+            - run: npm run build
