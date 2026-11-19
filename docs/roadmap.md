@@ -11,6 +11,7 @@ Aucun
 
 ## Terminés
 
+- ✅ [008 — Intégration continue](milestones/008-continuous-integration.md) — non publié
 - ✅ [007 — Vision du backend](milestones/007-backend-vision.md) — non publié
 - ✅ [006 — Monorepo](milestones/006-monorepo.md) — v0.3.3
 - ✅ [005 — Vision et stack](milestones/005-vision-and-stack.md) — v0.3.3
@@ -28,13 +29,7 @@ sont écrits. Le MVP couvre les commandes et ce qui s'en déduit (clients, produ
 l'analytics reste simulé tant qu'il n'a pas de vraie source (piste « Analytics réel »). Chaque
 jalon laisse `main` déployable.
 
-- ⬜ **Intégration continue** (D23) : prérequis aucun.
-  - workflow GitHub Actions : `npm ci`, lint, typecheck et tests à chaque push et à chaque pull
-    request ; auto-déploiement de Render passé sur *After CI Checks Pass* ;
-  - sujet ouvert : pull requests et protection de branche (variante légère ou complète, cette
-    dernière demandant d'adapter `docs/gitflow.md`) ; branche de base Neon par branche Git, en
-    option.
-- ⬜ **Socle API** : prérequis Intégration continue.
+- ⬜ **Socle API** : prérequis Intégration continue (jalon 008, terminé).
   - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
     délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
   - PostgreSQL : Docker en local, Neon en région Frankfurt ; migrations versionnées, appliquées
@@ -47,7 +42,8 @@ jalon laisse `main` déployable.
   - configuration validée au démarrage, clé de chiffrement des identifiants de boutique et sa
     rotation (P16) ; journaux JSON et `/health` (D24) ;
   - stratégie de tests du backend : base jetable, tests d'isolation (P11), conventions TDD et
-    couverture étendues à `apps/api`, CI complété par une PostgreSQL de service ;
+    couverture étendues à `apps/api`, CI complété par une PostgreSQL de service et, en option,
+    par une branche de base Neon par branche Git ;
   - déploiement minimal pour garder `main` déployable : `render.yaml`, base Neon, migrations
     au démarrage.
 - ⬜ **Authentification et organisations** : prérequis Socle API.

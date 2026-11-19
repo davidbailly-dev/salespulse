@@ -54,6 +54,9 @@ Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers 
 Spécificités du projet :
 
 - La version est portée par le `package.json` **racine** et son `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`, lancé à la racine) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`. Les paquets des workspaces restent à `0.0.0`.
+- Intégration continue : `.github/workflows/ci.yml` (GitHub Actions) lance `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` et `npm run build` sur chaque pull request vers `develop` ou `main` et chaque push sur ces branches. Son job `checks` est la vérification exigée par le ruleset GitHub « develop et main » : ne pas le renommer sans mettre à jour le ruleset.
+- Render déploie `main` seulement une fois `checks` passé (*After CI Checks Pass*). Les réglages GitHub (ruleset, méthodes de merge, alertes Dependabot) et Render se font dans leurs interfaces, par l'utilisateur, hors dépôt (jalon 008).
+- Pousser une modification de `.github/workflows/` demande le scope `workflow` du jeton de `gh` (remote en HTTPS) : `gh auth refresh -h github.com -s workflow`.
 
 ## Documentation utilisateur
 
@@ -89,7 +92,7 @@ Les développements sont planifiés en jalons : un fichier par jalon dans `docs/
 
 @docs/roadmap-conventions.md
 
-Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
+Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur, comme l'intégration continue.
 
 ### Vision et stack
 

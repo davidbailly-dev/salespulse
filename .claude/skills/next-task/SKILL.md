@@ -74,8 +74,9 @@ Réponds en français, avec le tutoiement, de façon concise :
 - **Tâche proposée** : une seule, précise (fichier et comportement attendu quand c'est une case
   de phase).
 - **Marche à suivre** : branche à créer ou à rejoindre, et les règles qui s'appliquent
-  (TDD : test rouge d'abord et sortie montrée ; suite complète avant tout commit ; aucun commit,
-  merge ou push sans confirmation explicite).
+  (TDD : test rouge d'abord et sortie montrée ; suite complète avant tout commit ; merge par
+  pull request une fois l'intégration continue au vert ; aucun commit, push, pull request ou
+  merge sans confirmation explicite).
 - **Alternatives** : seulement s'il y a un vrai choix.
 
 Termine en demandant à l'utilisateur s'il valide la tâche. Ne commence rien avant sa réponse.

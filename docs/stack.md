@@ -238,8 +238,8 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Render
 
-- **Statut** : en place pour la démonstration actuelle ; service unique interface + API prévu
-  (jalon 007, D22).
+- **Statut** : en place pour la démonstration actuelle, déployée après le passage de
+  l'intégration continue (jalon 008) ; service unique interface + API prévu (jalon 007, D22).
 - **Rôle** : hébergement. Un seul service web gratuit, en région Frankfurt, sert l'interface et
   l'API, et y exécute la synchronisation. Il est décrit dans un `render.yaml` versionné et
   redéployé à chaque commit sur `main`, une fois l'intégration continue passée.
@@ -263,10 +263,11 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## GitHub Actions
 
-- **Statut** : prévu (jalon « Intégration continue »).
-- **Rôle** : intégration continue. À chaque push et à chaque pull request : installation,
-  lint, vérification de types et tests ; avec le backend, tests d'intégration sur une base
-  PostgreSQL jetable.
+- **Statut** : en place (jalon 008) : workflow `.github/workflows/ci.yml`, dont le job `checks`
+  est exigé pour merger dans `develop` et `main`.
+- **Rôle** : intégration continue. À chaque pull request vers `develop` ou `main` et à chaque
+  push sur ces branches : installation, lint, vérification de types, tests et build ; avec le
+  backend, tests d'intégration sur une base PostgreSQL jetable.
 - **Pourquoi** :
   - le dépôt est sur GitHub : l'intégration continue y est intégrée et gratuite pour l'usage du
     projet ;
