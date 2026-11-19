@@ -194,6 +194,11 @@ démarrés un par un.
   sous-traitant de plus), un outil de surveillance de disponibilité externe (il réveille le
   service et consomme le quota d'heures) et une stack de métriques (disproportionnée pour un
   développeur seul).
+- **D25 (2026-11-19) — Principe P21** : Sentry ne servait aucun principe de la vision. Les
+  conventions y voient un signal : retirer l'outil, ou compléter la vision. On complète la
+  vision avec **P21 — Défauts détectés avant l'utilisateur** : chaque changement est vérifié
+  avant sa mise en ligne, et une erreur en production remonte au développeur sans attendre
+  qu'un utilisateur la signale. Sentry et GitHub Actions servent P21.
 
 ## Phase A — Vision ✅
 
@@ -207,22 +212,22 @@ démarrés un par un.
       conversion n'existe pas. Aucune bibliothèque,
       aucune plateforme ni aucun hébergeur nommé (D12). Note de transition (D15).
 
-## Phase B — Stack ⬜
+## Phase B — Stack ✅
 
-- [ ] `docs/stack.md`, Next.js : les routes `/api/...` de démonstration sont provisoires et
+- [x] `docs/stack.md`, Next.js : les routes `/api/...` de démonstration sont provisoires et
       disparaissent au profit de `apps/api` ; principes revus.
-- [ ] `docs/stack.md`, TanStack Query : nouveau rôle, il charge des agrégats calculés par le
+- [x] `docs/stack.md`, TanStack Query : nouveau rôle, il charge des agrégats calculés par le
       serveur (D8), le cache est partagé entre indicateurs et les filtres restent dans l'adresse.
-- [ ] `docs/stack.md`, Zod : il valide aussi la frontière entre une plateforme et le modèle
+- [x] `docs/stack.md`, Zod : il valide aussi la frontière entre une plateforme et le modèle
       commun (P4).
-- [ ] `docs/stack.md`, Faker : il alimente la plateforme de démonstration (P1, P3).
-- [ ] `docs/stack.md` : nouvelles entrées Express et PostgreSQL (Neon en production, Docker en
+- [x] `docs/stack.md`, Faker : il alimente la plateforme de démonstration (P1, P3).
+- [x] `docs/stack.md` : nouvelles entrées Express et PostgreSQL (Neon en production, Docker en
       local). Justifications marquées `(à confirmer)` puis validées avec l'utilisateur.
-- [ ] `docs/stack.md` : nouvelles entrées pour les services externes structurants, Render
+- [x] `docs/stack.md` : nouvelles entrées pour les services externes structurants, Render
       (hébergement, serveur unique en phase gratuite : D22) et GitHub Actions (intégration
       continue : D23), Sentry (suivi des erreurs : D24). Next.js est servi par un serveur
       personnalisé (D22).
-- [ ] `docs/stack.md` : chaque « Principe servi » renvoie à un principe existant de la nouvelle
+- [x] `docs/stack.md` : chaque « Principe servi » renvoie à un principe existant de la nouvelle
       vision (D13).
 
 ## Phase C — Roadmap ⬜
@@ -281,7 +286,15 @@ démarrés un par un.
     - tests d'isolation entre organisations (P11) ;
     - connecteurs testés sur des réponses de plateforme enregistrées ;
     - extension des conventions TDD et de la couverture à `apps/api`.
-  - **CI/CD** : tranché par D23. Reste en option une branche de base Neon par branche Git.
+  - **CI/CD** : tranché par D23. Restent en option :
+    - une branche de base Neon par branche Git ;
+    - **pull requests et protection de branche (jalon Intégration continue)**. Aujourd'hui, le
+      merge se fait en local puis on pousse, si bien que le CI détecte un échec après le merge
+      dans `develop` (Render protège seulement `main`). Variante légère sans changer d'outil :
+      pousser `feature/*`, attendre le vert, puis merger. Variante complète : merger par pull
+      request (« Create a merge commit », l'équivalent de `--no-ff`), avec une protection de
+      branche qui exige le CI au vert sur `develop` et `main`. C'est gratuit, le dépôt étant
+      public. Cette variante demande d'adapter `docs/gitflow.md` (fichier générique).
   - **Observabilité** : tranché par D24. Reste à répartir entre les pistes : journaux et
     `/health` au socle API, suivi des synchronisations au jalon synchronisation, Sentry au
     déploiement. Durée exacte de rétention des journaux Render à vérifier.
@@ -356,6 +369,20 @@ démarrés un par un.
   des journaux au-delà de Render.
 - 2026-11-19 : phase A faite, `docs/vision.md` réécrit (principes P1 à P20). Le grep des
   critères d'acceptation ne trouve aucune bibliothèque, plateforme ni hébergeur dans la vision.
+- 2026-11-19 : phase B rédigée. `docs/stack.md` mis à jour (Next.js, React, TypeScript,
+  TanStack Query, Zod, Faker, Vitest) et complété par cinq entrées marquées « Statut : prévu »
+  (Express, PostgreSQL, Render, GitHub Actions, Sentry). Toutes les justifications nouvelles sont
+  marquées `(à confirmer)` en attente de validation.
+- 2026-11-19 : discuté le retrait de TanStack Query et de Faker pour le MVP : on garde les deux.
+  TanStack Query évite de recoder la déduplication, l'abandon des réponses périmées et les
+  nouvelles tentatives dans 55 composants, et les Server Components seront à réévaluer après
+  le MVP. Faker reste nécessaire à la démonstration et à l'analytics simulé, et il passera en
+  dépendance d'exécution au jalon Synchronisation. Les deux points sont notés dans `docs/stack.md`.
+- 2026-11-19 : clarifié que D23 comble le trou du CI (le CD existait déjà avec Render). Pull
+  requests et protection de branche notées comme sujet ouvert du jalon Intégration continue.
+  P21 ajouté à la vision (D25).
+- 2026-11-19 : justifications de `docs/stack.md` validées par l'utilisateur, plus aucun
+  `(à confirmer)`. Phase B terminée.
 
 ## Workflow Git
 
@@ -370,7 +397,7 @@ Un `docs:` pour ce plan (fichier du jalon et index de la roadmap), un `docs:` po
 - Chaque principe cité dans `docs/stack.md` existe dans `docs/vision.md`, et chaque entrée de la
   stack sert au moins un principe.
 - `grep -n "à confirmer" docs/stack.md` ne trouve rien.
-- Les jalons futurs du backend dans `docs/roadmap.md` couvrent toutes les décisions D1 à D24.
+- Les jalons futurs du backend dans `docs/roadmap.md` couvrent toutes les décisions D1 à D25.
 - `npm test`, `npm run lint` et `npm run typecheck` sans erreur.
 
 ## Bilan

@@ -155,3 +155,8 @@ Les exigences durables qui orientent les choix. Chaque principe porte un identif
   fréquence. L'inscription résiste aux robots sans dépendre d'un service tiers, et ne révèle pas
   si une adresse a déjà un compte. Des quotas encadrent les comptes en essai, pour qu'aucun
   compte ne puisse épuiser les ressources communes.
+- **P21 — Défauts détectés avant l'utilisateur** : chaque changement est vérifié
+  automatiquement avant d'être mis en ligne, et une version qui échoue à ces vérifications
+  n'est pas déployée. Une erreur en production remonte automatiquement au développeur, avec son
+  contexte, sans attendre qu'un utilisateur la signale. Données personnelles et secrets n'en
+  font jamais partie.
