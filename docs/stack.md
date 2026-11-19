@@ -190,7 +190,7 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Express
 
-- **Statut** : prévu (jalon « Socle API »).
+- **Statut** : prévu (jalon « Serveur API »).
 - **Rôle** : framework HTTP du backend (`apps/api`) : routes de l'API, authentification, rate
   limit, validation des requêtes. En phase gratuite, il est le point d'entrée du service unique
   et délègue à Next.js tout ce qui n'est pas l'API (jalon 007, D22).
@@ -213,7 +213,7 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## PostgreSQL
 
-- **Statut** : prévu (jalon « Socle API »).
+- **Statut** : prévu (jalon « Base de données »).
 - **Rôle** : base de données du backend : organisations, membres, boutiques, commandes, produits,
   clients pseudonymisés, tâches de synchronisation, journal d'audit. Neon en production, région
   Frankfurt, et une base Docker en local.
@@ -282,7 +282,7 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Sentry
 
-- **Statut** : prévu (jalon de déploiement).
+- **Statut** : prévu (jalon « Ouverture aux testeurs »).
 - **Rôle** : suivi des erreurs, côté API et côté navigateur, en région UE. Désactivé quand sa
   configuration est absente (local, tests).
 - **Pourquoi** :

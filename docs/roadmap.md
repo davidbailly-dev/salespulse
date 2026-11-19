@@ -29,24 +29,32 @@ sont écrits. Le MVP couvre les commandes et ce qui s'en déduit (clients, produ
 l'analytics reste simulé tant qu'il n'a pas de vraie source (piste « Analytics réel »). Chaque
 jalon laisse `main` déployable.
 
-- ⬜ **Socle API** : prérequis Intégration continue (jalon 008, terminé).
-  - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
-    délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
-  - PostgreSQL : Docker en local, Neon en région Frankfurt ; migrations versionnées, appliquées
-    au démarrage ;
+Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
+relisible (seuils dans `CLAUDE.md`). Jusqu'au jalon « Déploiement du socle », Render continue de
+lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
+
+- ⬜ **Modèle de données** : prérequis Intégration continue (jalon 008, terminé).
+  - définitions métier à trancher : statuts canoniques, HT ou TTC, livraison, remises,
+    remboursements ; fuseau horaire de l'organisation (découpage des jours, changements
+    d'heure) ;
   - modèle commun : organisation, boutique, commande, produit, client pseudonymisé (D7, P15) ;
     montants en unités mineures avec leur devise, devise de référence fixée à l'euro (D17) ;
-  - sujets ouverts : définitions métier (statuts canoniques, HT ou TTC, livraison, remises,
-    remboursements) et fuseau horaire de l'organisation (découpage des jours, changements
-    d'heure) ;
-  - configuration validée au démarrage, clé de chiffrement des identifiants de boutique et sa
-    rotation (P16) ; journaux JSON et `/health` (D24) ;
-  - stratégie de tests du backend : base jetable, tests d'isolation (P11), conventions TDD et
-    couverture étendues à `apps/api`, CI complété par une PostgreSQL de service et, en option,
-    par une branche de base Neon par branche Git ;
-  - déploiement minimal pour garder `main` déployable : `render.yaml`, base Neon, migrations
-    au démarrage.
-- ⬜ **Authentification et organisations** : prérequis Socle API.
+  - document du modèle (bounded contexts, entities, value objects, invariants) ; en option,
+    types et value objects du domaine en TypeScript pur, en TDD, sans base, avec leur
+    emplacement à trancher.
+- ⬜ **Serveur API** : prérequis Modèle de données.
+  - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
+    délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
+  - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
+  - conventions TDD et couverture étendues à `apps/api`.
+- ⬜ **Base de données** : prérequis Serveur API.
+  - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données ;
+  - stratégie de tests : base jetable, tests d'isolation (P11), CI complété par une PostgreSQL de
+    service et, en option, par une branche de base Neon par branche Git.
+- ⬜ **Déploiement du socle** : prérequis Base de données.
+  - `render.yaml`, serveur unique lancé par Render, base Neon en région Frankfurt, migrations
+    appliquées au démarrage.
+- ⬜ **Authentification et organisations** : prérequis Déploiement du socle.
   - connexion par e-mail et mot de passe (D4) : argon2id, cookie de session `HttpOnly` /
     `Secure` / `SameSite`, protection CSRF, CORS limité, en-têtes de sécurité ;
   - organisations, membres et rôles propriétaire / administrateur / lecteur (D1, D3) ;
@@ -63,6 +71,8 @@ jalon laisse `main` déployable.
   - import de l'historique au branchement (P14), synchronisation incrémentale sur la date de
     modification, détection des suppressions, rattrapage périodique ; ralentissement et
     nouvelles tentatives face aux quotas des plateformes ;
+  - clé de chiffrement des identifiants de boutique et sa rotation (P16), utile dès le premier
+    connecteur ;
   - connecteur de démonstration : générateurs déplacés dans un paquet partagé, Faker en
     dépendance d'exécution ; organisation de démonstration créée au démarrage ;
   - sujet ouvert : démonstration qui vieillit (fenêtre glissante, réinitialisation) ;
