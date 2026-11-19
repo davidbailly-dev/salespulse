@@ -79,6 +79,14 @@ ces vérifications sont passées.
   lui-même les réglages du dépôt et des protections (D6) dans l'interface de GitHub, guidé pas à
   pas ; l'agent ne les modifie pas et se limite à les relire avec `gh api` en lecture pour
   vérifier qu'ils correspondent à D6 — décision de l'utilisateur.
+- **D12 (2026-11-19) — remplace D10 pour `npm audit` et Dependabot** : `npm audit` reste hors
+  du CI, et les alertes Dependabot sont activées à la place, sans les pull requests automatiques
+  (*security updates* et *version updates* désactivées) — `npm audit` ne trouve plus aucune
+  vulnérabilité (Journal), mais une faille publiée sur une dépendance indirecte bloquerait tous
+  les merges, hotfix compris, sans rapport avec le changement vérifié ; les alertes préviennent
+  sans bloquer. Les pull requests de Dependabot partiraient de branches `dependabot/…`, hors
+  du nommage de `docs/gitflow.md`. Réglage fait par l'utilisateur, comme D11 — décision de
+  l'utilisateur.
 
 ## Phase A — Workflow ✅
 
@@ -101,27 +109,29 @@ relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le J
 - [x] Preuve du blocage : pull request jetable avec un test volontairement cassé, vers
       `develop` ; `checks` échoue et `gh pr merge` refuse le merge. Pull request fermée et
       branche jetable supprimée ensuite.
+- [x] Alertes Dependabot activées, sans *security updates* ni *version updates* (D12) ;
+      activation relue par `gh api`.
 
-## Phase C — Render ⬜
+## Phase C — Render ✅
 
-- [ ] Auto-déploiement du service passé de *On Commit* à *After CI Checks Pass*, dans le back
+- [x] Auto-déploiement du service passé de *On Commit* à *After CI Checks Pass*, dans le back
       office Render (réglage hors dépôt, jalon 006 D9), par l'utilisateur. L'effet ne s'observe
       qu'au prochain push sur `main`, donc à la prochaine release (D9) : à vérifier à ce
       moment-là.
 
-## Phase D — Documentation ⬜
+## Phase D — Documentation ✅
 
-- [ ] `docs/gitflow.md` : merge par pull request (D1, D8) ; cycles Feature, Release et Hotfix
+- [x] `docs/gitflow.md` : merge par pull request (D1, D8) ; cycles Feature, Release et Hotfix
       réécrits avec `gh pr create` et `gh pr merge --merge --subject …` (D7) ; une release ou
       un hotfix passe par deux pull requests ; tag posé après le merge dans `main`, puis poussé ;
       réglages de dépôt requis (D6) ; règles pour un agent IA (ouvrir ou merger une pull
       request seulement sur confirmation).
-- [ ] `CLAUDE.md` : spécificités du workflow Git — vérification exigée `checks`, mêmes
+- [x] `CLAUDE.md` : spécificités du workflow Git — vérification exigée `checks`, mêmes
       commandes que les critères de validation des jalons, Render en *After CI Checks Pass*.
-- [ ] `docs/stack.md` : entrée GitHub Actions passée de « prévu » à « en place » ; entrée Render
+- [x] `docs/stack.md` : entrée GitHub Actions passée de « prévu » à « en place » ; entrée Render
       relue.
-- [ ] `.claude/skills/next-task/SKILL.md` : la marche à suivre mentionne la pull request.
-- [ ] `README.md` : relu, aucune modification attendue (outillage, `docs/readme.md`).
+- [x] `.claude/skills/next-task/SKILL.md` : la marche à suivre mentionne la pull request.
+- [x] `README.md` : relu, aucune modification attendue (outillage, `docs/readme.md`).
 
 ## Journal
 
@@ -171,6 +181,34 @@ relus par l'agent avec `gh api` en lecture ; le résultat est reporté dans le J
 - 2026-11-19 : pull request #2 fermée, branche jetable supprimée en local et sur `origin` par
   l'utilisateur ; vérifié : plus aucune branche `feature/ci-*`, test sonde absent de la branche
   du jalon. Phase B terminée.
+- 2026-11-19 : l'utilisateur choisit les alertes Dependabot à la place de `npm audit` dans le CI
+  (D12) ; la phase B repasse en cours pour ce réglage.
+- 2026-11-19 : auto-déploiement de Render passé sur *After CI Checks Pass* par l'utilisateur.
+  Effet à constater au prochain push sur `main`, à la prochaine release : le déploiement doit
+  attendre que `checks` passe. La sauvegarde du réglage a redéployé le service avec succès :
+  `main` porte la v0.3.3, déjà en monorepo (jalon 006), donc les commandes de build et de
+  démarrage du service fonctionnent avec la structure actuelle ; le point « à vérifier avant la
+  prochaine release » du Bilan du jalon 006 est levé. Phase C terminée.
+- 2026-11-19 : alertes Dependabot activées par l'utilisateur (D12), relues avec `gh api` :
+  `vulnerability-alerts` répond 204 (activé), `automated-security-fixes` et
+  `dependabot_security_updates` désactivés, aucun `.github/dependabot.yml`, 0 alerte ouverte.
+  Phase B terminée.
+- 2026-11-19 : phase D faite.
+  - `docs/gitflow.md` : merge par pull request seulement, commit de merge et message de git
+    imposé par `--subject` ; nouvelle section « Réglages du dépôt » (D6) ; cycles Feature,
+    Release et Hotfix réécrits avec `gh` (pull request brouillon puis `gh pr ready` pour une
+    feature, deux pull requests désignées par leur numéro pour une release ou un hotfix, tag
+    poussé seul) ; règles pour un agent IA étendues au push, aux pull requests et à
+    l'interdiction de `--admin`.
+  - `CLAUDE.md` : intégration continue, job `checks` lié au ruleset, Render en *After CI Checks
+    Pass*, réglages hors dépôt, scope `workflow` de `gh`. Écart avec le plan : les critères de
+    validation des jalons gagnent `npm run build`, pour rester alignés sur le CI (D2).
+  - `docs/stack.md` : GitHub Actions passe à « en place », build ajouté à son rôle ; statut de
+    Render complété.
+  - `.claude/skills/next-task/SKILL.md` : la marche à suivre cite le merge par pull request.
+  - `README.md` relu : il ne parle ni de merge ni d'outillage, aucune modification.
+  - `git grep` ne trouve plus de `git merge` local ni de `--follow-tags` dans la documentation
+    en vigueur.
 
 ## Workflow Git
 

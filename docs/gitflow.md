@@ -15,7 +15,9 @@ ici.
 | `develop` | Intégration. Contient les fonctionnalités terminées de la prochaine version. |
 
 **On ne commit jamais directement sur `main` ni sur `develop`** : elles n'évoluent que par des
-merges de branches temporaires.
+merges de branches temporaires, faits par pull request une fois l'intégration continue passée.
+Le dépôt protège les deux branches pour que la règle ne repose pas sur la discipline (voir
+« Réglages du dépôt »).
 
 ## Branches temporaires
 
@@ -33,11 +35,39 @@ merges de branches temporaires.
 
 ## Règles de merge
 
-- Toujours `git merge --no-ff` : chaque branche laisse un commit de merge, l'historique garde la
-  trace de ce qui a été livré ensemble.
+- Une branche entre dans `main` ou `develop` par une **pull request**, mergée seulement quand
+  les vérifications de l'intégration continue sont au vert. On ne merge jamais `main` ni
+  `develop` en local.
+- Toujours un **commit de merge** (l'équivalent de `git merge --no-ff`) : méthode « Create a
+  merge commit » de la pull request. Chaque branche laisse un commit de merge, l'historique
+  garde la trace de ce qui a été livré ensemble.
 - Message de merge par défaut de git (`Merge branch 'feature/xxx' into develop`,
-  `Merge branch 'release/X.Y.Z'` sur `main`).
-- Supprimer la branche locale une fois fusionnée partout (`git branch -d`).
+  `Merge branch 'release/X.Y.Z'` sur `main`), imposé au merge avec `--subject` à la place du
+  message de la plateforme (`Merge pull request #N from …`).
+- Une `release/*` ou un `hotfix/*` se merge par **deux pull requests** : vers `main`, puis vers
+  `develop` (ou la `release/*` en cours).
+- Supprimer la branche, locale et distante, une fois fusionnée partout.
+
+## Réglages du dépôt
+
+Réglages de la plateforme d'hébergement que ce flux suppose :
+
+- **Méthodes de merge** : commit de merge seul ; squash et rebase désactivés, car ils
+  effaceraient le commit de merge.
+- **Suppression automatique des branches mergées désactivée** : elle fermerait la seconde pull
+  request d'une `release/*` ou d'un `hotfix/*` dès le merge de la première.
+- **Protection de `main` et de `develop`** :
+  - pull request obligatoire ;
+  - vérifications de l'intégration continue exigées, sans exiger que la branche soit à jour
+    avec sa cible (le retour d'une release ou d'un hotfix dans `develop` demanderait des merges
+    supplémentaires, hors du modèle) ;
+  - ni force push ni suppression ;
+  - aucun contournement, administrateurs compris ;
+  - nombre d'approbations au choix de l'équipe (0 pour un développeur seul, qui ne peut pas
+    approuver sa propre pull request).
+
+Le nom des vérifications exigées et les autres réglages propres au projet (déploiement,
+environnements) se documentent dans son `CLAUDE.md` ou son README.
 
 ## Versions et tags
 
@@ -55,7 +85,9 @@ merges de branches temporaires.
 
 ## Cycles pas à pas
 
-Commandes git standard, sans l'outil `git-flow`.
+Commandes git standard et [GitHub CLI](https://cli.github.com/) (`gh`), sans l'outil
+`git-flow`. Sur une autre plateforme, les étapes sont les mêmes avec son interface ou son
+outil.
 
 ### Feature
 
@@ -67,12 +99,17 @@ git switch -c feature/<nom>
 
 # ... commits ...
 
-# terminer
+# proposer : pull request en brouillon, pour un retour précoce de l'intégration continue
+git push -u origin feature/<nom>
+gh pr create --draft --base develop --title "<titre>" --body "<description>"
+
+# terminer, une fois les vérifications au vert
+gh pr ready
+gh pr merge --merge --subject "Merge branch 'feature/<nom>' into develop"
 git switch develop
 git pull
-git merge --no-ff feature/<nom>
 git branch -d feature/<nom>
-git push origin develop
+git push origin --delete feature/<nom>
 ```
 
 ### Release
@@ -85,18 +122,24 @@ git switch -c release/X.Y.Z
 # passer la version et compléter le changelog, puis commit dédié
 # (ex. « chore: passe la version à X.Y.Z »)
 # seuls des correctifs de stabilisation sont admis sur cette branche
+git push -u origin release/X.Y.Z
 
-# terminer
+# terminer : première pull request, vers main, puis tag sur le commit de merge
+gh pr create --base main --title "Release X.Y.Z" --body "<description>"
+gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z'"
 git switch main
 git pull
-git merge --no-ff release/X.Y.Z
 git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin vX.Y.Z
 
+# seconde pull request, vers develop
+gh pr create --base develop --head release/X.Y.Z --title "Release X.Y.Z dans develop" \
+    --body "<description>"
+gh pr merge <numéro> --merge --subject "Merge branch 'release/X.Y.Z' into develop"
 git switch develop
-git merge --no-ff release/X.Y.Z
+git pull
 git branch -d release/X.Y.Z
-
-git push origin main develop --follow-tags
+git push origin --delete release/X.Y.Z
 ```
 
 ### Hotfix
@@ -107,18 +150,28 @@ git switch main
 git pull
 git switch -c hotfix/<nom>
 # correctif + commit dédié de passage de version et de changelog (correctif X.Y.Z+1)
+git push -u origin hotfix/<nom>
 
-# terminer
+# terminer : première pull request, vers main, puis tag sur le commit de merge
+gh pr create --base main --title "Hotfix X.Y.Z" --body "<description>"
+gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>'"
 git switch main
-git merge --no-ff hotfix/<nom>
+git pull
 git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin vX.Y.Z
 
-git switch develop          # ou la branche release/* en cours s'il y en a une
-git merge --no-ff hotfix/<nom>
+# seconde pull request, vers develop (ou la branche release/* en cours s'il y en a une)
+gh pr create --base develop --head hotfix/<nom> --title "Hotfix X.Y.Z dans develop" \
+    --body "<description>"
+gh pr merge <numéro> --merge --subject "Merge branch 'hotfix/<nom>' into develop"
+git switch develop
+git pull
 git branch -d hotfix/<nom>
-
-git push origin main develop --follow-tags
+git push origin --delete hotfix/<nom>
 ```
+
+Le numéro de chaque pull request est affiché par `gh pr create` : le donner à `gh pr merge`
+évite toute ambiguïté quand deux pull requests partent de la même branche.
 
 ## Règles pour un agent IA
 
@@ -126,6 +179,10 @@ git push origin main develop --follow-tags
 - Si elle est sur `main` ou `develop`, créer la branche `feature/*` (ou `hotfix/*`) **avant** de
   modifier le moindre fichier.
 - Les opérations suivantes ne se font **que sur confirmation explicite** de l'utilisateur :
-  commit, merge, création de tag, push, suppression de branche.
+  commit, push, ouverture d'une pull request ou passage en « prête », merge, création de tag,
+  suppression de branche.
+- Ne jamais merger `main` ni `develop` en local, ni contourner une protection de branche
+  (`gh pr merge --admin`), ni merger une pull request dont les vérifications ne sont pas au
+  vert.
 - Ne jamais réécrire l'historique d'une branche partagée (`rebase`, `reset`, `push --force` sur
   `main`, `develop` ou une branche déjà poussée).
