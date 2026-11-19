@@ -73,6 +73,13 @@ Spécificités du projet :
 
 ## Conventions de développement
 
+### Vocabulaire technique
+
+Dans les échanges avec l'utilisateur et dans la documentation interne (`CLAUDE.md`, `docs/`, jalons), les concepts clés du code se nomment par leur terme anglais, sans traduction : « value object » et non « objet-valeur », de même pour « entity », « aggregate », « bounded context », « repository », « middleware », « hook », « query key », etc. Les phrases restent en français.
+
+- La documentation existante s'aligne au fil de ses modifications, sans réécriture d'ensemble.
+- Le README et le `changelog.txt` ne sont pas concernés : ils s'adressent à l'utilisateur du produit, en français et sans jargon interne (voir `docs/readme.md`).
+
 ### TDD (Test Driven Development)
 
 Tout changement de comportement suit le TDD, décrit dans un fichier générique partagé entre projets :
