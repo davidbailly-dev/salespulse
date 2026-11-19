@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun
+- 🔄 [007 — Vision du backend](milestones/007-backend-vision.md)
 
 ## Terminés
 
