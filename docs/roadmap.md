@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun.
+- 🔄 [010 — Modèle de données](milestones/010-data-model.md)
 
 ## Terminés
 
@@ -31,19 +31,11 @@ l'analytics reste simulé tant qu'il n'a pas de vraie source (piste « Analytics
 jalon laisse `main` déployable.
 
 Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
-relisible (seuils dans `CLAUDE.md`). Jusqu'au jalon « Déploiement du socle », Render continue de
-lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
+relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est en cours.
+Jusqu'au jalon « Déploiement du socle », Render continue de lancer Next.js seul : `apps/api` est
+testé par le CI sans être déployé.
 
-- ⬜ **Modèle de données** : prérequis Intégration continue (jalon 008, terminé).
-  - définitions métier à trancher : statuts canoniques, HT ou TTC, livraison, remises,
-    remboursements ; fuseau horaire de l'organisation (découpage des jours, changements
-    d'heure) ;
-  - modèle commun : organisation, boutique, commande, produit, client pseudonymisé (D7, P15) ;
-    montants en unités mineures avec leur devise, devise de référence fixée à l'euro (D17) ;
-  - document du modèle (bounded contexts, entities, value objects, invariants) ; en option,
-    types et value objects du domaine en TypeScript pur, en TDD, sans base, avec leur
-    emplacement à trancher.
-- ⬜ **Serveur API** : prérequis Modèle de données.
+- ⬜ **Serveur API** : prérequis Modèle de données (jalon 010).
   - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
     délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
   - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
