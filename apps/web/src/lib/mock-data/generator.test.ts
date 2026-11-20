@@ -12,7 +12,9 @@ const WINDOW_MS = WINDOW_DAYS * 24 * 60 * 60 * 1000;
 const dataset = generateDataset(NOW);
 const historyOrders = generateHistoryOrders(dataset, NOW);
 
+// Sur une liste vide, Math.min() vaut Infinity et Math.max() -Infinity : toute borne passerait.
 function expectOrdersWithin(orders: Order[], windowEnd: Date): void {
+    expect(orders.length).toBeGreaterThan(0);
     const dates = orders.map((order) => new Date(order.date).getTime());
     expect(Math.min(...dates)).toBeGreaterThanOrEqual(windowEnd.getTime() - WINDOW_MS);
     expect(Math.max(...dates)).toBeLessThanOrEqual(windowEnd.getTime());
@@ -44,6 +46,7 @@ describe('generateDataset', () => {
     });
 
     it('inscrit les clients dans les deux ans qui précèdent `now`', () => {
+        expect(dataset.customers.length).toBeGreaterThan(0);
         const dates = dataset.customers.map((customer) => new Date(customer.registeredAt).getTime());
 
         expect(Math.min(...dates)).toBeGreaterThanOrEqual(subtractOneYear(subtractOneYear(NOW)).getTime());

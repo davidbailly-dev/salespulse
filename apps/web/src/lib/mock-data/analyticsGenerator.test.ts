@@ -18,6 +18,11 @@ describe.each([
 ])('generateAnalyticsDataset, fenêtre $window', ({ input, now, tuning }) => {
     const analytics = generateAnalyticsDataset(input, now, tuning);
 
+    // Le schéma et le déterminisme accepteraient des listes vides.
+    it.each(Object.keys(analytics))('produit des lignes de `%s`', (list) => {
+        expect(analytics[list as keyof typeof analytics].length).toBeGreaterThan(0);
+    });
+
     it('respecte le schéma des données analytics', () => {
         expect(() => AnalyticsDatasetSchema.parse(analytics)).not.toThrow();
     });
