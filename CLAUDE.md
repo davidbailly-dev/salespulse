@@ -24,7 +24,7 @@ npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts   # un seul fichier 
 ```
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`), à la racine.
-- **Tests** : Vitest en environnement `node` (`apps/web/vitest.config.mts`), fichiers `*.test.ts`, couverture limitée à `apps/web/src/lib/**` (hors générateurs Faker et hooks). Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
+- **Tests** : Vitest (`apps/web/vitest.config.mts`) en deux projects, l'environnement suivant l'extension : `unit` pour les `*.test.ts` en `node` (logique pure, routes API, générateurs), `dom` pour les `*.test.tsx` en `jsdom` (composants et hooks). Couverture de `apps/web/src/lib/**` et `apps/web/src/components/**`, hors générateurs Faker (testés par invariants), sans seuil. Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - `apps/web/next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer. Il déclare aussi `transpilePackages` pour `@salespulse/contracts`.
 - TypeScript est en `strict: true` (options communes dans `tsconfig.base.json`).
 
@@ -90,8 +90,14 @@ Spécificités du projet :
 
 - Lancer un seul fichier de test : `npm test -w @salespulse/web -- <chemin relatif à apps/web>`.
 - Fixtures via les builders de `apps/web/src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
-- Générateurs Faker : invariants = respect du schéma Zod et déterminisme du seed.
-- Hooks et composants se testeront avec Testing Library + jsdom. Tant que cet outillage n'est pas en place (jalon futur « Outillage de tests UI » de `docs/roadmap.md`), le TDD ne s'applique pas directement à eux : extraire leur logique dans une fonction pure, testée d'abord.
+- Générateurs Faker : invariants = respect du schéma Zod, même résultat pour les mêmes entrées (seed et `now` reçu, jamais l'horloge réelle), bornes des dates et cohérence entre champs.
+- Composants et hooks : Testing Library (`render`, `renderHook`, `screen`), fichiers `*.test.tsx`, assertions de Vitest sans `jest-dom`. Doubles de test et helpers dans `apps/web/src/lib/testing/` :
+  - `next/navigation` : `vi.mock('next/navigation', () => import('<chemin>/testing/nextNavigation'))`, puis l'URL lue par les hooks avec `setSearchParams('preset=7d&shop=…')` ;
+  - `fetch` : `vi.stubGlobal('fetch', fetchMock)`, sans MSW, et `vi.unstubAllGlobals()` après chaque test ;
+  - TanStack Query : `wrapper: createQueryWrapper()` (`testing/react.tsx`), un `QueryClient` neuf par test, sans nouvelle tentative ;
+  - horloge : `vi.useFakeTimers({ toFake: ['Date'] })` puis `vi.setSystemTime(…)` ; ne simuler que `Date`, pour ne pas bloquer les minuteries de React et de TanStack Query.
+- Routes API : `GET(new NextRequest(url))` dans le project `unit`, store remplacé par `vi.mock`. La validation Zod se prouve par un refus : une donnée hors contrat dans le store fait échouer la route.
+- Test de caractérisation (sur du code existant, donc vert d'emblée) : son rouge se prouve par une mutation temporaire du code testé, lancée et montrée, puis annulée sans être commitée. Une mutation qui survit révèle un test trop faible : le renforcer.
 
 ### Relecture du code
 

@@ -78,8 +78,8 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
   - sujet ouvert : démonstration qui vieillit (fenêtre glissante, réinitialisation) ;
   - suivi des synchronisations en base et fraîcheur affichée (P13, D24) ; quotas d'essai ;
     refus des boutiques hors euros (D11).
-- ⬜ **Indicateurs côté serveur et gestion des boutiques** : prérequis Synchronisation, et de
-  préférence l'Outillage de tests UI (les hooks sont réécrits).
+- ⬜ **Indicateurs côté serveur et gestion des boutiques** : prérequis Synchronisation ; les
+  hooks réécrits le sont sous le filet de l'Outillage de tests UI (jalon 009).
   - routes d'agrégats (D8) : les fonctions de calcul des indicateurs passent côté serveur, en
     TDD ; hooks réécrits pour charger les agrégats ;
   - contrat d'API rétrocompatible (interface et API déployables séparément plus tard) ;

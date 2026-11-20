@@ -181,12 +181,38 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Vitest
 
-- **Rôle** : tests unitaires des calculs d'indicateurs, des filtres et des générateurs ; avec le
-  backend, tests des routes, des connecteurs et de l'isolation entre organisations.
+- **Rôle** : lanceur de tous les tests : calculs d'indicateurs, filtres, invariants des
+  générateurs et routes API en environnement `node`, composants et hooks dans un DOM simulé
+  (jalon 009, avec Testing Library et jsdom) ; avec le backend, tests des connecteurs et de
+  l'isolation entre organisations.
 - **Pourquoi** : fonctionne avec TypeScript sans configuration lourde, se lance en un fichier ou
-  en suite complète, et permet d'écrire les tests avant le code.
+  en suite complète, et permet d'écrire les tests avant le code. Ses `projects` choisissent
+  l'environnement par type de fichier : la logique pure garde la vitesse de `node`.
 - **Alternatives écartées** : aucune étudiée, Vitest répond très bien au besoin.
-- **Principe servi** : P6, P11.
+- **Principe servi** : P3, P6, P11, P21.
+
+## Testing Library et jsdom
+
+- **Rôle** : tests des composants React et des hooks (jalon 009). Testing Library affiche un
+  composant ou exécute un hook (`render`, `renderHook`) et interroge le résultat comme le ferait
+  l'utilisateur (`screen.getByText`) ; jsdom fournit le DOM simulé dans lequel ces tests
+  tournent, sous Vitest.
+- **Pourquoi** :
+  - le TDD s'arrêtait à la logique pure : le branchement des hooks (lecture de l'adresse,
+    `queryKey` stable, états de chargement et d'erreur, comparaison N-1) n'était jamais vérifié,
+    alors que le jalon « Indicateurs côté serveur » réécrira tous les hooks ;
+  - Testing Library teste ce que voit l'utilisateur plutôt que l'implémentation : ses tests
+    survivent aux refactors ;
+  - jsdom est le DOM simulé le plus complet et le plus documenté.
+- **Alternatives écartées** (jalon 009, D1) :
+  - happy-dom : plus rapide, mais moins fidèle ; interchangeable en une ligne si la vitesse
+    devient gênante ;
+  - Vitest Browser Mode (vrai navigateur) : fidélité totale, mais navigateurs à installer en
+    local et dans l'intégration continue, pour un gain limité aux graphiques ;
+  - `react-test-renderer` (déprécié depuis React 19) et Enzyme (abandonné, sans React 18 ni
+    19) ;
+  - les tests de bout en bout (Playwright, Cypress) sont complémentaires, pas une alternative.
+- **Principe servi** : P5, P21.
 
 ## Express
 

@@ -128,19 +128,19 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
       respecte `AnalyticsDatasetSchema` et donne le même résultat pour les mêmes entrées, avec le
       réglage par défaut et avec `HISTORY_ANALYTICS_TUNING`.
 
-## Phase D — Documentation ⬜
+## Phase D — Documentation ✅
 
-- [ ] `CLAUDE.md` :
+- [x] `CLAUDE.md` :
   - commandes et tests : deux projects (`.ts` en `node`, `.tsx` en `jsdom`), couverture
     étendue ;
   - TDD : fin du contournement « tant que cet outillage n'est pas en place », doubles de test
     et helpers (D4), rouge d'un test de caractérisation prouvé par mutation (D5).
-- [ ] `docs/stack.md` : rôle de Vitest étendu aux composants et aux hooks ; nouvelle entrée
+- [x] `docs/stack.md` : rôle de Vitest étendu aux composants et aux hooks ; nouvelle entrée
       Testing Library et jsdom, avec les alternatives écartées de D1 (pourquoi validé par
       l'utilisateur).
-- [ ] `docs/roadmap.md` : prérequis « Outillage de tests UI » du jalon « Indicateurs côté
+- [x] `docs/roadmap.md` : prérequis « Outillage de tests UI » du jalon « Indicateurs côté
       serveur » marqué comme rempli.
-- [ ] `README.md` : badge Testing Library ajouté à côté de celui de Vitest, puisque la stack
+- [x] `README.md` : badge Testing Library ajouté à côté de celui de Vitest, puisque la stack
       technique liste les technologies de test (`docs/readme.md`) ; rien d'autre à modifier
       (outillage).
 
@@ -194,6 +194,11 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
   boutique. Rouge prouvé par 15 mutations (filtres et bornes des routes, validation Zod, seeds,
   fenêtres, filtre par boutique, sessions non entières). Les routes restent hors couverture :
   `src/app` n'est pas dans le périmètre de D7.
+- 2026-11-20 : phase D terminée. `CLAUDE.md` décrit les deux projects, les doubles de test,
+  les routes API et la preuve du rouge par mutation, et l'invariant des générateurs mentionne le
+  `now` reçu (D9). `docs/stack.md` : Vitest sert aussi P3 et P21 (invariants des générateurs,
+  défauts détectés avant l'utilisateur) ; entrée Testing Library et jsdom. Badge Testing
+  Library ajouté au README, sans autre changement (outillage).
 
 ## Workflow Git
 
