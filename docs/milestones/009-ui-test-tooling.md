@@ -70,6 +70,12 @@ générateurs de données mockées.
   Toujours sans seuil : le rapport sert à repérer les trous.
 - **D8 (2026-11-20) — Pas de release** : outillage et tests, sans effet visible pour
   l'utilisateur (`docs/gitflow.md`) ; le jalon part avec la prochaine release qui en a un.
+- **D9 (2026-11-20) — Correctif de `registeredAt` dans ce jalon** : le générateur tire
+  `registeredAt` par rapport au `now` reçu (`refDate`) et non à l'horloge réelle — décision de
+  l'utilisateur, plutôt que de figer l'horloge dans le test. L'invariant « même `now`, même
+  résultat » devient vrai, et aucun client n'est inscrit après `now`. Même nombre de tirages,
+  donc aucune autre donnée ne change ; invisible en production (`now` ≈ horloge), D8 tient.
+  Commit `fix:` dédié, avant le `test:` de la phase C.
 
 ## Phase A — Outillage et témoin composant ✅
 
@@ -106,19 +112,19 @@ générateurs de données mockées.
       comparaison (et requête N-1 non lancée), à `null` tant que la période N-1 n'est pas
       chargée, calculé par la même fonction pure une fois chargée.
 
-## Phase C — Routes API et invariants du mock ⬜
+## Phase C — Routes API et invariants du mock ✅
 
 Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
 
-- [ ] `apps/web/src/app/api/orders/route.test.ts` : `GET(new NextRequest(url))` avec le store
+- [x] `apps/web/src/app/api/orders/route.test.ts` : `GET(new NextRequest(url))` avec le store
       remplacé par `vi.mock` ; toutes les commandes sans paramètre ; filtre `shop` ; bornes
       `from` et `to` incluses ; réponse conforme à `OrderListSchema`.
-- [ ] `apps/web/src/app/api/analytics/traffic/route.test.ts` : même principe, paramètres
+- [x] `apps/web/src/app/api/analytics/traffic/route.test.ts` : même principe, paramètres
       transmis à `filterTraffic` (boutique, plage, proratisation des jours partiels).
-- [ ] `apps/web/src/lib/mock-data/generator.test.ts` : `generateDataset(now)` respecte
+- [x] `apps/web/src/lib/mock-data/generator.test.ts` : `generateDataset(now)` respecte
       `DatasetSchema` et donne le même résultat pour le même `now` ; `generateHistoryOrders`
       respecte `OrderListSchema`.
-- [ ] `apps/web/src/lib/mock-data/analyticsGenerator.test.ts` : `generateAnalyticsDataset`
+- [x] `apps/web/src/lib/mock-data/analyticsGenerator.test.ts` : `generateAnalyticsDataset`
       respecte `AnalyticsDatasetSchema` et donne le même résultat pour les mêmes entrées, avec le
       réglage par défaut et avec `HISTORY_ANALYTICS_TUNING`.
 
@@ -174,12 +180,27 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
   `undefined` pour un mode inconnu) : remplacée par « tout `compare` présent vaut `yoy` ». Noms de
   tests alignés sur la convention du dépôt (apostrophe échappée entre guillemets simples), y
   compris dans `KpiDelta.test.tsx`.
+- 2026-11-20 : phase C, découverte : `generateDataset` n'est pas déterministe pour un même
+  `now`. `registeredAt` est tiré par `faker.date.past({ years: 2 })` par rapport à l'horloge
+  réelle : les 600 clients changent d'un appel à l'autre, et avec un `now` passé, des clients
+  sont inscrits après lui. Corrigé (D9) ; test rouge montré, empreinte SHA-256 du jeu hors
+  `registeredAt` (produits, clients, commandes, fenêtre N-1) identique avant et après.
+- 2026-11-20 : phase C terminée, 22 tests. « Réponse conforme au schéma » des routes testée par
+  un refus : une donnée hors contrat dans le store fait échouer la route, ce qui prouve la
+  validation (des fixtures valides passeraient sans elle). `analytics/traffic` testée avec le
+  vrai `filterTraffic` : on vérifie ce que la route renvoie, pas comment elle l'appelle. Les
+  invariants des générateurs vont un peu au-delà du plan : fenêtres de dates, inscriptions dans
+  les deux ans avant `now`, commandes qui ne citent que des clients et des produits de leur
+  boutique. Rouge prouvé par 15 mutations (filtres et bornes des routes, validation Zod, seeds,
+  fenêtres, filtre par boutique, sessions non entières). Les routes restent hors couverture :
+  `src/app` n'est pas dans le périmètre de D7.
 
 ## Workflow Git
 
 - `docs:` pour ce plan (fichier du jalon, index de la roadmap) ;
 - `chore:` pour l'outillage et le témoin `KpiDelta` (phase A) ;
 - `test:` pour les hooks (phase B) ;
+- `fix:` pour le tirage de `registeredAt` par rapport à `now` (phase C, D9) ;
 - `test:` pour les routes API et les invariants du mock (phase C) ;
 - `docs:` pour la documentation (phase D) ;
 - `docs:` pour clore le jalon.
