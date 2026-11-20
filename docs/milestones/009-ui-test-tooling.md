@@ -71,17 +71,17 @@ générateurs de données mockées.
 - **D8 (2026-11-20) — Pas de release** : outillage et tests, sans effet visible pour
   l'utilisateur (`docs/gitflow.md`) ; le jalon part avec la prochaine release qui en a un.
 
-## Phase A — Outillage et témoin composant ⬜
+## Phase A — Outillage et témoin composant ✅
 
-- [ ] `docs/stack.md` relu avant d'ajouter les dépendances (`CLAUDE.md`).
-- [ ] `apps/web/package.json` : `jsdom`, `@testing-library/react` et `@testing-library/dom`
+- [x] `docs/stack.md` relu avant d'ajouter les dépendances (`CLAUDE.md`).
+- [x] `apps/web/package.json` : `jsdom`, `@testing-library/react` et `@testing-library/dom`
       (dépendance pair) en `devDependencies` (D1).
-- [ ] `apps/web/vitest.config.mts` : projects `unit` et `dom` (D2), setup du projet `dom` (D3),
+- [x] `apps/web/vitest.config.mts` : projects `unit` et `dom` (D2), setup du projet `dom` (D3),
       couverture (D7). Les 620 tests existants passent toujours, dans le projet `unit`.
-- [ ] `apps/web/src/lib/testing/setupDom.ts` : `cleanup` après chaque test (D3).
-- [ ] `apps/web/src/lib/testing/react.tsx` : `createTestQueryClient()` et
+- [x] `apps/web/src/lib/testing/setupDom.ts` : `cleanup` après chaque test (D3).
+- [x] `apps/web/src/lib/testing/react.tsx` : `createTestQueryClient()` et
       `createQueryWrapper()` (D4).
-- [ ] `apps/web/src/components/dashboard/KpiDelta.test.tsx` : rien d'affiché sans comparaison
+- [x] `apps/web/src/components/dashboard/KpiDelta.test.tsx` : rien d'affiché sans comparaison
       (`previous` à `undefined`) ni sans valeur courante (`current` à `null`) ; tiret et texte
       « indisponible » quand `previous` vaut `null` ; hausse d'un KPI `higher-is-better` en
       `text-success` avec le texte lecteur d'écran « en hausse de … % » ; baisse d'un KPI
@@ -153,6 +153,13 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
   pour les dépendances du `useMemo` de `useComparisonRange` (comparées par `Object.is`). Les
   cases de la phase B vérifient donc d'abord que le contenu ne dérive pas quand l'horloge avance,
   puis la stabilité de la référence.
+- 2026-11-20 : phase A terminée. `jsdom` 31, `@testing-library/react` 16 et
+  `@testing-library/dom` 10 installés ; le `jsx: "react-jsx"` du `tsconfig.json` suffit à Vitest
+  pour compiler les `.tsx`, sans `@vitejs/plugin-react`. Les 620 tests existants tournent dans
+  `unit`, les 7 de `KpiDelta.test.tsx` dans `dom`. Une case de plus que prévu : la hausse d'un KPI
+  `lower-is-better` en `text-danger`. Rouge prouvé par trois mutations (couleurs inversées, garde
+  de la comparaison désactivée retirée, unité « pt » remplacée par « % »), chacune faisant
+  échouer les tests visés.
 
 ## Workflow Git
 
