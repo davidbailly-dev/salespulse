@@ -87,22 +87,22 @@ générateurs de données mockées.
       `text-success` avec le texte lecteur d'écran « en hausse de … % » ; baisse d'un KPI
       `lower-is-better` en `text-success` ; unité « pt » en mode `points`.
 
-## Phase B — Hooks ⬜
+## Phase B — Hooks ✅
 
-- [ ] `apps/web/src/lib/filters/useDateRangeFilter.test.tsx` (horloge pilotée par
+- [x] `apps/web/src/lib/filters/useDateRangeFilter.test.tsx` (horloge pilotée par
       `vi.setSystemTime`) : `from` et `to` de l'URL repris tels quels ; preset invalide ou absent
       → preset par défaut ; avec un preset relatif à maintenant (`30d`), plage au **contenu
       inchangé** quand l'horloge avance entre deux rendus aux paramètres d'URL inchangés
       (garde-fou de la boucle de fetch : `queryKey` identique) et **même référence** (utile aux
       dépendances du `useMemo` de `useComparisonRange`) ; nouvelle plage quand le preset change.
-- [ ] `apps/web/src/lib/filters/useComparisonRange.test.tsx` : `undefined` sans `compare` ;
+- [x] `apps/web/src/lib/filters/useComparisonRange.test.tsx` : `undefined` sans `compare` ;
       plage N-1 avec `compare=yoy` ; même contenu et même référence quand l'horloge avance entre
       deux rendus.
-- [ ] `apps/web/src/lib/queries/useOrders.test.tsx` : `fetch` appelé sur `/api/orders` avec
+- [x] `apps/web/src/lib/queries/useOrders.test.tsx` : `fetch` appelé sur `/api/orders` avec
       `from`, `to` et la boutique lue dans `?shop=` ; aucun paramètre `shop` sans boutique ;
       données validées renvoyées ; `isError` sur une réponse HTTP en erreur et sur une réponse
       hors schéma ; aucun `fetch` avec `enabled: false`.
-- [ ] `apps/web/src/lib/queries/useComparedKpi.test.tsx` : `previousValue` à `undefined` sans
+- [x] `apps/web/src/lib/queries/useComparedKpi.test.tsx` : `previousValue` à `undefined` sans
       comparaison (et requête N-1 non lancée), à `null` tant que la période N-1 n'est pas
       chargée, calculé par la même fonction pure une fois chargée.
 
@@ -160,6 +160,20 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
   `lower-is-better` en `text-danger`. Rouge prouvé par trois mutations (couleurs inversées, garde
   de la comparaison désactivée retirée, unité « pt » remplacée par « % »), chacune faisant
   échouer les tests visés.
+- 2026-11-20 : phase B terminée, 22 tests de hooks. Helper non prévu :
+  `src/lib/testing/nextNavigation.ts`, double de `next/navigation` partagé, branché dans chaque
+  fichier par `vi.mock('next/navigation', () => import(…))` et piloté par `setSearchParams`.
+  Seul `Date` est simulé (`vi.useFakeTimers({ toFake: ['Date'] })`), pour ne pas bloquer les
+  minuteries de React et de TanStack Query. `useComparedKpi` est testé avec le vrai `useOrders`
+  et un `fetch` qui répond selon l'année de `from`, la réponse N-1 restant en attente pour le cas
+  « en chargement ».
+- 2026-11-20 : deux mutations ont d'abord survécu, ce qui a révélé des tests trop faibles
+  (D5 confirmé). Le test du statut HTTP de `useOrders` envoyait un corps hors schéma, rejeté par
+  Zod de toute façon : il envoie désormais `[]` avec un statut 500. La mutation « mode de
+  comparaison non validé » de `useComparisonRange` était neutre (`resolveComparisonRange` renvoie
+  `undefined` pour un mode inconnu) : remplacée par « tout `compare` présent vaut `yoy` ». Noms de
+  tests alignés sur la convention du dépôt (apostrophe échappée entre guillemets simples), y
+  compris dans `KpiDelta.test.tsx`.
 
 ## Workflow Git
 
