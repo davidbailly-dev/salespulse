@@ -44,3 +44,4 @@ L'application est ensuite accessible sur [http://localhost:3000](http://localhos
 ![Recharts](https://img.shields.io/badge/Recharts-8884d8?style=flat)
 ![Faker](https://img.shields.io/badge/Faker-slategray?style=flat)
 ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
+![Testing Library](https://img.shields.io/badge/Testing_Library-E33332?style=flat&logo=testinglibrary&logoColor=white)

@@ -148,7 +148,7 @@ function slugify(value: string): string {
         .replace(/[^a-zA-Z]/g, '');
 }
 
-function generateCustomers(shopId: string, count: number): Customer[] {
+function generateCustomers(shopId: string, count: number, now: Date): Customer[] {
     return Array.from({ length: count }, () => {
         const firstName = faker.helpers.arrayElement(FANTASY_FIRST_NAMES);
         const epithet = faker.helpers.arrayElement(FANTASY_EPITHETS);
@@ -158,7 +158,7 @@ function generateCustomers(shopId: string, count: number): Customer[] {
             shopId,
             name: `${firstName} ${epithet}`,
             email: faker.internet.email({ firstName: slugify(firstName), lastName: slugify(epithet) }),
-            registeredAt: faker.date.past({ years: 2 }).toISOString(),
+            registeredAt: faker.date.past({ years: 2, refDate: now }).toISOString(),
         };
     });
 }
@@ -304,7 +304,7 @@ export function generateDataset(now: Date = new Date()): Dataset {
 
     for (const { id: shopId, share } of SHOP_CONFIGS) {
         const shopProducts = generateProducts(shopId, Math.round(PRODUCT_COUNT * share));
-        const shopCustomers = generateCustomers(shopId, Math.round(CUSTOMER_COUNT * share));
+        const shopCustomers = generateCustomers(shopId, Math.round(CUSTOMER_COUNT * share), now);
         const shopOrders = generateOrders(shopId, shopProducts, shopCustomers, Math.round(ORDER_COUNT * share), now);
 
         products.push(...shopProducts);
