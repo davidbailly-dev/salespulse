@@ -92,7 +92,7 @@ Spécificités du projet :
 - Fixtures via les builders de `apps/web/src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - Générateurs Faker : invariants = respect du schéma Zod, même résultat pour les mêmes entrées (seed et `now` reçu, jamais l'horloge réelle), bornes des dates et cohérence entre champs.
 - Composants et hooks : Testing Library (`render`, `renderHook`, `screen`), fichiers `*.test.tsx`, assertions de Vitest sans `jest-dom`. Doubles de test et helpers dans `apps/web/src/lib/testing/` :
-  - `next/navigation` : `vi.mock('next/navigation', () => import('<chemin>/testing/nextNavigation'))`, puis l'URL lue par les hooks avec `setSearchParams('preset=7d&shop=…')` ;
+  - `next/navigation` : `vi.mock('next/navigation', () => import('<chemin>/testing/nextNavigation'))`, puis l'URL lue par les hooks avec `setSearchParams('preset=7d&shop=…')`. Le double n'exporte que `useSearchParams` : l'étendre (`usePathname`, `useRouter`) au premier test d'un composant qui navigue (filtres, navigation) ;
   - `fetch` : `vi.stubGlobal('fetch', fetchMock)`, sans MSW, et `vi.unstubAllGlobals()` après chaque test ;
   - TanStack Query : `wrapper: createQueryWrapper()` (`testing/react.tsx`), un `QueryClient` neuf par test, sans nouvelle tentative ;
   - horloge : `vi.useFakeTimers({ toFake: ['Date'] })` puis `vi.setSystemTime(…)` ; ne simuler que `Date`, pour ne pas bloquer les minuteries de React et de TanStack Query.
