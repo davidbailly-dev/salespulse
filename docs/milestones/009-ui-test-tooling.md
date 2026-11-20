@@ -89,12 +89,15 @@ générateurs de données mockées.
 
 ## Phase B — Hooks ⬜
 
-- [ ] `apps/web/src/lib/filters/useDateRangeFilter.test.tsx` (horloge figée par
+- [ ] `apps/web/src/lib/filters/useDateRangeFilter.test.tsx` (horloge pilotée par
       `vi.setSystemTime`) : `from` et `to` de l'URL repris tels quels ; preset invalide ou absent
-      → preset par défaut ; même référence d'objet entre deux rendus aux paramètres inchangés
-      (garde-fou de la boucle de fetch).
+      → preset par défaut ; avec un preset relatif à maintenant (`30d`), plage au **contenu
+      inchangé** quand l'horloge avance entre deux rendus aux paramètres d'URL inchangés
+      (garde-fou de la boucle de fetch : `queryKey` identique) et **même référence** (utile aux
+      dépendances du `useMemo` de `useComparisonRange`) ; nouvelle plage quand le preset change.
 - [ ] `apps/web/src/lib/filters/useComparisonRange.test.tsx` : `undefined` sans `compare` ;
-      plage N-1 avec `compare=yoy` ; même référence entre deux rendus.
+      plage N-1 avec `compare=yoy` ; même contenu et même référence quand l'horloge avance entre
+      deux rendus.
 - [ ] `apps/web/src/lib/queries/useOrders.test.tsx` : `fetch` appelé sur `/api/orders` avec
       `from`, `to` et la boutique lue dans `?shop=` ; aucun paramètre `shop` sans boutique ;
       données validées renvoyées ; `isError` sur une réponse HTTP en erreur et sur une réponse
@@ -140,6 +143,16 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
 - 2026-11-20 : plan rédigé, en attente de validation. Couple Testing Library et jsdom choisi par
   l'utilisateur (D1). Taille estimée : environ 60 lignes de configuration et de helpers, 500 à
   550 lignes de tests, sous le seuil de 800 lignes par pull request.
+- 2026-11-20 : plan validé et commité.
+- 2026-11-20 : précision sur la boucle de fetch, soulevée par l'utilisateur. TanStack Query
+  compare les `queryKey` par leur contenu (hash déterministe), pas par référence : un objet neuf
+  au contenu identique ne relance rien. La boucle vient du contenu : les presets `7d`, `30d`,
+  `90d` et `month` prennent `to = now` à la milliseconde, donc une plage différente à chaque
+  rendu sans `useMemo`, soit une nouvelle clé, un nouveau fetch et une entrée de cache de plus.
+  `lastMonth` et une plage `from`/`to` explicite ne bouclent pas. La référence compte seulement
+  pour les dépendances du `useMemo` de `useComparisonRange` (comparées par `Object.is`). Les
+  cases de la phase B vérifient donc d'abord que le contenu ne dérive pas quand l'horloge avance,
+  puis la stabilité de la référence.
 
 ## Workflow Git
 
