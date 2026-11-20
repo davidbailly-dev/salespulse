@@ -1,4 +1,4 @@
-# Jalon 009 — Outillage de tests UI 🔄
+# Jalon 009 — Outillage de tests UI ✅
 
 Branche : `feature/ui-test-tooling` (depuis `develop`). Livré dans : —
 
@@ -199,6 +199,16 @@ Reprise de la phase 3 du jalon 001, en environnement `node` (`*.test.ts`).
   `now` reçu (D9). `docs/stack.md` : Vitest sert aussi P3 et P21 (invariants des générateurs,
   défauts détectés avant l'utilisateur) ; entrée Testing Library et jsdom. Badge Testing
   Library ajouté au README, sans autre changement (outillage).
+- 2026-11-20 : relecture de l'utilisateur, quatre remarques. Les tests de bornes des
+  générateurs passaient sur une liste vide (`Math.min()` vaut `Infinity`) : un générateur sans
+  aucune commande gardait les 13 tests verts, mutation montrée. Longueurs non nulles vérifiées,
+  dont chacune des 7 listes analytics. Portée du double `nextNavigation` précisée
+  (`useSearchParams` seul, à étendre au premier test d'un composant qui navigue), plutôt que
+  d'exporter `usePathname` et `useRouter` sans test. « terminé » retiré du commit de la phase D
+  (amend, branche jamais poussée), pour que l'index ne se contredise à aucun commit. Commande
+  antérieure à l'inscription de son client : laissée telle quelle, déjà documentée et sans
+  indicateur qui croise les deux dates.
+- 2026-11-20 : jalon clos.
 
 ## Workflow Git
 
@@ -226,4 +236,36 @@ Chaque phase se termine par un point d'arrêt de relecture. Merge par pull reque
 
 ## Bilan
 
-<Rempli à la clôture.>
+- **Fait** : Vitest en deux projects, `unit` (`*.test.ts`, `node`) et `dom` (`*.test.tsx`,
+  `jsdom`) ; Testing Library et jsdom installés ; helpers de test (`createQueryWrapper`,
+  `nextNavigation`, `setupDom`) ; tests témoins pour un composant (`KpiDelta`), les hooks de
+  filtres (`useDateRangeFilter`, `useComparisonRange`) et de données (`useOrders`,
+  `useComparedKpi`), deux routes API (`orders`, `analytics/traffic`) et les deux générateurs ;
+  documentation à jour (`CLAUDE.md`, `docs/stack.md`, roadmap, badge du README).
+- **Chiffres** : 685 tests (620 avant le jalon), dont 656 dans `unit` et 29 dans `dom` ;
+  65 tests ajoutés : 7 pour le composant, 22 pour les hooks, 9 pour les routes et 27 pour les
+  générateurs. Couverture globale 40,98 % des instructions, désormais avec `src/components` et
+  `src/lib/queries` (19,67 %) ; `lib/mock-data` à 82,69 %. 669 lignes ajoutées dans `apps/`,
+  tests compris, sous le seuil de 800 lignes par pull request.
+- **Écarts avec le plan** :
+  - défaut corrigé hors plan (D9) : `registeredAt` tiré par rapport à l'horloge réelle, ce qui
+    rendait `generateDataset` non déterministe ; commit `fix:` dédié, sans autre donnée
+    modifiée (empreinte identique) ;
+  - helper `nextNavigation.ts` partagé plutôt qu'un `vi.mock` recopié dans chaque fichier ;
+  - « réponse conforme au schéma » des routes testée par un refus d'une donnée hors contrat ;
+  - quelques tests de plus que prévu : `KpiDelta` en `text-danger`, invariants de dates et de
+    boutique des générateurs ;
+  - noms de tests de `KpiDelta.test.tsx` alignés sur la convention d'apostrophe du dépôt ;
+  - après relecture : longueurs non nulles dans les tests des générateurs, portée du double
+    `nextNavigation` documentée.
+- **Vérifications réellement faites** : `npm test`, `npm run lint`, `npm run typecheck` et
+  `npm run build` sans erreur en local ; `npm run test:coverage` rapporte `src/components` et
+  `src/lib/queries` ; chaque fichier de test ajouté a été mis en échec par au moins une
+  mutation du code testé, sortie montrée (D5) : 36 mutations au total. Deux ont d'abord
+  survécu : un test trop faible (statut HTTP de `useOrders`), renforcé, et une mutation neutre,
+  remplacée. La relecture de l'utilisateur a trouvé un trou de plus, non couvert par les
+  mutations : les générateurs vides, désormais détectés. Le défaut de `registeredAt` (D9) a été trouvé par l'invariant de déterminisme, pas
+  par une mutation. Reste à vérifier : `checks` au vert sur la pull request.
+- **Décisions reportées dans la documentation durable** : D2 à D5 dans `CLAUDE.md` (projects,
+  configuration, doubles de test, preuve du rouge par mutation), D1 dans `docs/stack.md`, D9
+  dans l'invariant des générateurs de `CLAUDE.md`.
