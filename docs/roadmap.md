@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun
+- 🔄 [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md)
 
 ## Terminés
 
@@ -119,16 +119,6 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
   constant en option. Réécrit le principe P9 de `docs/vision.md`.
 
 ### Autres pistes
-
-- ⬜ **Outillage de tests UI** (prérequis du TDD sur les composants et les hooks, à placer
-  avant « Indicateurs côté serveur ») :
-  - jsdom + `@testing-library/react`, avec un environnement jsdom limité aux `*.test.tsx` et
-    `include` Vitest étendu aux `.tsx` ;
-  - hooks testés via `renderHook` avec un `QueryClient` de test ;
-  - couverture étendue à `apps/web/src/components` ;
-  - points repris de la phase 3 du jalon 001 : `KpiDelta.tsx`, routes API
-    (`GET(new NextRequest(url))` avec le store mocké via `vi.mock`), invariants du mock
-    (`generateDataset` validé par `DatasetSchema.parse`).
 
 Pistes relevées dans les commentaires du code, à valider et prioriser :
 
