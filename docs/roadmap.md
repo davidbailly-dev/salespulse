@@ -47,9 +47,14 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
   - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
     délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
   - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
+  - `/health` renvoie aussi la version déployée, attendue par le smoke test après release, et
+    sert de health check à Render (comportement sur l'offre gratuite à vérifier) ;
   - conventions TDD et couverture étendues à `apps/api`.
 - ⬜ **Base de données** : prérequis Serveur API.
   - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données ;
+  - migrations rétrocompatibles (*expand / contract*) : l'ancienne version tourne sur le
+    nouveau schéma, pour garder le rollback de Render possible ; convention à reporter dans
+    `CLAUDE.md` ;
   - stratégie de tests : base jetable, tests d'isolation (P11), CI complété par une PostgreSQL de
     service et, en option, par une branche de base Neon par branche Git.
 - ⬜ **Déploiement du socle** : prérequis Base de données.
@@ -94,6 +99,8 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
     devise ; tests sur des réponses enregistrées.
 - ⬜ **Ouverture aux testeurs** : prérequis Connecteur WooCommerce.
   - journal d'audit (P18) ; Sentry côté API et navigateur, région UE (D24) ;
+  - erreurs Sentry rattachées à leur release (version et source maps), vérifiées dans la
+    procédure de release ;
   - sauvegardes : rétention de l'offre gratuite de Neon à vérifier, test de restauration ;
   - planificateur externe gratuit en option (D16) ;
   - juridique minimal, puisque les testeurs apportent de vraies données : mentions légales,
@@ -135,6 +142,17 @@ Pistes relevées dans les commentaires du code, à valider et prioriser :
 
 Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
 
+- ⬜ **Tests de bout en bout et vérification après déploiement** (P21) : indépendant du
+  backend, peut passer avant le Serveur API.
+  - Playwright, entrée à ajouter dans `docs/stack.md` : quelques parcours critiques
+    (affichage du dashboard, changement de boutique et de période, données d'une route API),
+    lancés dans le CI sur le build de production ;
+  - smoke test après chaque release : les mêmes parcours sur l'URL Render, lancés depuis
+    GitHub Actions (rien ne tourne chez Render) ; d'abord une étape de réveil, l'instance
+    gratuite mettant environ une minute à sortir de veille, puis l'attente de la nouvelle
+    version, publiée par une balise `<meta>` du layout puis par `/health` (Serveur API) ;
+  - procédure de release dans `CLAUDE.md` : CI au vert, tag, smoke test au vert, rollback de
+    Render en cas d'échec.
 - ⬜ **Alertes et notifications** : prévenir l'utilisateur quand un indicateur sort de sa plage
   habituelle.
 - ⬜ **Exports** : exporter les données ou les indicateurs affichés ; servirait aussi la
