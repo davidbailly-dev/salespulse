@@ -93,29 +93,255 @@ TypeScript pur dans le cœur hexagonal d'`apps/api`, testés en TDD.
     importer), une spec OpenAPI générée avec un client généré (outillage et étape de build
     utiles surtout entre dépôts séparés), tRPC ou ts-rest (dépendance structurante qui figerait
     la façon d'appeler l'API).
+- **D6 (2026-11-23) — Statut canonique d'une commande** : un seul axe, orienté paiement, à quatre
+  valeurs : `pending` (en attente de paiement), `paid` (payée), `failed` (paiement en échec ou
+  expiré) et `cancelled` (annulée). Le remboursement n'est pas un statut : il se déduit des
+  remboursements de la commande, partiels ou totaux. L'expédition n'est pas modélisée. Le statut
+  brut de la plateforme est conservé à côté du statut canonique, pour qu'une correspondance
+  corrigée se réapplique sans resynchroniser.
+  - Raisons : les trois plateformes structurent leurs statuts différemment (un `status` unique
+    chez WooCommerce, deux axes paiement et expédition chez Shopify, des états définis par le
+    commerçant avec des indicateurs `paid`, `shipped` et `logable` chez PrestaShop), mais toutes
+    disent si la commande est payée. Aucun indicateur ne dépend de l'expédition, dont le suivi
+    relève de la gestion opérationnelle, non-objectif de `docs/vision.md`.
+  - Alternatives écartées : un statut unique mêlant paiement, expédition et remboursement, à la
+    WooCommerce (un `refunded` unique ne représente pas un remboursement partiel) ; deux axes
+    paiement et expédition, à la Shopify (axe sans indicateur, et mal déduit chez WooCommerce,
+    où `completed` peut signifier « rien à expédier »).
+- **D7 (2026-11-23) — Commande qui compte dans les indicateurs** : seules les commandes `paid`
+  comptent. Une commande `pending` compte une fois payée ; un paiement autorisé mais pas encore
+  encaissé (`AUTHORIZED` chez Shopify) reste `pending`. Les commandes `pending`, `failed` et
+  `cancelled` sont conservées et restent lisibles par de futurs indicateurs.
+  - Raisons : le chiffre d'affaires est de l'argent encaissé, sans exception à expliquer. Un
+    chiffre déjà consulté ne baisse pas après coup quand une commande en attente est annulée
+    (P6). Chez WooCommerce, `pending` désigne souvent un client parti de la page de paiement,
+    annulé à l'expiration de la réservation du stock ; une autorisation Shopify peut expirer
+    (`EXPIRED`).
+  - Conséquence acceptée : chez un commerçant qui encaisse à l'expédition, le chiffre d'affaires
+    des derniers jours apparaît avec retard.
+  - Alternatives écartées : compter aussi les commandes `pending` (logique « commandes passées »
+    des rapports des plateformes, mais un chiffre gonflé puis corrigé à l'annulation) ; compter
+    certains `pending` jugés sûrs (`AUTHORIZED`, `on-hold`), ce qui ferait dépendre la règle du
+    statut brut de chaque plateforme, contre D6.
+- **D8 (2026-11-23) — Paniers abandonnés, paiements échoués et commandes de test** :
+  - le panier abandonné sort du modèle de commande : il n'est une commande sur aucune des trois
+    plateformes (ressource `AbandonedCheckout` séparée chez Shopify, paniers sans commande chez
+    PrestaShop, rien dans le cœur de WooCommerce). S'il revient, ce sera une entity distincte,
+    fournie par les seuls connecteurs qui en disposent : piste « Paniers abandonnés réels »,
+    ajoutée en phase D. D'ici là, l'indicateur « Paniers abandonnés » et le statut `abandoned`
+    restent propres à la démo, écart noté dans `docs/domain-model.md` ;
+  - une commande dont le paiement a échoué est conservée en `failed` quand la plateforme l'a
+    créée, sans jamais compter (D7). Le taux d'échec de paiement ne se calcule pas à partir des
+    commandes `failed` : WooCommerce en crée, Shopify en général non, le taux ne serait pas
+    comparable d'une plateforme à l'autre. L'indicateur actuel « Taux d'échec de paiement »
+    (`paymentFailureRate.ts`) compte les échecs dans les erreurs de l'analytics simulé : il
+    reste simulé, comme les autres indicateurs qui croisent analytics et commandes ;
+  - les commandes de test de Shopify (`test: true`) ne sont pas synchronisées : elles ne sont
+    pas réelles et ne peuvent pas être converties en vraies commandes. WooCommerce et
+    PrestaShop n'ont pas d'équivalent.
+  - Alternative écartée : assimiler les commandes `pending` ou `failed` jamais payées à des
+    paniers abandonnés, indicateur faux et non comparable d'une plateforme à l'autre.
+- **D9 (2026-11-23) — Date de référence d'une commande** : la date de paiement place une
+  commande dans une période (jour, mois, N-1). La date de création est conservée à côté, pour
+  de futurs indicateurs (délai de paiement, répartition horaire des achats).
+  - Raisons : cohérente avec D7, une commande compte quand elle est payée et dans la période où
+    elle l'a été ; une période terminée ne change plus quand un paiement arrive plus tard.
+    C'est le réglage par défaut de WooCommerce Analytics (« Date Type » : « Date Paid »), qui
+    exclut alors les commandes sans date de paiement.
+  - Coût accepté, porté par les connecteurs (P2) : Shopify n'a pas de date de paiement sur la
+    commande, elle se déduit des transactions encaissées ; PrestaShop la donne par la date du
+    premier état `paid` de l'historique (`order_histories`), à défaut par `invoice_date` ;
+    WooCommerce la fournit directement (`date_paid_gmt`, « The date the order was paid, as
+    GMT »). À vérifier en phase B : la date des transactions Shopify.
+  - Alternatives écartées : la date de création (une commande payée après coup ajouterait du
+    chiffre d'affaires à une période déjà consultée) ; la date de finalisation (`date_completed`,
+    `closedAt`), qui dépend de l'expédition, non modélisée (D6).
+- **D10 (2026-11-23) — Chiffre d'affaires** : le chiffre d'affaires est le montant des ventes
+  nettes hors taxes et hors livraison : prix × quantité, moins les remises, hors taxes. Le
+  panier moyen et le chiffre d'affaires par client suivent la même définition. Les composantes
+  sont conservées à la commande et à la ligne, en unités mineures avec leur devise (jalon 007,
+  D17) : ventes brutes HT, remises HT, livraison HT, taxes des produits, taxe de la livraison et
+  total payé TTC. Une définition peut ainsi changer, ou un indicateur « ventes totales »
+  s'ajouter, sans resynchroniser. La déduction des remboursements relève de la décision sur les
+  remboursements.
+  - Raisons : c'est la définition des « Net sales » de WooCommerce Analytics (« Gross Sales –
+    Returns – Coupons ») et des rapports de Shopify (« gross sales - discounts - sales
+    reversals »), hors taxes et livraison chez les deux, et l'usage comptable français. La TVA
+    n'est pas l'argent du commerçant et la livraison est surtout un coût refacturé ; un montant
+    HT garde les boutiques comparables, qu'elles affichent leurs prix TTC ou HT, et d'une année
+    à l'autre si un taux change.
+  - Faisabilité : le HT se lit sur les trois plateformes : `total` et `total_tax` des lignes,
+    `shipping_total`, `shipping_tax` et `discount_total` chez WooCommerce ;
+    `priceAfterAllDiscountsBeforeTaxesSet` des lignes chez Shopify, dont les prix incluent la
+    taxe quand `taxesIncluded` est vrai ; `total_products`, `total_discounts_tax_excl` et
+    `total_shipping_tax_excl` chez PrestaShop.
+  - Alternative écartée : les ventes totales TTC, livraison comprise, soit ce que le client a
+    payé, mais gonflées par la TVA et sensibles aux taux, donc non comparables entre boutiques
+    ni d'une année à l'autre.
+- **D11 (2026-11-23) — Remboursements** :
+  - le remboursement est une entity distincte, rattachée à sa commande (place dans les
+    aggregates fixée en phase B) : sa date, ses montants HT par composante (produits,
+    livraison) avec leurs taxes à part comme pour la vente (D10), et ses lignes (produit,
+    quantité, montant HT) quand la plateforme les fournit. Un remboursement total ou partiel a
+    la même forme ;
+  - il est imputé à sa propre date, pas à celle de la commande : une période terminée ne change
+    plus (D9), même pour un remboursement tardif ;
+  - le chiffre d'affaires d'une période est le montant des ventes nettes HT des commandes payées
+    dans la période, moins les remboursements HT des produits émis dans la période. La livraison
+    et les taxes remboursées restent hors chiffre d'affaires, comme à la vente ;
+  - le taux de remboursement se calcule en montant : montant HT des produits remboursés dans la
+    période ÷ ventes nettes HT de la période avant remboursements. Il peut dépasser 100 % sur
+    une période creuse, cas rare accepté.
+  - Raisons : les trois plateformes exposent le remboursement comme un objet distinct, avec sa
+    date et ses lignes (`refunds` de WooCommerce, `Refund` de Shopify, `order_slip` de
+    PrestaShop). WooCommerce Analytics et Shopify l'imputent à sa date (« on the date that the
+    return occurred (not the date the order was placed) » ; « for the day that they were
+    processed ») et le déduisent des « Net sales ». Un taux en montant pèse un remboursement
+    partiel à sa juste valeur.
+  - Alternatives écartées : un statut `refunded` (D6) ; l'imputation à la date de la commande,
+    qui ferait baisser une période déjà consultée ; un taux en nombre de commandes remboursées,
+    qui avantage la période en cours, faute de recul, et change après coup.
+  - À reprendre : un remboursement WooCommerce peut n'avoir qu'un montant, sans lignes (question
+    des produits) ; chez Shopify, un `Refund` « doesn't guarantee that the money has been
+    returned », le connecteur vérifie le statut de ses transactions (phase B).
+- **D12 (2026-11-23) — Fuseau horaire** :
+  - les instants sont stockés en UTC ; chaque connecteur convertit depuis le format de sa
+    plateforme, et le domaine ne manipule jamais d'heure locale ambiguë ;
+  - chaque organisation a un fuseau IANA, `Europe/Paris` par défaut, modifiable par un
+    propriétaire ou un administrateur. Tous les indicateurs découpent dans ce fuseau : jours,
+    semaines ISO (du lundi au dimanche) et mois civils ;
+  - une boutique réglée sur un autre fuseau est découpée dans celui de l'organisation : une
+    seule horloge permet d'additionner les boutiques. Ses chiffres journaliers peuvent différer
+    de son back-office, écart accepté. Le fuseau de la boutique est conservé (affichage,
+    conversion des dates PrestaShop) ;
+  - un jour local reste un jour, de 23 h ou de 25 h aux changements d'heure : les moyennes
+    journalières se font par jour calendaire ; dans une répartition horaire, la tranche de 2 h
+    manque au printemps et compte double à l'automne. Le value object `localDay` (phase C)
+    porte ces bornes ;
+  - la comparaison N-1 porte sur la même plage de dates locales un an plus tôt ;
+  - changer le fuseau d'une organisation recalcule ses agrégats journaliers pré-calculés, quand
+    ils existeront (« Indicateurs côté serveur »).
+  - Raisons : la vision veut que toute l'équipe du commerçant consulte les mêmes chiffres, ce
+    qu'un fuseau par utilisateur empêcherait pour « hier ». Les plateformes donnent de quoi
+    convertir en UTC : `ianaTimezone` de la boutique et dates ISO 8601 chez Shopify, dates en
+    double locale et GMT (`date_paid_gmt`) chez WooCommerce.
+  - Alternatives écartées : le fuseau du navigateur de chaque utilisateur ; le découpage de
+    chaque boutique dans son propre fuseau (le « lundi » du total mêlerait des fenêtres de 24 h
+    différentes).
+  - À reprendre : la documentation de PrestaShop ne dit ni le fuseau de ses dates (`date_add`
+    sans décalage) ni comment lire le fuseau de la boutique, point du jalon de son connecteur ;
+    celle de Shopify ne garantit pas des dates en UTC, le connecteur lit le décalage de chaque
+    date. L'interface actuelle découpe les jours en UTC (`dateRangePresets.ts`) : écart noté en
+    phase B, corrigé au jalon « Indicateurs côté serveur ».
+- **D13 (2026-11-24) — Produits** :
+  - l'analyse se fait au niveau du produit ; la variante est conservée sur la ligne de commande
+    (identifiant externe et libellé), pour un futur détail par variante ;
+  - la ligne de commande est une photo prise à la commande : nom, SKU, quantité, prix unitaire
+    HT après remises (D10) et identifiants externes du produit et de la variante. Un changement
+    de prix ou de nom ultérieur ne réécrit pas l'historique ;
+  - un produit supprimé côté plateforme garde ses ventes passées ; il est marqué supprimé dans
+    le catalogue et sort des produits jamais vendus et de la couverture du catalogue. Une
+    commande importée sans référence produit (produit déjà supprimé à l'import de l'historique)
+    est regroupée par son nom figé ;
+  - les catégories restent propres à chaque boutique, sans référentiel commun. Toutes sont
+    conservées, mais une seule catégorie principale par produit sert aux indicateurs, pour que
+    la somme des catégories reste égale au chiffre d'affaires. La règle de choix appartient au
+    connecteur : `id_category_default` chez PrestaShop, `productType` puis `category` chez
+    Shopify ; WooCommerce, sans catégorie principale, se tranche au jalon de son connecteur.
+    Dans la vue « toutes boutiques », deux catégories de même libellé (casse et espaces
+    ignorés) sont regroupées ;
+  - pas d'identité de produit d'une boutique à l'autre : le SKU est facultatif et rien ne
+    garantit son unicité. Un même article vendu dans deux boutiques apparaît deux fois dans la
+    vue « toutes boutiques » ;
+  - un remboursement sans lignes (possible chez WooCommerce et chez Shopify, reste de D11)
+    réduit le chiffre d'affaires mais n'est pas réparti entre les produits : le total par
+    produit peut alors dépasser légèrement le chiffre d'affaires ;
+  - le catalogue est synchronisé (produits, variantes, catégories, état supprimé), et pas
+    seulement déduit des commandes : les produits jamais vendus et la couverture du catalogue
+    en ont besoin.
+  - Raisons : les trois plateformes référencent la variante sur la ligne (`variation_id` chez
+    WooCommerce, `variant` chez Shopify, `product_attribute_id` chez PrestaShop). Shopify fige
+    le nom à la commande (`title`, « at time of order creation ») et sa référence `product` est
+    nullable. Les catégories n'ont pas la même forme : liste sans catégorie principale chez
+    WooCommerce, `id_category_default` chez PrestaShop, `productType` libre, `category` de la
+    taxonomie standard et collections chez Shopify.
+  - Alternatives écartées : compter un produit dans chacune de ses catégories (la somme
+    dépasserait le chiffre d'affaires) ; répartir un remboursement sans lignes au prorata des
+    lignes (un chiffre par produit inventé) ; regrouper les produits de plusieurs boutiques par
+    SKU, piste possible plus tard.
+- **D14 (2026-11-24) — Clients** :
+  - dans une boutique, un client est identifié par l'empreinte de son e-mail ; l'identifiant
+    externe est conservé comme attribut. Une personne qui commande en invité puis avec un compte
+    reste un seul client. Une commande sans e-mail a un client inconnu : elle compte dans le
+    chiffre d'affaires, pas dans les indicateurs clients ;
+  - dans une organisation, la même empreinte désigne la même personne d'une boutique à l'autre
+    (P15) : en vue « toutes boutiques », un client qui achète dans deux boutiques compte une
+    fois ; filtré sur une boutique, il compte dans celle-ci ;
+  - l'empreinte est un HMAC-SHA256 de l'e-mail normalisé (minuscules, espaces retirés, sans
+    autre retouche des alias), avec un secret propre à chaque organisation, dérivé d'une clé
+    maîtresse comme la clé de chiffrement de P16. Les empreintes ne se recoupent pas d'une
+    organisation à l'autre (P11). Changer le secret impose de resynchroniser les boutiques,
+    puisque les e-mails ne sont pas conservés : cas rare accepté ;
+  - la date d'arrivée d'un client est la date de création de son compte sur la plateforme
+    quand il en a un, sinon celle de sa première commande ;
+  - la localisation se limite au pays (ISO 3166-1 alpha-2), lu dans l'adresse de livraison,
+    sinon de facturation : aucun indicateur n'a besoin de la ville aujourd'hui, et P15 limite la
+    donnée à ce dont un indicateur a besoin. L'ajouter plus tard demandera de resynchroniser
+    l'historique ;
+  - les listes de clients n'affichent pas de nom : l'identifiant externe de la boutique
+    (« Client n° 1042 »), que le commerçant retrouve dans son back-office, ou « Client invité »
+    suivi d'un court extrait de l'empreinte.
+  - Raisons : les trois plateformes acceptent des commandes sans compte (`customer_id` « 0 for
+    guests » chez WooCommerce, `customer` nul chez Shopify, `is_guest` chez PrestaShop), et
+    Shopify peut ne pas fournir d'e-mail (« if no email address was provided »). L'e-mail est
+    le seul repère commun aux invités et aux comptes, et d'une boutique à l'autre.
+  - Alternatives écartées : l'identifiant externe d'abord (les commandes invitées dédoubleraient
+    les clients) ; un SHA-256 sans secret, inversible par dictionnaire d'e-mails ; un secret
+    commun à toutes les organisations, qui rendrait deux commerçants recoupables ; garder la
+    ville dès maintenant, permis par P15 mais sans usage.
+  - Écart à noter en phase B : les listes « Meilleurs clients » affichent aujourd'hui le nom du
+    client (`TopCustomers.tsx`, `TopCustomersByOrderCount.tsx`).
+- **D15 (2026-11-24) — Canal et appareil des commandes** : le canal d'acquisition et l'appareil
+  sortent du modèle de commande du MVP. Ils sont rattachés à la piste « Analytics réel », qui
+  choisira leur source : un connecteur analytics relié aux commandes par leur identifiant, avec
+  en complément éventuel l'attribution des plateformes. Les champs `channel` et `device` de la
+  démo, et les indicateurs qui s'en servent, restent propres à la démo : écart noté en phase B.
+  La phase D complète la piste « Analytics réel » de la roadmap.
+  - Raisons : ce sont des données de visite, qui relèvent du contexte analytics, distinct des
+    commandes. Les plateformes les fournissent mal : WooCommerce seulement quand sa fonction
+    « Order Attribution » est activée (source, UTM, appareil, dans les métadonnées
+    `_wc_order_attribution…`), Shopify sans appareil (`customerJourneySummary`), PrestaShop
+    pas du tout. Le MVP afficherait surtout « inconnu », avec des chiffres non comparables d'une
+    boutique à l'autre. Une source analytics donnerait une seule règle d'attribution pour toutes
+    les plateformes, PrestaShop compris. L'attribution des plateformes reste stockée sur leurs
+    commandes, relisible plus tard.
+  - Conséquence acceptée : pas de chiffre d'affaires par canal dans le MVP, même pour une
+    boutique WooCommerce dont l'attribution est activée.
+  - Alternative écartée : deux champs facultatifs sur la commande, avec une valeur « inconnu »,
+    remplis par chaque connecteur selon ce que fournit sa plateforme.
 
-## Phase A — Définitions métier ⬜
+## Phase A — Définitions métier ✅
 
 Brainstorm avec l'utilisateur : une décision par question, avec les pratiques des plateformes
 (WooCommerce, Shopify, PrestaShop) vérifiées dans leur documentation.
 
-- [ ] Statuts canoniques d'une commande : liste, distinction paiement / expédition, et règle
+- [x] Statuts canoniques d'une commande : liste, distinction paiement / expédition, et règle
       « la commande compte dans les indicateurs ». Devenir des paniers abandonnés et des
       paiements échoués, qui ne sont pas toujours des commandes côté plateforme.
-- [ ] Date de référence d'une commande : création, paiement ou finalisation.
-- [ ] Chiffre d'affaires : HT ou TTC, livraison incluse ou non, remises déduites ; composantes
+- [x] Date de référence d'une commande : création, paiement ou finalisation.
+- [x] Chiffre d'affaires : HT ou TTC, livraison incluse ou non, remises déduites ; composantes
       conservées pour qu'une définition puisse changer sans resynchroniser.
-- [ ] Remboursements, totaux et partiels : entity distincte ou non, date d'imputation (celle de
+- [x] Remboursements, totaux et partiels : entity distincte ou non, date d'imputation (celle de
       la commande ou du remboursement), effet sur le chiffre d'affaires et sur le taux de
       remboursement.
-- [ ] Fuseau horaire : un fuseau IANA par organisation (Europe/Paris par défaut), découpage des
+- [x] Fuseau horaire : un fuseau IANA par organisation (Europe/Paris par défaut), découpage des
       jours, semaines et mois dans ce fuseau, jours de 23 h et de 25 h aux changements d'heure,
       boutiques réglées sur un autre fuseau.
-- [ ] Produits : niveau d'analyse (produit ou variante), catégories propres à chaque boutique,
+- [x] Produits : niveau d'analyse (produit ou variante), catégories propres à chaque boutique,
       prix à la ligne de commande et produit supprimé côté plateforme.
-- [ ] Clients : identité dans une boutique et d'une boutique à l'autre (identifiant externe,
+- [x] Clients : identité dans une boutique et d'une boutique à l'autre (identifiant externe,
       empreinte de l'e-mail et son secret), commandes sans compte, localisation conservée.
-- [ ] Canal et appareil des commandes : source quand la plateforme les fournit, valeur
+- [x] Canal et appareil des commandes : source quand la plateforme les fournit, valeur
       « inconnu » sinon.
 
 ## Phase B — Document du modèle ⬜
@@ -180,6 +406,22 @@ TDD : test rouge lancé et montré avant chaque code de production.
   contexte en deux. D5 ajoutée après examen de `@salespulse/contracts` (un seul consommateur
   aujourd'hui, contenu mélangé) ; son découpage par contexte est reporté à une branche dédiée.
 - 2026-11-20 : plan validé par l'utilisateur.
+- 2026-11-23 : phase A commencée. Documentation des trois plateformes relue (statuts de
+  WooCommerce, `OrderDisplayFinancialStatus` et `OrderDisplayFulfillmentStatus` de Shopify,
+  états de commande de PrestaShop 8). Lacunes à reprendre en phase B : la documentation de
+  WooCommerce ne dit rien des statuts personnalisés, et celle de PrestaShop 8 ne donne pas les
+  identifiants des états par défaut. Les paniers abandonnés ne sont des commandes sur aucune des
+  trois plateformes. D6, D7 et D8 tranchées : statuts canoniques terminés. En relisant les
+  KPIs, `paymentFailureRate.ts` s'est révélé calculé sur les erreurs de l'analytics simulé, pas
+  sur les commandes : formulation de D8 précisée. D9 tranchée, puis D10 après lecture des
+  champs de montant des trois plateformes et des définitions « Gross / Net / Total sales » de
+  WooCommerce Analytics et de Shopify, identiques chez les deux. D11 tranchée après lecture des
+  ressources de remboursement des trois plateformes. D12 tranchée ; découverte : l'interface
+  actuelle découpe les jours en UTC.
+- 2026-11-24 : D13 tranchée après lecture des lignes de commande, produits et catégories des
+  trois plateformes. D14 tranchée ; découverte : les listes « Meilleurs clients » affichent le
+  nom du client, contre P15. D15 tranchée à la demande de l'utilisateur : canal et appareil
+  rattachés à la piste « Analytics réel ». Phase A terminée.
 
 ## Workflow Git
 
