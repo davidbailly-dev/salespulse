@@ -17,8 +17,8 @@ npm run dev        # http://localhost:3000 (redirige vers /dashboard)
 npm run build
 npm run lint       # eslint . sur tout le dépôt (config next core-web-vitals + typescript)
 npm run typecheck  # tsc --noEmit dans chaque paquet
-npm test           # Vitest, exécution unique
-npm run test:watch
+npm test           # Vitest, exécution unique, dans chaque paquet qui a des tests
+npm run test:watch -w @salespulse/web   # watch : un paquet à la fois
 npm run test:coverage
 npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts   # un seul fichier (chemin relatif à apps/web)
 ```

@@ -581,17 +581,18 @@ Brainstorm avec l'utilisateur : une décision par question, avec les pratiques d
 - [x] `docs/domain-model.md` : écarts avec les schémas actuels de `@salespulse/contracts` et
       jalon qui comble chacun (D1, D5).
 
-## Phase C — Value objects en TypeScript ⬜
+## Phase C — Value objects en TypeScript 🔄
 
 TDD : test rouge lancé et montré avant chaque code de production.
 
-- [ ] `apps/api` : squelette du paquet `@salespulse/api`, sans Express ni serveur
+- [x] `apps/api` : squelette du paquet `@salespulse/api`, sans Express ni serveur
       (`package.json`, `tsconfig.json` qui étend `tsconfig.base.json`, `vitest.config.mts`,
       script `typecheck`), couverture de `apps/api/src/**`.
-- [ ] `package.json` racine : `npm test`, `test:watch` et `test:coverage` lancent chaque
-      workspace qui a un script `test` (`--workspaces --if-present`), donc le CI aussi, sans
-      retouche quand `contracts` aura ses premiers tests (D5).
-- [ ] `eslint.config.mjs` : `no-restricted-imports` par chemin (D3) : `domain/` n'importe ni
+- [x] `package.json` racine : `npm test` et `test:coverage` lancent chaque workspace qui a un
+      script `test` (`--workspaces --if-present`), donc le CI aussi, sans retouche quand
+      `contracts` aura ses premiers tests (D5) ; `test:watch` retiré de la racine (voir
+      Journal).
+- [x] `eslint.config.mjs` : `no-restricted-imports` par chemin (D3) : `domain/` n'importe ni
       `application/`, ni `infrastructure/`, ni aucun paquet externe ; `application/`
       n'importe ni `infrastructure/`, ni aucun paquet externe ; `shared/domain/` n'importe
       aucun contexte ; un contexte n'en importe un autre que par son `index.ts` ; les
@@ -609,7 +610,8 @@ TDD : test rouge lancé et montré avant chaque code de production.
 
 - [ ] `CLAUDE.md` : structure du dépôt (`apps/api`), architecture hexagonale et règle d'imports
       (D3), rôle de `@salespulse/contracts`, nommage par usage et règle de test (D5), renvoi
-      vers `docs/domain-model.md`, commandes de test (racine et fichier d'`apps/api`).
+      vers `docs/domain-model.md`, commandes de test (racine et fichier d'`apps/api`), watch
+      par paquet (`npm run test:watch -w <paquet>`).
 - [ ] `docs/vision.md` et `docs/stack.md` relus : un principe touché par la phase A (P9, P15) ou
       une dépendance nouvelle (fuseaux horaires) les met à jour ; entrée Zod de la stack
       alignée sur D5.
@@ -678,6 +680,16 @@ TDD : test rouge lancé et montré avant chaque code de production.
   déduit ses remboursements à leur date. À la question de la lisibilité de `schemas.ts`, le
   découpage par contexte de D5 est maintenu après ce jalon ; sa répartition est précisée dans
   la case roadmap de la phase D. Phase B terminée.
+- 2026-11-24 : phase C commencée. Squelette d'`apps/api` : `tsconfig.json` sans le DOM, qui
+  inclut `vitest.config.mts` (sans quoi `tsc` échoue tant que `src/` est vide) ;
+  `passWithNoTests` dans `vitest.config.mts`, à retirer avec le premier value object. Découverte :
+  `npm run test:watch --workspaces` lance les paquets l'un après l'autre et le premier watch ne
+  se termine jamais ; avec l'accord de l'utilisateur, `test:watch` quitte la racine, qui ne garde
+  que des commandes non interactives couvrant tout le dépôt. Règle d'imports ajoutée à
+  `eslint.config.mjs` : neuf imports interdits temporaires ont chacun fait échouer
+  `npm run lint` (code 1), les imports autorisés passent, tests compris. Limite : ses
+  expressions régulières supposent `domain/` à plat (D22), à revoir avec des sous-dossiers par
+  aggregate.
 
 ## Workflow Git
 
