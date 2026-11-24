@@ -319,6 +319,224 @@ TypeScript pur dans le cœur hexagonal d'`apps/api`, testés en TDD.
     boutique WooCommerce dont l'attribution est activée.
   - Alternative écartée : deux champs facultatifs sur la commande, avec une valeur « inconnu »,
     remplis par chaque connecteur selon ce que fournit sa plateforme.
+- **D16 (2026-11-24) — Ventes, un seul bounded context** : commande avec ses lignes,
+  remboursement, produit avec ses catégories et client forment quatre aggregates d'un même
+  contexte `sales`, qui se référencent par identifiant. Un sous-ensemble en sortira s'il prend
+  des règles étrangères aux ventes (stocks, coûts et marges pour un catalogue ; segmentation ou
+  consentements pour les clients).
+  - Raisons : un seul langage (un produit n'existe que pour analyser ses ventes, D13, un client
+    que pour analyser ses commandes, D14), une seule source (la même synchronisation), des
+    indicateurs qui croisent les trois (meilleurs produits, nouveaux clients, LTV) et une seule
+    personne pour les faire évoluer.
+  - Alternative écartée : trois contextes Commandes, Catalogue et Clients ; presque chaque
+    indicateur aurait traversé deux frontières, avec des ports et des identifiants recopiés,
+    sans règle protégée en échange.
+- **D17 (2026-11-24) — Indicateurs croisés dans Analytics** : les indicateurs qui combinent
+  ventes et données de visite ou de publicité (taux de conversion, CAC, ROAS) relèvent du
+  contexte `analytics`, qui lit Ventes par son `index.ts`. Ventes ne connaît pas l'analytics.
+  - Raisons : la dépendance va dans un seul sens, et la piste « Analytics réel » ne changera
+    que les adapters d'analytics, pas Ventes.
+- **D18 (2026-11-24) — Empreinte client calculée dans l'adapter** : l'adapter de chaque
+  plateforme calcule l'empreinte de l'e-mail (D14) avant d'appeler Ventes ; l'e-mail en clair ne
+  sort jamais du contexte Boutiques et synchronisation, et aucun use case de Ventes ne le reçoit.
+  - Raison : P15 tient par construction, un use case de Ventes ne pouvant pas stocker un e-mail
+    qu'il ne reçoit pas.
+- **D19 (2026-11-24) — Composition root unique** : un seul module, à la racine
+  d'`apps/api/src/`, importe l'infrastructure de plusieurs contextes ; il instancie les
+  adapters, les injecte dans les use cases et monte les routes de chaque contexte. Son nom et le
+  point d'entrée du serveur sont tranchés au jalon « Serveur API ».
+  - Raison : le branchement des adapters est écrit en un seul endroit, sans conteneur
+    d'injection ni framework, et les use cases restent testables avec d'autres adapters.
+- **D20 (2026-11-24) — Contenu de l'`index.ts` d'un contexte** : il exporte les use cases et les
+  types et value objects de leurs entrées et sorties, jamais un repository ni un adapter. Un
+  contexte qui en appelle un autre reçoit son use case par injection, comme un port, et ne
+  l'importe que pour son type.
+  - Alternative écartée : un port défini par le contexte appelant et implémenté par le contexte
+    appelé ; avec le typage structurel de TypeScript, ce serait une interface identique de plus,
+    sans gain.
+- **D21 (2026-11-24) — Tests et adapters en mémoire** : les règles d'imports de D3 ne
+  s'appliquent pas aux `*.test.ts`, qui importent `vitest` et les adapters en mémoire. Ces
+  adapters (`InMemoryOrderRepository`…) vivent dans `infrastructure/`, comme tout adapter de
+  leur port.
+  - Raisons : sans exemption, la règle « aucun paquet externe dans `domain/` » interdirait aux
+    tests du domaine d'importer `vitest` ; les adapters en mémoire peuvent servir au jalon
+    « Serveur API », avant la base de données.
+- **D22 (2026-11-24) — `domain/` à plat** : un fichier par entity ou value object, nommé en
+  camelCase comme dans le web (`orderStatus.ts`), sans sous-dossier pour l'instant. Le passage
+  à un sous-dossier par aggregate se décide au premier aggregate codé (jalon « Synchronisation »).
+  - Raison : la phase C ne crée que trois fichiers ; une arborescence par aggregate serait
+    décidée avant d'en avoir un seul.
+- **D23 (2026-11-24) — Identifiant interne** : chaque racine d'aggregate a un UUID, généré par
+  l'application à travers un port, que les tests remplacent par un générateur déterministe. Sa
+  version (v7, ordonnée dans le temps, favorable aux index) se tranche au jalon « Base de
+  données ». Les entities internes (lignes, variantes) n'ont pas d'identifiant interne : leur
+  référence externe suffit dans leur aggregate.
+- **D24 (2026-11-24) — Référence externe** : l'identifiant d'une donnée sur sa plateforme est
+  une chaîne de caractères, unique dans une boutique pour chaque type d'aggregate. La
+  synchronisation fait un upsert idempotent sur (boutique, référence externe) : resynchroniser
+  met à jour, sans dupliquer. Le numéro de commande affiché est un attribut distinct (`number`
+  chez WooCommerce, `name` chez Shopify, `reference` chez PrestaShop).
+  - Raison : les formats diffèrent (entiers chez WooCommerce et PrestaShop, GID
+    `gid://shopify/Order/…` chez Shopify) ; une chaîne les accueille tous.
+- **D25 (2026-11-24) — Références entre aggregates de Ventes** : la ligne de commande désigne
+  son produit et sa variante, le remboursement sa commande, par leur référence externe dans la
+  boutique ; la commande désigne son client par son empreinte. L'UUID sert à l'identité, à l'API
+  et aux journaux, pas à relier les données synchronisées.
+  - Raisons : catalogue, commandes et remboursements arrivent dans n'importe quel ordre (un
+    remboursement synchronisé avant sa commande, un produit déjà supprimé, D13) ; aucune
+    résolution d'identifiant n'est nécessaire à l'écriture.
+  - Alternative écartée : résoudre l'UUID de la cible à l'écriture, qui impose un ordre de
+    synchronisation et laisse des références vides quand la cible manque.
+- **D26 (2026-11-24) — Remboursement, aggregate à part** : il complète D11, qui en laissait la
+  place ouverte. Il ne modifie jamais sa commande.
+  - Raisons : il arrive après la commande et s'impute à sa propre date ; l'inclure dans la
+    commande obligerait à la recharger et à la réécrire à chaque remboursement, sans invariant
+    commun à protéger, les plateformes contrôlant déjà le montant remboursable.
+- **D27 (2026-11-24) — Client par boutique** : un client est unique sur (boutique, empreinte).
+  Son identité dans l'organisation est l'empreinte elle-même : la vue « toutes boutiques »
+  regroupe par empreinte, avec la date d'arrivée la plus ancienne (D14). L'identifiant externe
+  est un attribut, sans unicité. Une commande sans e-mail a une empreinte nulle et pas de
+  client.
+  - Raisons : l'identifiant externe et la date de création du compte sont propres à chaque
+    boutique.
+  - Conséquence acceptée : un client qui change l'e-mail de son compte devient un nouveau
+    client, l'identification se faisant par l'e-mail de la commande.
+  - Alternative écartée : un client par organisation avec un profil par boutique, une entity de
+    plus pour ce qu'un regroupement par empreinte donne déjà.
+- **D28 (2026-11-24) — Organisation sur chaque aggregate** : chaque aggregate porte
+  l'identifiant de son organisation, même quand il se déduit de sa boutique.
+  - Raisons : toute lecture filtre d'abord par organisation (P11), sans jointure ; une sécurité
+    au niveau des lignes reste possible au jalon « Base de données ».
+- **D29 (2026-11-24) — Catégorie, aggregate à part** : une catégorie a sa référence externe et
+  son libellé ; le produit désigne ses catégories et sa catégorie principale par référence
+  externe (D25). La référence externe des `productType` de Shopify, qui ne sont pas des
+  entities, se tranche au jalon de son connecteur.
+  - Raison : renommer une catégorie chez WooCommerce ne modifie pas ses produits ; un libellé
+    copié sur le produit échapperait à une synchronisation incrémentale des produits.
+- **D30 (2026-11-24) — Unicité d'une boutique** : une boutique est unique sur (organisation,
+  plateforme, identifiant de la boutique sur sa plateforme). Deux organisations peuvent
+  connecter la même boutique (une agence et le commerçant), chacune avec ses données (P11).
+- **D31 (2026-11-24) — Forme des value objects** : types en lecture seule, marqués (branded),
+  produits par une fonction de fabrique qui vérifie l'invariant (`money()` produit un `Money`),
+  sans classes.
+  - Raisons : style fonctionnel déjà employé dans `lib/kpis` ; les valeurs se sérialisent sans
+    conversion (JSON, base de données) et se comparent par valeur.
+  - Alternative écartée : des classes à champs privés, qui protègent autant l'invariant mais
+    demandent des `equals()` et une conversion à chaque frontière.
+- **D32 (2026-11-24) — Erreurs du domaine** : une valeur invalide lève une `DomainError`, une
+  seule classe avec un code (`invalid-money`, `currency-mismatch`…). L'adapter l'attrape et
+  l'inscrit dans le journal de la synchronisation sans l'arrêter.
+  - Raison : les données des plateformes sont validées par l'adapter ; une erreur du domaine
+    signale un bug ou un cas imprévu.
+  - Alternative écartée : un type `Result`, que chaque appel devrait propager pour des erreurs
+    qui ne devraient pas arriver.
+- **D33 (2026-11-24) — `Money`** : montant en `number` entier sûr (`Number.isSafeInteger`),
+  négatif admis ; toute devise ISO 4217 reconnue par `Intl`, avec son nombre de décimales ;
+  addition et soustraction dans la même devise seulement ; ni multiplication ni division.
+  - Raisons : 9 × 10¹³ euros suffisent et un `number` passe en JSON sans conversion ; un
+    chiffre d'affaires net peut être négatif sur une période ; la restriction à l'euro
+    (jalon 007, D11) est une règle de la boutique, et le multi-devises est prévu (jalon 007,
+    D17) ; les totaux viennent des plateformes et les taux se calculent à la lecture.
+  - Alternative écartée : `bigint`, sans besoin à ces montants et converti à chaque frontière.
+- **D34 (2026-11-24) — Instants et jours locaux** : les instants sont des `Date` en UTC, jamais
+  modifiées après création (convention, la lint ne pouvant pas l'imposer) ; `LocalDay` est une
+  chaîne `AAAA-MM-JJ`, comparable dans l'ordre alphabétique, avec ses bornes en instants
+  [début, début du lendemain[. Les fuseaux se calculent par `Intl`, sans bibliothèque.
+  - Alternative écartée pour l'instant : l'API `Temporal`, plus adaptée, mais que Node 24
+    n'active pas par défaut ; à réévaluer.
+- **D35 (2026-11-24) — Empreinte client** : le value object `CustomerFingerprint` vit dans
+  Ventes et passe par son `index.ts` (D20) ; il ne vérifie que le format (64 caractères
+  hexadécimaux en minuscules). La normalisation de l'e-mail et le calcul HMAC restent dans
+  l'adapter (D18) ; l'extrait court affiché pour un client invité (D14) se calcule à la
+  lecture.
+- **D36 (2026-11-24) — Invariants des entities de Ventes** : une commande `paid` a une date de
+  paiement ; tous les montants d'une commande et de ses lignes, ou d'un remboursement et de ses
+  lignes, sont dans la même devise ; la quantité d'une ligne de commande est un entier
+  strictement positif ; les montants d'un remboursement sont positifs ou nuls, soustraits à la
+  lecture.
+- **D37 (2026-11-24) — CQRS léger** : une seule base et les mêmes tables. L'écriture passe par
+  les aggregates et leurs repositories ; la lecture par des ports de requête (`SalesQueries`…)
+  définis dans `application/` et implémentés en SQL dans `infrastructure/`, qui renvoient des
+  read models simples (nombres, séries) convertis au format du contrat par l'adapter HTTP (D5).
+  - Alternatives écartées : une base de lecture séparée et l'event sourcing, que le volume visé
+    (quelques dizaines de milliers de commandes par organisation) ne justifie pas.
+- **D38 (2026-11-24) — Champs dérivés calculés à l'écriture** : le domaine calcule et stocke
+  les champs dont la lecture a besoin : `countsInIndicators` (D7), jour local du paiement
+  (D12) et ventes nettes HT (D10) de la commande ; ventes nettes HT de la ligne ; jour local et
+  montant HT des produits remboursés (D11) du remboursement ; jour local d'arrivée du client
+  (D14). Le SQL filtre, additionne et regroupe ces champs, sans réimplémenter de règle (jamais
+  `status = 'paid'` ni `gross - discounts`).
+  - Raisons : une règle n'existe qu'une fois, en TypeScript, testée en TDD ; un jour stocké
+    s'indexe et se regroupe directement.
+  - Alternative écartée : le jour local calculé en SQL (`AT TIME ZONE`), règle écrite deux fois,
+    avec des bases de fuseaux de PostgreSQL et de Node qui peuvent différer d'une version à
+    l'autre.
+- **D39 (2026-11-24) — Recalcul des champs dérivés** : un use case les recalcule à partir des
+  données stockées (statut brut, composantes, instants) quand une règle, une correspondance de
+  statut ou le fuseau de l'organisation change, sans resynchroniser (D6, D10, D12).
+- **D40 (2026-11-24) — Période de lecture en jours locaux** : les requêtes de lecture prennent
+  une plage de `LocalDay` dans le fuseau de l'organisation, pas des instants (D12). L'interface
+  envoie aujourd'hui des instants `from` et `to` : écart noté dans `docs/domain-model.md`.
+- **D41 (2026-11-24) — Lecture limitée aux tables de son contexte** : un indicateur croisé
+  (taux de conversion, CAC) se compose dans l'application d'Analytics, à partir d'une requête de
+  Ventes appelée par son `index.ts` et d'une requête d'Analytics (D17).
+  - Alternative écartée : une jointure SQL entre les tables de deux contextes, plus rapide mais
+    qui couplerait leurs schémas.
+- **D42 (2026-11-24) — Ni pré-agrégation ni doublure en mémoire pour l'instant** : les requêtes
+  portent sur les tables, avec des index sur (organisation, jour local). Des agrégats
+  journaliers pré-calculés s'ajouteront au jalon « Indicateurs côté serveur » si les temps
+  mesurés le demandent. Les adapters de lecture se testent contre une vraie PostgreSQL (base
+  jetable, jalon « Base de données ») : une version en mémoire recopierait le SQL en TypeScript.
+- **D43 (2026-11-24) — Paiement acquis** : le statut canonique se déduit de la date de
+  paiement (D9). Date connue : `paid`, même si la commande est ensuite annulée ou marquée
+  remboursée sur la plateforme ; l'argent rendu passe par les remboursements, imputés à leur
+  date (D11). Sans date de paiement : le statut brut donne `pending`, `failed` ou `cancelled`.
+  Une date de paiement connue n'est jamais effacée par une synchronisation suivante. L'invariant
+  de D36 devient une équivalence : une commande est `paid` si et seulement si elle a une date de
+  paiement.
+  - Raisons : une commande payée puis annulée ne fait pas baisser une période déjà consultée
+    (D9, P6) et un remboursement qui accompagne l'annulation n'est pas déduit deux fois ; un
+    statut personnalisé inconnu compte dès qu'il a une date de paiement. Les plateformes disent
+    elles-mêmes que l'argent se rend par un remboursement (« To return funds to the customer you
+    will need to issue a refund » chez WooCommerce ; remboursement coché par défaut à
+    l'annulation chez Shopify).
+  - Conséquences acceptées :
+    - une commande annulée après paiement, remboursée hors de la plateforme sans remboursement
+      enregistré, reste dans le chiffre d'affaires ; le chiffre diffère alors de WooCommerce
+      Analytics (qui exclut les commandes `cancelled` par défaut) et des statistiques de
+      PrestaShop (fondées sur `valid`, qui retombe à 0 à l'annulation) ;
+    - une commande passée par erreur dans un statut payé se corrige par un remboursement
+      enregistré, pas par un changement de statut ;
+    - si WooCommerce efface `date_paid` à l'annulation (à vérifier au jalon de son connecteur),
+      une commande importée avec l'historique serait vue comme jamais payée, alors qu'une
+      commande suivie en continu garde son paiement.
+  - Pour le commerçant : le statut brut conservé (D6) permet d'afficher « Annulée après
+    paiement » ; un indicateur des commandes annulées après paiement sans remboursement
+    enregistré (nombre, montant) lui signale ce qu'il doit régulariser. Suggestion pour le jalon
+    « Indicateurs côté serveur », sans changement du modèle.
+  - Alternatives écartées : un statut qui suit la plateforme (périodes passées qui baissent,
+    remboursements déduits deux fois) ; un remboursement implicite à la date d'annulation,
+    compté deux fois quand un vrai remboursement arrive plus tard (« Refund later » de Shopify).
+- **D44 (2026-11-24) — Correspondance de WooCommerce** : date de paiement `date_paid_gmt`
+  (D9). Sans date de paiement : `pending` et `on-hold` donnent `pending`, `failed` donne
+  `failed`, `cancelled` donne `cancelled` ; un statut personnalisé donne `pending` et est
+  signalé dans le journal de la synchronisation. Les brouillons de checkout ne sont pas
+  synchronisés. `processing`, `completed` et `refunded` ont normalement une date de paiement.
+- **D45 (2026-11-24) — Correspondance de Shopify** : date de paiement : `processedAt` de la
+  transaction `SALE` ou `CAPTURE` en `SUCCESS` qui solde la commande (point de D9). `PAID`,
+  `PARTIALLY_REFUNDED` et `REFUNDED` donnent `paid`, annulée ou non ; `PENDING`, `AUTHORIZED`
+  (D7) et `PARTIALLY_PAID` donnent `pending`, ou `cancelled` si `cancelledAt` est renseigné ;
+  `EXPIRED` donne `failed` ; `VOIDED` donne `cancelled`.
+  - `PARTIALLY_PAID` reste `pending` par prudence (D7) : une capture partielle définitive ne
+    compterait jamais, cas rare repris au jalon du connecteur Shopify.
+- **D46 (2026-11-24) — Correspondance de PrestaShop** : par l'indicateur `paid` de l'état
+  (« Set the order as paid »), pas par `logable` (« Consider the associated order as
+  validated », qui alimente `valid`). Date de paiement : premier état `paid` de
+  `order_histories` (D9). Sans date de paiement : l'état configuré dans `PS_OS_ERROR` donne
+  `failed`, celui de `PS_OS_CANCELED` donne `cancelled`, tout autre état `pending`. Les états
+  créés par le commerçant suivent la même règle.
+  - Raison : l'état « En rupture (payé) » a `paid` à 1 et `logable` à 0 ; l'argent est encaissé
+    (D7). Les chiffres compteront ces commandes, contrairement aux statistiques de PrestaShop.
 
 ## Phase A — Définitions métier ✅
 
@@ -344,23 +562,23 @@ Brainstorm avec l'utilisateur : une décision par question, avec les pratiques d
 - [x] Canal et appareil des commandes : source quand la plateforme les fournit, valeur
       « inconnu » sinon.
 
-## Phase B — Document du modèle ⬜
+## Phase B — Document du modèle ✅
 
-- [ ] `docs/domain-model.md` : bounded contexts (organisations et accès, ventes, boutiques et
+- [x] `docs/domain-model.md` : bounded contexts (organisations et accès, ventes, boutiques et
       synchronisation, analytics simulé, facturation à venir) et leurs relations.
-- [ ] `docs/domain-model.md` : architecture hexagonale d'`apps/api` (D3) : couches, ports et
+- [x] `docs/domain-model.md` : architecture hexagonale d'`apps/api` (D3) : couches, ports et
       adapters, règle d'imports.
-- [ ] `docs/domain-model.md` : entities et aggregates (organisation, boutique, commande et ses
+- [x] `docs/domain-model.md` : entities et aggregates (organisation, boutique, commande et ses
       lignes, remboursement, produit, client), leurs identifiants internes et externes, et
       l'unicité d'un identifiant externe dans une boutique.
-- [ ] `docs/domain-model.md` : value objects (montant et devise, statut canonique, empreinte
+- [x] `docs/domain-model.md` : value objects (montant et devise, statut canonique, empreinte
       client, fuseau horaire, jour local, référence externe) et leurs invariants.
-- [ ] `docs/domain-model.md` : écriture par le domaine (synchronisation) et lecture des
+- [x] `docs/domain-model.md` : écriture par le domaine (synchronisation) et lecture des
       indicateurs par agrégats SQL ; comment les règles du domaine s'appliquent à la lecture
       sans être dupliquées (champs calculés à l'écriture, par exemple « compte dans le CA »).
-- [ ] `docs/domain-model.md` : correspondance des statuts de WooCommerce, de Shopify et de
+- [x] `docs/domain-model.md` : correspondance des statuts de WooCommerce, de Shopify et de
       PrestaShop vers les statuts canoniques, vérifiée dans leur documentation.
-- [ ] `docs/domain-model.md` : écarts avec les schémas actuels de `@salespulse/contracts` et
+- [x] `docs/domain-model.md` : écarts avec les schémas actuels de `@salespulse/contracts` et
       jalon qui comble chacun (D1, D5).
 
 ## Phase C — Value objects en TypeScript ⬜
@@ -375,9 +593,10 @@ TDD : test rouge lancé et montré avant chaque code de production.
       retouche quand `contracts` aura ses premiers tests (D5).
 - [ ] `eslint.config.mjs` : `no-restricted-imports` par chemin (D3) : `domain/` n'importe ni
       `application/`, ni `infrastructure/`, ni aucun paquet externe ; `application/`
-      n'importe pas `infrastructure/` ; un contexte n'en importe un autre que par son
-      `index.ts`. Chaque interdiction est prouvée par un import interdit temporaire qui fait
-      échouer `npm run lint`, sortie montrée, puis retiré.
+      n'importe ni `infrastructure/`, ni aucun paquet externe ; `shared/domain/` n'importe
+      aucun contexte ; un contexte n'en importe un autre que par son `index.ts` ; les
+      `*.test.ts` sont exemptés (D21). Chaque interdiction est prouvée par un import interdit
+      temporaire qui fait échouer `npm run lint`, sortie montrée, puis retiré.
 - [ ] `apps/api/src/shared/domain/money.ts` : montant entier en unités mineures avec son code
       ISO 4217 ; refus d'un montant non entier ; addition et soustraction refusées entre deux
       devises ; nombre de décimales propre à la devise.
@@ -397,7 +616,15 @@ TDD : test rouge lancé et montré avant chaque code de production.
 - [ ] `docs/roadmap.md` : « Serveur API » sans les conventions TDD d'`apps/api`, faites ici ;
       « Synchronisation » et « Indicateurs côté serveur » complétés par le calendrier de D5 ;
       piste « Découpage des contrats par contexte » ajoutée aux autres pistes, à faire juste
-      après ce jalon ; sujets tranchés retirés.
+      après ce jalon, avec la répartition du contenu actuel (`shops.ts` : `Shop` ; `sales.ts` :
+      commandes, lignes, produits, clients, catégories ; `analytics.ts` : canal, appareil et
+      lignes analytics ; `demo.ts` : `Dataset`, `AnalyticsDataset` ; `shared.ts` créé au
+      premier format commun) ; pistes « Paniers abandonnés réels » (D8) et « Analytics réel » (D15)
+      ajoutée ou complétée ; « Indicateurs côté serveur » complété par le panier moyen et le
+      chiffre d'affaires par client avant ou après remboursements (renvoyés) et par
+      l'indicateur des commandes annulées après paiement sans remboursement (D43) ; points à
+      vérifier de `docs/domain-model.md` rattachés aux jalons des connecteurs ; sujets
+      tranchés retirés.
 
 ## Journal
 
@@ -422,6 +649,35 @@ TDD : test rouge lancé et montré avant chaque code de production.
   trois plateformes. D14 tranchée ; découverte : les listes « Meilleurs clients » affichent le
   nom du client, contre P15. D15 tranchée à la demande de l'utilisateur : canal et appareil
   rattachés à la piste « Analytics réel ». Phase A terminée.
+- 2026-11-24 : phase B commencée. Carte des bounded contexts tranchée (D16 à D18) ; NestJS
+  réexaminé à la demande de l'utilisateur et laissé écarté (entrée Express de `docs/stack.md`) :
+  l'architecture hexagonale cantonne le framework HTTP à l'infrastructure.
+- 2026-11-24 : architecture hexagonale tranchée (D19 à D22), après comparaison avec
+  l'architecture en couches, les vertical slices et le transaction script. Case ESLint de la
+  phase C complétée : aucun paquet externe dans `application/`, aucun contexte dans
+  `shared/domain/`, exemption des tests (D21).
+- 2026-11-24 : entities et aggregates tranchés (D23 à D30). Le remboursement devient un
+  aggregate à part (D26), point laissé ouvert par D11.
+- 2026-11-24 : value objects et invariants tranchés (D31 à D36) ; les cases de la phase C
+  restent compatibles sans retouche.
+- 2026-11-24 : écriture et lecture tranchées (D37 à D42). Découverte : une commande payée puis
+  annulée cesserait de compter, ce qui ferait baisser une période déjà consultée (contre D9) et
+  pourrait déduire deux fois un remboursement ; cas repris avec la correspondance des statuts.
+- 2026-11-24 : documentation des statuts relue (WooCommerce, Shopify, PrestaShop). Les états
+  par défaut de PrestaShop, absents de sa documentation, sont lus dans les données
+  d'installation du dépôt officiel (`install-dev/data/xml/order_state.xml` et
+  `configuration.xml`, branche `8.2.x`, le chemin `8.1.x` n'existant plus). Découverte : l'état
+  « En rupture (payé) » a `paid` à 1 et `logable` à 0. D43 à D46 tranchées. À la demande de
+  l'utilisateur, le panier moyen et le chiffre d'affaires par client, avant ou après
+  remboursements (D10 et D11 ne le disent pas), sont renvoyés au jalon « Indicateurs côté
+  serveur ». Écart à noter : `refundRate.ts` et `refundedRevenue.ts` comptent des commandes
+  `refunded` en nombre et en TTC, contre D11.
+- 2026-11-24 : écarts avec la démo relevés dans `docs/domain-model.md` (schémas, 53 fonctions de
+  `lib/kpis`, composants clients, découpage des dates). Découverte : une commande `refunded`
+  sort aujourd'hui entièrement du chiffre d'affaires, alors que le modèle la compte payée puis
+  déduit ses remboursements à leur date. À la question de la lisibilité de `schemas.ts`, le
+  découpage par contexte de D5 est maintenu après ce jalon ; sa répartition est précisée dans
+  la case roadmap de la phase D. Phase B terminée.
 
 ## Workflow Git
 
