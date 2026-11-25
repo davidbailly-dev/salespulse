@@ -537,6 +537,14 @@ TypeScript pur dans le cœur hexagonal d'`apps/api`, testés en TDD.
   créés par le commerçant suivent la même règle.
   - Raison : l'état « En rupture (payé) » a `paid` à 1 et `logable` à 0 ; l'argent est encaissé
     (D7). Les chiffres compteront ces commandes, contrairement aux statistiques de PrestaShop.
+- **D47 (2026-11-25) — Devises ISO 4217, remplace D33 sur ce point** : devises acceptées et
+  nombre de décimales lus dans une table de la liste ISO 4217 (« List One » de la SIX) recopiée
+  dans le code, et non plus dans `Intl` ; les codes sans unités mineures (métaux, unités de
+  compte, `XTS`, `XXX`) sont refusés.
+  - Raison : `Intl` donne les décimales d'affichage de CLDR, pas les unités mineures (0 pour
+    HUF, IDR, COP ou IQD, contre 2 ou 3 dans ISO 4217), et sa liste suit la version d'ICU
+    (`VED` refusé, `HRK` retiré accepté sous ICU 78.3) ; relevé par une revue de code.
+  - Coût : la table se met à jour à la main quand la liste change, rarement.
 
 ## Phase A — Définitions métier ✅
 
@@ -598,7 +606,7 @@ TDD : test rouge lancé et montré avant chaque code de production.
       aucun contexte ; un contexte n'en importe un autre que par son `index.ts` ; les
       `*.test.ts` sont exemptés (D21). Chaque interdiction est prouvée par un import interdit
       temporaire qui fait échouer `npm run lint`, sortie montrée, puis retiré.
-- [ ] `apps/api/src/shared/domain/money.ts` : montant entier en unités mineures avec son code
+- [x] `apps/api/src/shared/domain/money.ts` : montant entier en unités mineures avec son code
       ISO 4217 ; refus d'un montant non entier ; addition et soustraction refusées entre deux
       devises ; nombre de décimales propre à la devise.
 - [ ] `apps/api/src/sales/domain/orderStatus.ts` : statuts canoniques et règle « compte dans
@@ -690,6 +698,19 @@ TDD : test rouge lancé et montré avant chaque code de production.
   `npm run lint` (code 1), les imports autorisés passent, tests compris. Limite : ses
   expressions régulières supposent `domain/` à plat (D22), à revoir avec des sous-dossiers par
   aggregate.
+- 2026-11-24 : `Money` en TDD, avec `DomainError` (D32) et `CurrencyCode` dans leur propre
+  fichier (D22) ; 23 tests, rouge montré avant le code. Devises reconnues par
+  `Intl.supportedValuesOf('currency')`, décimales par `Intl.NumberFormat` (EUR 2, JPY 0, KWD 3).
+  Helper de test `errorCodeOf` dans `apps/api/src/testing/`, hors couverture ;
+  `passWithNoTests` retiré.
+- 2026-11-25 : revue de code de `Money` (`/code-review high`). Découverte : les décimales
+  d'`Intl` diffèrent d'ISO 4217 pour une quinzaine de devises, vérifié sous Node 24.22.2 ;
+  D47 tranchée, table de 165 codes comparée à la liste officielle du 2026-09-17. Aussi corrigés :
+  `-0` ramené à `0` par `money()`, `errorCodeOf` qui refuse une action async (et ses propres
+  tests), bornes négatives testées (caractérisation, prouvée par une mutation de
+  `Number.isSafeInteger` en `isInteger` borné en haut seulement : 2 échecs, puis annulée).
+  Écartés : revérification de la devise dans `addMoney` (coût négligeable) et règle d'imports
+  pour `src/testing/` (helpers de test seulement).
 
 ## Workflow Git
 

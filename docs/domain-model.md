@@ -239,9 +239,9 @@ Vitals, erreurs, e-mails) : leur modèle se définira avec la piste « Analytics
 - **`Money`** : montant entier en unités mineures (`Number.isSafeInteger`), négatif admis, avec
   sa `CurrencyCode`. Addition et soustraction dans la même devise seulement, sinon
   `currency-mismatch` ; ni multiplication ni division (D33). Le nombre de décimales dépend de la
-  devise (EUR 2, JPY 0).
-- **`CurrencyCode`** : code ISO 4217 reconnu par `Intl`. Toute devise est acceptée ici ; la
-  restriction à l'euro est une règle de la boutique (jalon 007, D11 et D17).
+  devise (EUR 2, JPY 0, HUF 2), selon la liste ISO 4217 (D47).
+- **`CurrencyCode`** : code de la liste ISO 4217, avec unités mineures (D47). Toute devise est
+  acceptée ici ; la restriction à l'euro est une règle de la boutique (jalon 007, D11 et D17).
 - **`IanaTimezone`** : fuseau accepté par `Intl.DateTimeFormat` (`Europe/Paris`, `UTC`…).
 - **`LocalDay`** : date `AAAA-MM-JJ` valide (29 février compris), comparable dans l'ordre
   alphabétique (D34). Il donne :
