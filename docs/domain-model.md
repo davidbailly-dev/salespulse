@@ -230,6 +230,9 @@ Vitals, erreurs, e-mails) : leur modèle se définira avec la piste « Analytics
 - Types en lecture seule, marqués (branded), produits par une fonction de fabrique qui vérifie
   l'invariant : `money()` produit un `Money`, et aucun autre code ne peut en fabriquer un
   (D31). Pas de classes ; deux valeurs se comparent par leurs champs.
+- Une liste fermée de valeurs (`OrderStatus`) est une union de littéraux sans marque, tirée d'un
+  tableau `as const` figé : le compilateur refuse déjà toute autre chaîne. Sa fonction de fabrique
+  valide une chaîne venue de l'extérieur du domaine (D48).
 - Une valeur invalide lève une `DomainError`, une seule classe avec un code (`invalid-money`,
   `currency-mismatch`…). L'adapter de synchronisation l'attrape et l'inscrit dans le journal de
   la synchronisation sans l'arrêter (D32).

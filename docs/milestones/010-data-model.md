@@ -545,6 +545,14 @@ TypeScript pur dans le cœur hexagonal d'`apps/api`, testés en TDD.
     HUF, IDR, COP ou IQD, contre 2 ou 3 dans ISO 4217), et sa liste suit la version d'ICU
     (`VED` refusé, `HRK` retiré accepté sous ICU 78.3) ; relevé par une revue de code.
   - Coût : la table se met à jour à la main quand la liste change, rarement.
+- **D48 (2026-11-25) — Value object à valeurs fermées, remplace D31 sur ce point** : un value
+  object dont les valeurs forment une liste fermée (`OrderStatus`) est une union de littéraux
+  tirée d'un tableau `as const` figé (`Object.freeze`), sans marque ; sa fonction de fabrique
+  valide une chaîne venue de l'extérieur du domaine (base, adapter). D31 reste la règle des
+  autres value objects.
+  - Raison : le compilateur refuse déjà toute autre chaîne ; une marque obligerait à passer par
+    la fabrique jusque dans le code qui écrit un statut en dur (`status === 'paid'`), sans
+    invariant de plus à protéger.
 
 ## Phase A — Définitions métier ✅
 
@@ -609,7 +617,7 @@ TDD : test rouge lancé et montré avant chaque code de production.
 - [x] `apps/api/src/shared/domain/money.ts` : montant entier en unités mineures avec son code
       ISO 4217 ; refus d'un montant non entier ; addition et soustraction refusées entre deux
       devises ; nombre de décimales propre à la devise.
-- [ ] `apps/api/src/sales/domain/orderStatus.ts` : statuts canoniques et règle « compte dans
+- [x] `apps/api/src/sales/domain/orderStatus.ts` : statuts canoniques et règle « compte dans
       les indicateurs », selon la phase A.
 - [ ] `apps/api/src/shared/domain/localDay.ts` : jour local d'un instant dans un fuseau IANA,
       bornes d'un jour local en instants (jours de 23 h et de 25 h, passage d'année).
@@ -711,6 +719,17 @@ TDD : test rouge lancé et montré avant chaque code de production.
   `Number.isSafeInteger` en `isInteger` borné en haut seulement : 2 échecs, puis annulée).
   Écartés : revérification de la devise dans `addMoney` (coût négligeable) et règle d'imports
   pour `src/testing/` (helpers de test seulement).
+- 2026-11-25 : `OrderStatus` en TDD, premier fichier du contexte `sales` (sans `index.ts`, aucun
+  use case à exporter, D20) ; 16 tests, rouge montré avant le code (9 échecs d'assertion sur un
+  squelette qui exportait les noms). D48 tranchée : union de littéraux sans marque. La
+  déduction du statut depuis la date de paiement (D43) est laissée à l'entity `Order`, qui porte
+  l'invariant « `paid` si et seulement si date de paiement », au jalon « Synchronisation ».
+- 2026-11-25 : revue de code d'`OrderStatus`. Corrigés : `ORDER_STATUSES` figé par
+  `Object.freeze` (test rouge montré), D48 requalifiée en « remplace D31 sur ce point ». Écarté
+  ici : tronquer la valeur refusée recopiée dans le message d'une `DomainError` (`orderStatus`,
+  `currencyCode`). Les journaux JSON (jalon 007, D24) échappent déjà les retours à la ligne ; la
+  longueur se borne en un seul endroit, à l'écriture du journal de synchronisation, pour tous
+  les messages : point du jalon « Synchronisation ».
 
 ## Workflow Git
 
