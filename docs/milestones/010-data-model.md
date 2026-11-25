@@ -1,4 +1,4 @@
-# Jalon 010 — Modèle de données 🔄
+# Jalon 010 — Modèle de données ✅
 
 Branche : `feature/data-model` (depuis `develop`). Livré dans : —
 
@@ -794,6 +794,8 @@ TDD : test rouge lancé et montré avant chaque code de production.
   tranchés retirés : conventions TDD d'`apps/api` (« Serveur API »), traduction des statuts de
   WooCommerce, désormais renvoyée à D44. Phase D terminée ; la phrase de l'index qui dit le
   jalon 010 en cours change à la clôture.
+- 2026-11-25 : jalon clos. Vérifications relancées avant le Bilan : 109 tests dans `apps/api`,
+  685 dans `apps/web`, lint, typecheck et build sans erreur.
 
 ## Workflow Git
 
@@ -820,4 +822,80 @@ Chaque phase se termine par un point d'arrêt de relecture. Merge par pull reque
 
 ## Bilan
 
-<Rempli à la clôture.>
+### Ce qui a été fait
+
+- **Phase A** : huit questions métier tranchées avec l'utilisateur, après lecture de la
+  documentation de WooCommerce, de Shopify et de PrestaShop : statut canonique et commande qui
+  compte (D6 à D8), date de référence (D9), chiffre d'affaires HT (D10), remboursements (D11),
+  fuseau horaire (D12), produits (D13), clients (D14), canal et appareil (D15).
+- **Phase B** : `docs/domain-model.md` (534 lignes) : bounded contexts et leurs relations,
+  architecture hexagonale et règle d'imports, entities et aggregates, value objects et
+  invariants, écriture et lecture, correspondance des statuts des trois plateformes, écarts avec
+  la démo et jalon qui comble chacun (D16 à D46).
+- **Phase C** : paquet `@salespulse/api` sans serveur, règle d'imports dans
+  `eslint.config.mjs`, et les value objects `Money`, `CurrencyCode`, `OrderStatus`,
+  `IanaTimezone`, `LocalDay`, avec `DomainError` et le helper de test `errorCodeOf`.
+- **Phase D** : `CLAUDE.md`, `docs/vision.md`, `docs/stack.md` et `docs/roadmap.md` alignés sur
+  le modèle.
+
+### Chiffres
+
+- 49 décisions (D1 à D49), 4 commits `docs:`, 1 `chore:`, 3 `feat:`, plus ce commit de clôture.
+- `apps/api` : 296 lignes de code de production, 432 lignes de tests, plus la table ISO 4217
+  (23 lignes) ; 109 tests en 7 fichiers (`localDay` 42, `currencyCode` 19, `orderStatus` 17,
+  `money` 16, `ianaTimezone` 10, `errorCodeOf` 4, `domainError` 1). Couverture : 98,8 % des
+  lignes et 97,2 % des branches ; seule ligne non couverte, la branche inatteignable de
+  `currencyDecimals` (`currencyCode.ts:22`).
+- `apps/web` : 685 tests, inchangés (D1).
+- Pull request : 835 lignes de code et de tests (hors documentation et `package-lock.json`),
+  au-dessus du seuil indicatif de 800 ; dépassement signalé à la fin de la phase C et accepté
+  par l'utilisateur, la phase D n'ajoutant que de la documentation.
+
+### Écarts avec le plan
+
+- **Décisions remplacées en partie** : D47 remplace D33 sur les devises (les décimales d'`Intl`
+  ne sont pas les unités mineures d'ISO 4217) ; D48 remplace D31 pour les listes fermées de
+  valeurs ; D43 fait de l'invariant de D36 une équivalence (`paid` si et seulement si date de
+  paiement).
+- **Value objects en plus** : `CurrencyCode` et `IanaTimezone`, prévus par
+  `docs/domain-model.md` mais pas par les cases de la phase C, chacun dans son fichier (D22).
+- **Outillage** : `test:watch` retiré de la racine, avec l'accord de l'utilisateur (le watch de
+  plusieurs workspaces ne rendait jamais la main).
+- **Vision** : P7 réécrit (il contredisait D5), P6 complété par la règle « une période écoulée
+  ne change pas après coup », que D7, D9, D11 et D43 supposaient ; non prévus par la case de la
+  phase D, qui ne citait que P9 et P15. Les quatre principes ont été validés par l'utilisateur.
+- **Revues de code** non prévues au plan, sur `Money`, `OrderStatus` et `LocalDay` : elles ont
+  donné D47 et D48, et corrigé quatre bugs de `LocalDay` (années 0 à 99, 9999-12-31, saut
+  d'heure qui enjambe minuit, message d'erreur trompeur). Points écartés et leur raison : voir
+  le Journal.
+- **Dépendance** : aucune ajoutée ; les fuseaux passent par `Intl` (D34).
+
+### Vérifications réellement faites
+
+- `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur en local à la
+  clôture, tests d'`apps/api` compris.
+- Rouge montré avant chaque code de production de la phase C, et chaque test de caractérisation
+  prouvé par une mutation lancée puis annulée.
+- Règle d'imports : neuf imports interdits temporaires ont chacun fait échouer `npm run lint`.
+- Changements d'heure : attendus revérifiés avec la base tz du système (`TZ=… date`),
+  indépendante d'ICU ; propriété « le début d'un jour est son premier instant » vérifiée sur
+  265 870 jours autour des changements d'heure de 414 fuseaux, de 1900 à 2040 (test temporaire,
+  non commité).
+- Statuts et champs des plateformes lus dans leur documentation, et les états par défaut de
+  PrestaShop dans les données d'installation de son dépôt (Journal du 2026-11-24).
+- **Pas encore faite** : `checks` au vert sur la pull request, dernier critère d'acceptation,
+  vérifié à l'ouverture de la pull request.
+
+### Décisions reportées dans la documentation durable
+
+- D2 et D16 à D49 : `docs/domain-model.md`.
+- D3, D5, D31, D32 et D48 : `CLAUDE.md` (architecture d'`apps/api`, contrat, value objects) et
+  `docs/stack.md` (Zod, Express, PostgreSQL).
+- D7, D9, D11, D43 (P6), D5 (P7), D12 (P9) et D14 (P15) : `docs/vision.md`.
+- Sujets laissés aux jalons suivants : `docs/roadmap.md`, chacun dans le jalon qui le traite.
+
+### Release
+
+Aucune. Les `feat:` de la phase C ajoutent du code utilisé par rien, sans effet visible pour
+l'utilisateur (D4) : le jalon part avec la prochaine release qui aura un changement visible.
+README et `changelog.txt` inchangés.

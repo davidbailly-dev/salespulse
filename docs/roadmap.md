@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [010 — Modèle de données](milestones/010-data-model.md)
+Aucun.
 
 ## Terminés
 
+- ✅ [010 — Modèle de données](milestones/010-data-model.md) — non publié
 - ✅ [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md) — non publié
 - ✅ [008 — Intégration continue](milestones/008-continuous-integration.md) — non publié
 - ✅ [007 — Vision du backend](milestones/007-backend-vision.md) — non publié
@@ -32,7 +33,7 @@ ce qui s'en déduit (clients, produits) : l'analytics reste simulé tant qu'il n
 source (piste « Analytics réel »). Chaque jalon laisse `main` déployable.
 
 Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
-relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est en cours.
+relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est terminé.
 Jusqu'au jalon « Déploiement du socle », Render continue de lancer Next.js seul : `apps/api` est
 testé par le CI sans être déployé.
 
