@@ -245,12 +245,17 @@ Vitals, erreurs, e-mails) : leur modèle se définira avec la piste « Analytics
   devise (EUR 2, JPY 0, HUF 2), selon la liste ISO 4217 (D47).
 - **`CurrencyCode`** : code de la liste ISO 4217, avec unités mineures (D47). Toute devise est
   acceptée ici ; la restriction à l'euro est une règle de la boutique (jalon 007, D11 et D17).
-- **`IanaTimezone`** : fuseau accepté par `Intl.DateTimeFormat` (`Europe/Paris`, `UTC`…).
-- **`LocalDay`** : date `AAAA-MM-JJ` valide (29 février compris), comparable dans l'ordre
-  alphabétique (D34). Il donne :
+- **`IanaTimezone`** : fuseau accepté par `Intl.DateTimeFormat` (`Europe/Paris`, `UTC`…), sauf
+  un décalage fixe (`+01:00`) ; le nom reçu est gardé tel quel, sans le nom canonique d'`Intl`
+  (D49).
+- **`LocalDay`** : date `AAAA-MM-JJ` valide (29 février compris), année de 1000 à 9999,
+  comparable dans l'ordre alphabétique (D34, D49). Il donne :
   - le jour local d'un instant dans un fuseau ;
   - ses bornes en instants UTC, intervalle semi-ouvert [début, début du lendemain[, de 23 h ou
-    de 25 h aux changements d'heure (D12).
+    de 25 h aux changements d'heure (D12). Le jour commence au premier instant dont le jour
+    local est le sien : son premier minuit quand minuit revient deux fois, le changement d'heure
+    quand minuit est sauté (D49). Un recul d'horloge par-dessus minuit, disparu depuis 2010,
+    coupe un jour en deux : ses bornes ne le décrivent alors qu'approximativement (D49).
 - **`ExternalRef`** : chaîne non vide, conservée telle quelle, sans normalisation (D24).
 - **Identifiants** (`OrganisationId`, `ShopId`, `OrderId`…) : UUID valide, un type distinct par
   aggregate, déclaré dans le contexte qui le possède ou dans le shared kernel s'il est partagé.

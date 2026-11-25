@@ -553,6 +553,22 @@ TypeScript pur dans le cœur hexagonal d'`apps/api`, testés en TDD.
   - Raison : le compilateur refuse déjà toute autre chaîne ; une marque obligerait à passer par
     la fabrique jusque dans le code qui écrit un statut en dur (`status === 'paid'`), sans
     invariant de plus à protéger.
+- **D49 (2026-11-25) — Invariants d'`IanaTimezone` et de `LocalDay`** : un fuseau est un nom
+  reconnu par `Intl`, à l'exception des décalages fixes (`+01:00`), qu'`Intl` accepte mais qui
+  ignorent les changements d'heure ; le nom reçu est gardé tel quel, sans le nom canonique
+  d'`Intl`. Un `LocalDay` a une année de 1000 à 9999 ; un instant dont le jour local en sort est
+  refusé (`invalid-instant`), mais les bornes du 9999-12-31 se calculent. Un jour commence au
+  premier instant dont le jour local est le sien : son premier minuit quand minuit revient deux
+  fois, le changement d'heure quand minuit est sauté, même quand le saut enjambe minuit (23:30 →
+  00:30 à Toronto en 1919).
+  - Raisons : sous ICU 78.3, `Intl` remplace `Asia/Kolkata` par `Asia/Calcutta` et
+    `Europe/Kyiv` par `Europe/Kiev`, nom qui changerait avec la version d'ICU ; une année sur
+    quatre chiffres garde l'ordre alphabétique.
+  - Limite acceptée : quand l'horloge recule par-dessus minuit (00:01 → 23:01, à St John's,
+    Goose Bay et Moncton jusqu'en 2010), la veille reprend pendant une heure après le début du
+    jour, et aucun intervalle ne décrit exactement ce jour coupé en deux. `localDayOf` donne
+    alors la veille à des instants compris dans les bornes du jour. Les lectures se font par
+    jour local stocké, calculé par `localDayOf` (D38, D40), pas par ces bornes.
 
 ## Phase A — Définitions métier ✅
 
@@ -597,7 +613,7 @@ Brainstorm avec l'utilisateur : une décision par question, avec les pratiques d
 - [x] `docs/domain-model.md` : écarts avec les schémas actuels de `@salespulse/contracts` et
       jalon qui comble chacun (D1, D5).
 
-## Phase C — Value objects en TypeScript 🔄
+## Phase C — Value objects en TypeScript ✅
 
 TDD : test rouge lancé et montré avant chaque code de production.
 
@@ -619,7 +635,7 @@ TDD : test rouge lancé et montré avant chaque code de production.
       devises ; nombre de décimales propre à la devise.
 - [x] `apps/api/src/sales/domain/orderStatus.ts` : statuts canoniques et règle « compte dans
       les indicateurs », selon la phase A.
-- [ ] `apps/api/src/shared/domain/localDay.ts` : jour local d'un instant dans un fuseau IANA,
+- [x] `apps/api/src/shared/domain/localDay.ts` : jour local d'un instant dans un fuseau IANA,
       bornes d'un jour local en instants (jours de 23 h et de 25 h, passage d'année).
 
 ## Phase D — Documentation durable ⬜
@@ -730,6 +746,28 @@ TDD : test rouge lancé et montré avant chaque code de production.
   `currencyCode`). Les journaux JSON (jalon 007, D24) échappent déjà les retours à la ligne ; la
   longueur se borne en un seul endroit, à l'écriture du journal de synchronisation, pour tous
   les messages : point du jalon « Synchronisation ».
+- 2026-11-25 : `LocalDay` et `IanaTimezone` en TDD, chacun dans son fichier (D22) ; 44 tests,
+  rouge montré avant le code (31 échecs d'assertion sur des squelettes). Découvertes : `Intl`
+  accepte les décalages fixes (`+01:00`) et remplace certains noms par leur ancien nom canonique
+  (`Asia/Kolkata` devient `Asia/Calcutta`), d'où D49. Cas de minuit testés hors de Paris :
+  minuit sauté à Santiago (2026-09-06, jour de 23 h commencé à 1 h), minuit répété à La Havane
+  (2026-11-01, jour de 25 h). Ce dernier cas, ajouté après coup, a été prouvé par une mutation
+  (premier minuit remplacé par le dernier : 1 échec, puis annulée) ; une autre mutation
+  (millisecondes ignorées) a survécu, ce qui a fait retirer leur calcul, sans effet sur le jour
+  ni ses bornes. Couverture complète des deux fichiers. Phase C terminée.
+- 2026-11-25 : revue de code de `LocalDay` (`/code-review high`, 6 points), tous retenus.
+  Corrigés en TDD (6 tests rouges montrés) : `localDayOf` renvoyait sans erreur 1950 pour un
+  instant de l'an 50 (`Date.UTC`, remplacé par `setUTCFullYear`) et accusait le jour plutôt que
+  l'instant hors des années 1000 à 9999 ; `localDayBounds` levait une erreur sur le 9999-12-31 ;
+  un saut d'heure qui enjambe minuit donnait un début trop tardif, cas réel trouvé en parcourant
+  la base tz (Toronto et Nassau, 1919-03-31), corrigé par une dichotomie. Le même parcours a
+  trouvé des reculs d'horloge par-dessus minuit (St John's, Goose Bay, Moncton jusqu'en 2010) :
+  limite notée dans D49. Découverte : la tzdata 2026f du système ne prévoit plus de retour à
+  l'heure d'hiver à La Havane le 2026-11-01, contrairement à la 2026e de Node ; le test passe au
+  2025-11-02, et tous les attendus de changement d'heure sont revérifiés avec la base du système
+  (`TZ=… date`), indépendante d'ICU. Mutations de la dichotomie et du choix du minuit toutes
+  détectées. Vérification ponctuelle, non commitée : le début de chaque jour est son premier
+  instant sur 265 870 jours autour des changements d'heure de 414 fuseaux, de 1900 à 2040.
 
 ## Workflow Git
 
