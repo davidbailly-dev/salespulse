@@ -98,9 +98,13 @@ Les exigences durables qui orientent les choix. Chaque principe porte un identif
 - **P6 — Calculs vérifiables, faits par le serveur** : chaque indicateur est une règle de calcul
   isolée de l'affichage, exécutée par le serveur et testée avant d'être écrite. L'interface
   affiche des résultats, elle ne recalcule pas, et le volume de données d'un commerçant ne pèse
-  pas sur le navigateur. Un chiffre faux est un défaut du produit, pas un détail.
-- **P7 — Un seul vocabulaire de types** : la même description des données sert aux connecteurs,
-  au serveur, aux calculs et à l'interface, sans duplication ni conversion manuelle.
+  pas sur le navigateur. Un chiffre faux est un défaut du produit, pas un détail. Une période
+  écoulée ne change pas après coup : un événement postérieur (paiement tardif, annulation,
+  remboursement) compte à sa propre date, jamais dans une période déjà consultée.
+- **P7 — Un format d'échange partagé** : le format des données échangées entre le serveur et
+  l'interface est décrit une seule fois et partagé par les deux, sans duplication ni conversion
+  manuelle. Le modèle métier du serveur en est distinct : ses règles font foi, et chaque
+  connecteur traduit les données de sa plateforme vers ce modèle.
 
 ### Interface
 
@@ -110,7 +114,9 @@ Les exigences durables qui orientent les choix. Chaque principe porte un identif
 - **P9 — Français et euros** : libellés, dates et montants suivent les usages français, et les
   indicateurs s'expriment en euros. Chaque montant est conservé avec sa devise, pour que
   d'autres devises puissent s'ajouter sans reprendre les données. Tant que la conversion entre
-  devises n'existe pas, une boutique qui ne vend pas en euros ne peut pas être connectée.
+  devises n'existe pas, une boutique qui ne vend pas en euros ne peut pas être connectée. Les
+  jours, les semaines et les mois sont découpés dans le fuseau horaire de l'organisation, Paris
+  par défaut : tous ses membres voient le même « hier ».
 - **P10 — Bureau et mobile** : chaque page reste utilisable sur un téléphone comme sur un grand
   écran, pour tous les utilisateurs.
 
@@ -135,8 +141,9 @@ Les exigences durables qui orientent les choix. Chaque principe porte un identif
 ### Confiance et conformité
 
 - **P15 — Pseudonymisation des clients finaux** : un client est reconnu d'une commande à l'autre,
-  et d'une boutique à l'autre, par un identifiant et une empreinte de son e-mail, jamais par son
-  nom ou son e-mail en clair. Sa localisation n'est conservée qu'au niveau dont un indicateur a
+  et d'une boutique à l'autre, par une empreinte de son e-mail, jamais par son nom ou son e-mail
+  en clair. L'empreinte est propre à chaque organisation : deux commerçants ne peuvent pas
+  recouper leurs clients. Sa localisation n'est conservée qu'au niveau dont un indicateur a
   besoin (pays, ville).
 - **P16 — Secrets protégés** : les identifiants d'accès aux boutiques sont chiffrés, jamais
   renvoyés à l'interface ni écrits dans les journaux, et limités à la lecture quand la

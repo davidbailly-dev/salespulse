@@ -11,6 +11,7 @@ Aucun.
 
 ## Terminés
 
+- ✅ [010 — Modèle de données](milestones/010-data-model.md) — non publié
 - ✅ [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md) — non publié
 - ✅ [008 — Intégration continue](milestones/008-continuous-integration.md) — non publié
 - ✅ [007 — Vision du backend](milestones/007-backend-vision.md) — non publié
@@ -26,37 +27,34 @@ Aucun.
 ### Backend, dans l'ordre
 
 Suite décidée au jalon 007 : les décisions citées (D1 à D25) et le détail des sujets ouverts y
-sont écrits. Le MVP couvre les commandes et ce qui s'en déduit (clients, produits) :
-l'analytics reste simulé tant qu'il n'a pas de vraie source (piste « Analytics réel »). Chaque
-jalon laisse `main` déployable.
+sont écrits. Les décisions du jalon 010 sont citées avec leur jalon (« jalon 010, D43 »), et le
+modèle commun du backend est décrit dans `docs/domain-model.md`. Le MVP couvre les commandes et
+ce qui s'en déduit (clients, produits) : l'analytics reste simulé tant qu'il n'a pas de vraie
+source (piste « Analytics réel »). Chaque jalon laisse `main` déployable.
 
 Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
-relisible (seuils dans `CLAUDE.md`). Jusqu'au jalon « Déploiement du socle », Render continue de
-lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
+relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est terminé.
+Jusqu'au jalon « Déploiement du socle », Render continue de lancer Next.js seul : `apps/api` est
+testé par le CI sans être déployé.
 
-- ⬜ **Modèle de données** : prérequis Intégration continue (jalon 008, terminé).
-  - définitions métier à trancher : statuts canoniques, HT ou TTC, livraison, remises,
-    remboursements ; fuseau horaire de l'organisation (découpage des jours, changements
-    d'heure) ;
-  - modèle commun : organisation, boutique, commande, produit, client pseudonymisé (D7, P15) ;
-    montants en unités mineures avec leur devise, devise de référence fixée à l'euro (D17) ;
-  - document du modèle (bounded contexts, entities, value objects, invariants) ; en option,
-    types et value objects du domaine en TypeScript pur, en TDD, sans base, avec leur
-    emplacement à trancher.
-- ⬜ **Serveur API** : prérequis Modèle de données.
+- ⬜ **Serveur API** : prérequis Modèle de données (jalon 010).
   - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
-    délègue le reste à Next.js (D22), avec l'emplacement du point d'entrée à trancher ;
+    délègue le reste à Next.js (D22) ; à trancher : l'emplacement du point d'entrée et le nom
+    du composition root (jalon 010, D19) ;
   - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
   - `/health` renvoie aussi la version déployée, attendue par le smoke test après release, et
-    sert de health check à Render (comportement sur l'offre gratuite à vérifier) ;
-  - conventions TDD et couverture étendues à `apps/api`.
+    sert de health check à Render (comportement sur l'offre gratuite à vérifier).
 - ⬜ **Base de données** : prérequis Serveur API.
-  - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données ;
+  - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données
+    (`docs/domain-model.md`) ; version des UUID à trancher, v7 pressentie (jalon 010, D23) ;
+    index sur (organisation, jour local) (jalon 010, D42) ; sécurité au niveau des lignes en
+    option (jalon 010, D28) ;
   - migrations rétrocompatibles (*expand / contract*) : l'ancienne version tourne sur le
     nouveau schéma, pour garder le rollback de Render possible ; convention à reporter dans
     `CLAUDE.md` ;
-  - stratégie de tests : base jetable, tests d'isolation (P11), CI complété par une PostgreSQL de
-    service et, en option, par une branche de base Neon par branche Git.
+  - stratégie de tests : base jetable, tests d'isolation (P11), adapters de lecture testés contre
+    une vraie PostgreSQL (jalon 010, D42), CI complété par une PostgreSQL de service et, en
+    option, par une branche de base Neon par branche Git.
 - ⬜ **Déploiement du socle** : prérequis Base de données.
   - `render.yaml`, serveur unique lancé par Render, base Neon en région Frankfurt, migrations
     appliquées au démarrage.
@@ -78,25 +76,48 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
     modification, détection des suppressions, rattrapage périodique ; ralentissement et
     nouvelles tentatives face aux quotas des plateformes ;
   - clé de chiffrement des identifiants de boutique et sa rotation (P16), utile dès le premier
-    connecteur ;
+    connecteur ; de la même clé maîtresse, secret par organisation de l'empreinte client,
+    calculée par l'adapter (jalon 010, D14 et D18) ;
+  - aggregates de Ventes (commande, remboursement, produit, client) et leurs use cases
+    d'écriture : statut déduit de la date de paiement dans l'entity commande (jalon 010, D43),
+    champs dérivés calculés à l'écriture et use case de recalcul (jalon 010, D38 et D39) ;
+    sous-dossiers par aggregate dans `domain/` à trancher, avec la règle d'imports d'ESLint à
+    revoir (jalon 010, D22) ;
   - connecteur de démonstration : générateurs déplacés dans un paquet partagé, Faker en
-    dépendance d'exécution ; organisation de démonstration créée au démarrage ;
+    dépendance d'exécution ; il produit le modèle canonique, ce qui comble les écarts **S** de
+    `docs/domain-model.md` ; `Dataset` et `AnalyticsDataset` quittent le contrat avec les
+    générateurs (jalon 010, D5) ; organisation de démonstration créée au démarrage ;
   - sujet ouvert : démonstration qui vieillit (fenêtre glissante, réinitialisation) ;
-  - suivi des synchronisations en base et fraîcheur affichée (P13, D24) ; quotas d'essai ;
-    refus des boutiques hors euros (D11).
+  - suivi des synchronisations en base et fraîcheur affichée (P13, D24) : une `DomainError` y
+    est inscrite sans arrêter la synchronisation (jalon 010, D32), avec des messages de longueur
+    bornée ; quotas d'essai ; refus des boutiques hors euros (D11).
 - ⬜ **Indicateurs côté serveur et gestion des boutiques** : prérequis Synchronisation ; les
   hooks réécrits le sont sous le filet de l'Outillage de tests UI (jalon 009, terminé).
   - routes d'agrégats (D8) : les fonctions de calcul des indicateurs passent côté serveur, en
-    TDD ; hooks réécrits pour charger les agrégats ;
+    TDD ; hooks réécrits pour charger les agrégats ; les listes brutes du contrat sont remplacées
+    par des agrégats nommés par usage (jalon 010, D5) ; la période devient une plage de jours
+    locaux (jalon 010, D40) ; comble les écarts **I** de `docs/domain-model.md` ;
+  - à trancher : le panier moyen et le chiffre d'affaires par client, avant ou après
+    remboursements (jalon 010, D10 et D11 ne le disent pas) ; le format du paramètre `?shop=`,
+    UUID ou slug, avec la page de gestion des boutiques ;
+  - nouvel indicateur : commandes annulées après paiement sans remboursement enregistré, en
+    nombre et en montant, que le commerçant doit régulariser (jalon 010, D43) ;
   - contrat d'API rétrocompatible (interface et API déployables séparément plus tard) ;
-    performance : index, agrégats journaliers pré-calculés, réveil de la base ;
+    performance : index, agrégats journaliers pré-calculés si les temps mesurés le demandent
+    (jalon 010, D42), recalculés au changement de fuseau de l'organisation (jalon 010, D12),
+    réveil de la base ;
   - page de gestion des boutiques : connecter, tester la connexion, synchroniser, voir l'état ;
   - retrait des routes `/api` de démonstration des commandes ; sujet ouvert : devenir des
     routes de l'analytics simulé ;
   - intègre la piste « Produits en déclin réels ».
 - ⬜ **Connecteur WooCommerce** : prérequis Indicateurs côté serveur.
-  - clés REST en lecture seule, traduction des statuts vers le modèle commun, contrôle de la
-    devise ; tests sur des réponses enregistrées.
+  - clés REST en lecture seule, traduction des statuts selon la correspondance de
+    `docs/domain-model.md` (jalon 010, D44), contrôle de la devise ; tests sur des réponses
+    enregistrées ;
+  - à vérifier (`docs/domain-model.md`, « Points à vérifier aux jalons des connecteurs ») :
+    statut brouillon et corbeille, effacement de `date_paid` à l'annulation (jalon 010, D43),
+    statuts personnalisés exposés par l'API REST ; à trancher : catégorie principale d'un
+    produit, que WooCommerce ne désigne pas (jalon 010, D13).
 - ⬜ **Ouverture aux testeurs** : prérequis Connecteur WooCommerce.
   - journal d'audit (P18) ; Sentry côté API et navigateur, région UE (D24) ;
   - erreurs Sentry rattachées à leur release (version et source maps), vérifiées dans la
@@ -119,8 +140,17 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
   - juridique complet : conditions d'utilisation et de vente, accord de sous-traitance ;
   - retrait de la note de transition de `docs/vision.md` (D15).
 - ⬜ **Connecteur Shopify** : compte partenaire et revue de l'application, ou distribution
-  personnalisée boutique par boutique ; montant dans la devise de la boutique (`shop_money`).
-- ⬜ **Connecteur PrestaShop** : clé de webservice en lecture seule.
+  personnalisée boutique par boutique ; montant dans la devise de la boutique (`shop_money`) ;
+  statuts et date de paiement selon `docs/domain-model.md` (jalon 010, D45) ; commandes de test
+  non synchronisées (jalon 010, D8).
+  - À vérifier (`docs/domain-model.md`) : `processedAt` des transactions, « marquer comme
+    payée », annulation par l'API, statut des transactions d'un remboursement, capture partielle
+    définitive (`PARTIALLY_PAID`) ; décalage lu sur chaque date (jalon 010, D12). À trancher :
+    référence externe des `productType`, qui ne sont pas des entities (jalon 010, D29).
+- ⬜ **Connecteur PrestaShop** : clé de webservice en lecture seule ; statuts selon l'indicateur
+  `paid` des états (jalon 010, D46).
+  - À vérifier (`docs/domain-model.md`) : état « Refunded » sans avoir, montants HT des avoirs,
+    fuseau des dates et lecture du fuseau de la boutique (jalon 010, D12).
 - ⬜ **Multi-devises** (D17) : taux quotidiens de la BCE, conversion au taux du jour de la
   commande figée à la synchronisation, remboursements au taux de la commande d'origine, choix
   de la devise de référence, levée du refus des boutiques hors euros, comparaison à taux
@@ -128,8 +158,20 @@ lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
 
 ### Autres pistes
 
-Pistes relevées dans les commentaires du code, à valider et prioriser :
+Petit changement décidé, sans jalon, à faire juste après le jalon 010 :
 
+- ⬜ **Découpage des contrats par contexte** (jalon 010, D5) : branche `feature/split-contracts`,
+  `packages/contracts/src/schemas.ts` découpé en fichiers réexportés par `index.ts` :
+  `shops.ts` (`Shop`) ; `sales.ts` (commandes, lignes, produits, clients, catégories) ;
+  `analytics.ts` (canal, appareil et lignes analytics) ; `demo.ts` (`Dataset`,
+  `AnalyticsDataset`) ; `shared.ts` créé au premier format commun.
+
+Pistes relevées dans le code et les jalons, à valider et prioriser :
+
+- ⬜ **Paniers abandonnés réels** (jalon 010, D8) : entity distincte des commandes, fournie par
+  les seuls connecteurs qui en disposent (`AbandonedCheckout` chez Shopify, paniers sans
+  commande chez PrestaShop, rien dans le cœur de WooCommerce). D'ici là, l'indicateur « Paniers
+  abandonnés » et le statut `abandoned` restent propres à la démonstration.
 - ⬜ **Produits en déclin réels** : remplacer le placeholder aléatoire de
   `apps/web/src/lib/kpis/decliningProducts.ts` par une vraie comparaison entre la période
   courante et la période de comparaison. À faire dans « Indicateurs côté serveur ».
@@ -138,7 +180,11 @@ Pistes relevées dans les commentaires du code, à valider et prioriser :
 - ⬜ **Analytics réel** : contexte distinct des commandes et des clients, qui demande une autre
   source de données (par exemple un connecteur Google). Trafic, pages, recherches, Web Vitals,
   e-mails, erreurs et dépenses publicitaires restent mockés tant que cette source n'existe pas,
-  de même que les KPIs qui croisent analytics et commandes.
+  de même que les KPIs qui croisent analytics et commandes (taux de conversion, CAC, ROAS,
+  taux d'échec de paiement), composés dans le contexte Analytics (jalon 010, D17). Reprend le
+  canal d'acquisition et l'appareil des commandes, sortis du modèle de commande du MVP : la
+  piste choisit leur source, un connecteur analytics relié aux commandes par leur identifiant,
+  avec en complément éventuel l'attribution des plateformes (jalon 010, D15).
 
 Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
 

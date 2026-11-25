@@ -9,22 +9,26 @@ Vision, utilisateurs, non-objectifs et principes techniques : `docs/vision.md` (
 
 ## Commandes
 
-Toutes les commandes se lancent **depuis la racine** du dépôt ; les scripts d'application sont délégués au paquet `@salespulse/web`.
+Toutes les commandes se lancent **depuis la racine** du dépôt. `dev`, `build` et `start` sont délégués au paquet `@salespulse/web` ; `typecheck`, `test` et `test:coverage` parcourent chaque workspace qui a le script (`--workspaces --if-present`), donc le CI aussi.
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000 (redirige vers /dashboard)
 npm run build
-npm run lint       # eslint . sur tout le dépôt (config next core-web-vitals + typescript)
+npm run lint       # eslint . sur tout le dépôt (config next core-web-vitals + typescript, règle d'imports d'apps/api)
 npm run typecheck  # tsc --noEmit dans chaque paquet
-npm test           # Vitest, exécution unique
-npm run test:watch
+npm test           # Vitest, exécution unique, dans chaque paquet qui a des tests
 npm run test:coverage
-npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts   # un seul fichier (chemin relatif à apps/web)
+npm run test:watch -w @salespulse/web   # watch : un paquet à la fois (@salespulse/web ou @salespulse/api)
+npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts       # un seul fichier (chemin relatif à apps/web)
+npm test -w @salespulse/api -- src/shared/domain/money.test.ts    # un seul fichier (chemin relatif à apps/api)
 ```
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`), à la racine.
-- **Tests** : Vitest (`apps/web/vitest.config.mts`) en deux projects, l'environnement suivant l'extension : `unit` pour les `*.test.ts` en `node` (logique pure, routes API, générateurs), `dom` pour les `*.test.tsx` en `jsdom` (composants et hooks). Couverture de `apps/web/src/lib/**` et `apps/web/src/components/**`, hors générateurs Faker (testés par invariants), sans seuil. Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
+- La racine n'a pas de `test:watch` : `npm run test:watch --workspaces` lancerait les paquets l'un après l'autre, et le premier watch ne rendrait jamais la main.
+- **Tests de `apps/web`** : Vitest (`apps/web/vitest.config.mts`) en deux projects, l'environnement suivant l'extension : `unit` pour les `*.test.ts` en `node` (logique pure, routes API, générateurs), `dom` pour les `*.test.tsx` en `jsdom` (composants et hooks). Couverture de `apps/web/src/lib/**` et `apps/web/src/components/**`, hors générateurs Faker (testés par invariants), sans seuil.
+- **Tests de `apps/api`** : Vitest (`apps/api/vitest.config.mts`) en `node`, `*.test.ts` seulement. Couverture de `apps/api/src/**`, hors helpers de test (`src/testing/`), sans seuil.
+- Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - `apps/web/next.config.ts` contient `agentRules: false` pour empêcher Next de générer/modifier `AGENTS.md` et `CLAUDE.md` : ne pas le retirer. Il déclare aussi `transpilePackages` pour `@salespulse/contracts`.
 - TypeScript est en `strict: true` (options communes dans `tsconfig.base.json`).
 
@@ -33,14 +37,16 @@ npm test -w @salespulse/web -- src/lib/kpis/revenue.test.ts   # un seul fichier 
 Monorepo npm workspaces :
 
 ```
-apps/web/            application Next.js (@salespulse/web), tout le code décrit plus bas
-packages/contracts/  schémas Zod et types partagés (@salespulse/contracts)
-docs/                documentation du projet (vision, stack, roadmap, jalons, conventions)
+apps/web/            application Next.js (@salespulse/web) : interface et routes de démonstration
+apps/api/            backend (@salespulse/api) : domaine, use cases et adapters, par bounded context
+packages/contracts/  schémas Zod du format échangé entre l'API et l'interface (@salespulse/contracts)
+docs/                documentation du projet (vision, stack, modèle du domaine, roadmap, jalons, conventions)
 ```
 
 - **Sauf mention contraire, les chemins `src/…` de ce fichier sont relatifs à `apps/web/`** (la section « Architecture » les préfixe explicitement).
-- Imports : relatifs à l'intérieur d'un paquet (pas d'alias `@/`), par nom de paquet entre paquets (`import { OrderSchema } from '@salespulse/contracts'`).
-- `@salespulse/contracts` est publié en TypeScript source, sans étape de build : Next le compile (`transpilePackages`). Il ne dépend que de `zod` ; le garder indépendant de React, de Next et de Faker.
+- Imports : relatifs à l'intérieur d'un paquet (pas d'alias `@/`), par nom de paquet entre paquets (`import { OrderSchema } from '@salespulse/contracts'`). Une app n'importe jamais depuis une autre : ce qu'elles partagent passe par un paquet.
+- `apps/api` n'a encore ni serveur ni base : il est testé par le CI sans être déployé, Render lançant Next.js seul jusqu'au jalon « Déploiement du socle » (`docs/roadmap.md`).
+- `@salespulse/contracts` est publié en TypeScript source, sans étape de build : Next le compile (`transpilePackages`). Il ne dépend que de `zod` ; le garder indépendant de React, de Next et de Faker. Son rôle et ses règles : « Contrat entre l'API et l'interface » ci-dessous.
 - Un seul `package-lock.json`, à la racine.
 
 ## Workflow Git
@@ -88,7 +94,7 @@ Tout changement de comportement suit le TDD, décrit dans un fichier générique
 
 Spécificités du projet :
 
-- Lancer un seul fichier de test : `npm test -w @salespulse/web -- <chemin relatif à apps/web>`.
+- Lancer un seul fichier de test : `npm test -w <paquet> -- <chemin relatif au paquet>`.
 - Fixtures via les builders de `apps/web/src/lib/testing/builders.ts` (`buildOrder`, `buildTrafficRow`, … avec `overrides`), validés contre les schémas Zod par `builders.test.ts`.
 - Générateurs Faker : invariants = respect du schéma Zod, même résultat pour les mêmes entrées (seed et `now` reçu, jamais l'horloge réelle), bornes des dates et cohérence entre champs.
 - Composants et hooks : Testing Library (`render`, `renderHook`, `screen`), fichiers `*.test.tsx`, assertions de Vitest sans `jest-dom`. Doubles de test et helpers dans `apps/web/src/lib/testing/` :
@@ -98,6 +104,11 @@ Spécificités du projet :
   - horloge : `vi.useFakeTimers({ toFake: ['Date'] })` puis `vi.setSystemTime(…)` ; ne simuler que `Date`, pour ne pas bloquer les minuteries de React et de TanStack Query.
 - Routes API : `GET(new NextRequest(url))` dans le project `unit`, store remplacé par `vi.mock`. La validation Zod se prouve par un refus : une donnée hors contrat dans le store fait échouer la route.
 - Test de caractérisation (sur du code existant, donc vert d'emblée) : son rouge se prouve par une mutation temporaire du code testé, lancée et montrée, puis annulée sans être commitée. Une mutation qui survit révèle un test trop faible : le renforcer.
+- `apps/api` :
+  - value objects : une fonction de fabrique par value object, testée par ce qu'elle accepte et par le code de la `DomainError` de chaque refus, lu avec `errorCodeOf` (`apps/api/src/testing/`) ;
+  - use cases : testés avec les adapters en mémoire (`InMemoryOrderRepository`…, dans `infrastructure/`), jamais avec une base ; les adapters de lecture SQL, contre une vraie PostgreSQL (`docs/domain-model.md`, « Écriture et lecture ») ;
+  - fuseaux horaires : changements d'heure attendus choisis dans le passé, que les mises à jour de la base tz embarquée par Node ne changent pas, et vérifiés avec une seconde base, celle du système (`TZ=Europe/Paris date -d …`) ;
+  - règle d'imports : une interdiction ajoutée à `eslint.config.mjs` se prouve par un import interdit temporaire qui fait échouer `npm run lint`, sortie montrée, puis retiré.
 
 ### Relecture du code
 
@@ -128,32 +139,50 @@ avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
 
 ## Architecture
 
+### Backend (`apps/api/`)
+
+Le modèle du domaine est décrit dans `docs/domain-model.md` (bounded contexts, entities, value objects, invariants, écriture et lecture, correspondance des statuts des plateformes) : le lire avant de toucher à `apps/api`. Les décisions et leurs raisons sont dans le jalon 010 (`docs/milestones/010-data-model.md`), citées par leur numéro (D3, D31…). L'essentiel au quotidien :
+
+- Architecture hexagonale : `apps/api/src/<contexte>/{domain,application,infrastructure}` et un `index.ts` par contexte (`organizations`, `shops`, `sales`, `analytics`, `billing` à venir), plus un shared kernel `apps/api/src/shared/domain/` (`Money`, `CurrencyCode`, `IanaTimezone`, `LocalDay`, `DomainError`).
+- Règle d'imports, vérifiée par `eslint.config.mjs` (`apiLayers`) : `domain/` n'importe que son dossier et `shared/domain/`, aucun paquet externe ; `application/` ajoute son domaine et l'`index.ts` d'un autre contexte, aucun paquet externe ; `infrastructure/` importe tout sauf l'intérieur d'un autre contexte. Les `*.test.ts` sont exemptés. Ses expressions régulières supposent `domain/` à plat (un fichier par entity ou value object, nommé en camelCase) : les revoir avec des sous-dossiers par aggregate.
+- `domain/` est pur et déterministe : ni entrée/sortie, ni horloge (`now` en paramètre), ni bibliothèque. Les fuseaux horaires passent par `Intl`.
+- Value objects : types en lecture seule et marqués (branded), produits par une fonction de fabrique qui vérifie l'invariant (`money()` produit un `Money`), sans classes ; une liste fermée de valeurs (`OrderStatus`) est une union de littéraux tirée d'un tableau figé, sans marque. Une valeur invalide lève une `DomainError` avec un code stable (`invalid-money`, `currency-mismatch`…).
+- Les règles métier n'existent qu'une fois, en TypeScript : les champs dont la lecture a besoin (« compte dans les indicateurs », jour local, ventes nettes HT) sont calculés à l'écriture, et le SQL ne fait que filtrer, additionner et regrouper.
+
+### Contrat entre l'API et l'interface (`packages/contracts/`)
+
+- `@salespulse/contracts` porte le format échangé, pas les règles métier, qui font foi dans le domaine d'`apps/api`. Le web s'adapte au contrat, jamais au domaine.
+- Nommage par usage (`RevenueKpi`, `TopProductItem`…), jamais le nom d'une entity du domaine. Les schémas actuels (`Order`, `Customer`, `Product`) gardent leur nom tant qu'ils servent la démo, et sont remplacés par des agrégats au jalon « Indicateurs côté serveur ».
+- Tests : aucun tant qu'un schéma reste déclaratif ; un `.test.ts` colocalisé dès qu'il porte un invariant entre champs (`.refine`), une transformation (`.transform`) ou un enjeu de rétrocompatibilité. La correspondance entre les énumérations du contrat et celles du domaine se teste dans `apps/api`.
+
+### Interface (`apps/web/`)
+
 Flux de données d'un KPI, de bout en bout :
 
 ```
 mock-data (singleton mémoire) → route API /api/... (filtre + Zod) → hook TanStack Query (lit ?shop=, Zod) → fonction KPI pure (lib/kpis) → composant client (components/dashboard) → Card dans une page (app/dashboard/*)
 ```
 
-### Données mockées (`apps/web/src/lib/mock-data/`)
+#### Données mockées (`apps/web/src/lib/mock-data/`)
 
 - `store.ts` génère le jeu de données **une seule fois par démarrage du serveur** (déclenché par `apps/web/src/instrumentation.ts`) et le garde en mémoire : `getDataset()` (boutiques, produits, clients, commandes) et `getAnalyticsDataset()` (trafic, pages vues, recherches, dépenses pub, Web Vitals, erreurs, e-mails).
 - Deux fenêtres de `WINDOW_DAYS` (90) jours sont générées : la fenêtre actuelle (`generator.ts`) et la fenêtre **N-1** un an plus tôt (`historyGenerator.ts` + `HISTORY_ANALYTICS_TUNING` dans `analyticsTuning.ts`), avec des tendances volontairement mixtes (hausses/baisses) pour la comparaison. Les deux fenêtres sont exposées ensemble ; c'est la plage de dates de la requête qui les distingue.
 - Génération **déterministe** : chaque générateur a son propre seed (`SEED`, `ATTRIBUTION_SEED`, `HISTORY_SEED`, etc.), souvent via une instance `SimpleFaker` dédiée. Ajouter un tirage aléatoire dans un générateur existant décale toute la séquence et change toutes les données (donc tous les KPIs déjà calibrés) : pour un nouveau champ aléatoire, utiliser une instance Faker séparée avec son propre seed, comme `attributionFaker`.
 - Les boutiques et leur poids / tendance N-1 sont dans `SHOP_CONFIGS` (`generator.ts`). Leurs `id` sont des slugs stables car ils apparaissent dans l'URL.
-- Les schémas Zod et types (`Order`, `TrafficRow`, …) vivent dans `packages/contracts/src/schemas.ts` (`@salespulse/contracts`) : source de vérité partagée entre serveur et client.
+- Les schémas Zod et types (`Order`, `TrafficRow`, …) vivent dans `packages/contracts/src/schemas.ts` (`@salespulse/contracts`) : format des routes de démonstration, partagé entre serveur et client. Ils diffèrent du modèle commun du backend ; les écarts et le jalon qui comble chacun sont listés dans `docs/domain-model.md`.
 - `analyticsReports.ts` filtre/agrège les données analytics côté serveur. Les lignes analytics sont journalières alors que `from`/`to` sont des instants : les jours partiellement couverts sont **proratisés** (voir le commentaire de tête du fichier). Réutiliser ces fonctions pour toute nouvelle route analytics plutôt que de filtrer à la main.
 
-### Routes API (`apps/web/src/app/api/`)
+#### Routes API (`apps/web/src/app/api/`)
 
 `orders`, `products`, `customers`, `shops`, et `analytics/<rapport>`. Chaque route lit `from`, `to`, `shop` en query params (sans `shop` = toutes les boutiques ; dates ISO 8601, donc comparaison lexicographique) et valide la réponse avec le schéma Zod de liste correspondant. `products` et `customers` ignorent la plage de dates.
 
-### Hooks de données (`apps/web/src/lib/queries/`)
+#### Hooks de données (`apps/web/src/lib/queries/`)
 
 - Un hook par source (`useOrders`, `useTraffic`, `useAdSpend`, …), signature `(dateRange?, { enabled? })`. **La boutique est lue dans le hook** via `useShopFilter()`, pas passée par les composants. Les URLs analytics passent par `buildAnalyticsUrl()`. La réponse est re-validée avec Zod côté client.
 - `useOrders()` sans plage = tout l'historique (utilisé par exemple par le CAC pour déterminer la première commande d'un client) ; passer `enabled: false` pour désactiver une requête, jamais une plage `undefined`.
 - `useComparedKpi(useData, calculate)` / `useComparedKpi2(...)` : appliquent la même fonction KPI pure à la période courante et à la période N-1. `previousValue` vaut `undefined` si la comparaison est désactivée, `null` si elle est active mais indisponible.
 
-### Filtres globaux dans l'URL (`apps/web/src/lib/filters/`)
+#### Filtres globaux dans l'URL (`apps/web/src/lib/filters/`)
 
 Tout l'état global est en query params, conservé lors de la navigation :
 - `?shop=<id>` → `useShopFilter()`
@@ -164,7 +193,7 @@ Tout l'état global est en query params, conservé lors de la navigation :
 
 Comme ces filtres utilisent `useSearchParams`, `app/dashboard/layout.tsx` appelle `await connection()` pour exclure tout le dashboard du pré-rendu statique (au lieu d'ajouter des `Suspense` partout).
 
-### KPIs et composants
+#### KPIs et composants
 
 - `apps/web/src/lib/kpis/<kpi>.ts` : fonctions **pures** de calcul, sans React, prenant les données typées par les schémas.
 - `apps/web/src/components/dashboard/<Kpi>.tsx` : composant client (`'use client'`) qui combine hook + fonction KPI et gère `Chargement...` / `Erreur de chargement`. Affichage via `KpiValue`, `ScoreGauge`, `CardList` ou Recharts, et `KpiDelta` pour l'évolution N-1.
@@ -173,6 +202,6 @@ Comme ces filtres utilisent `useSearchParams`, `app/dashboard/layout.tsx` appell
 
 Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `packages/contracts/src/schemas.ts`, un générateur, une route API et un hook.
 
-### Style
+#### Style
 
 Tailwind CSS v4, configuré dans `apps/web/src/app/global.css` via `@theme` (pas de `tailwind.config`). Utiliser les tokens du thème sombre : `bg-surface`, `border-border`, `primary-*`, `secondary-*`, `text-success` / `text-danger` / `text-warning`. Nombres formatés avec `Intl.NumberFormat('fr-FR')`.
