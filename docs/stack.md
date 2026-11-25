@@ -64,8 +64,9 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
   - un seul langage pour tout le projet, côté serveur comme côté interface : le backend est lui
     aussi en TypeScript (décidé), ce qui permet de partager les types et les schémas de données
     avec l'interface ;
-  - les mêmes types décrivent les données de bout en bout, de la plateforme à l'affichage (P7),
-    et le compilateur signale une dérive du format avant l'exécution (P4).
+  - les types du format d'échange sont partagés par le serveur et l'interface (P7), ceux du
+    modèle métier par les connecteurs et les calculs du serveur, et le compilateur signale une
+    dérive du format avant l'exécution (P4).
 - **Mode strict** : `strict: true`, pour que la vérification de types tienne ce que le choix du
   langage promet. Activé le 2026-11-18 après correction des 32 erreurs de type que le mode
   non strict laissait passer.
@@ -110,23 +111,30 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Zod
 
-- **Rôle** : schémas de validation des données. Ils définissent le format des commandes, produits,
-  clients, indicateurs et données analytics. Ils valident chaque réponse côté serveur puis côté
-  interface, et avec le backend, les données reçues des plateformes, les requêtes entrantes et la
-  configuration au démarrage.
+- **Rôle** : schémas de validation des données aux frontières. Dans `@salespulse/contracts`, ils
+  décrivent le format échangé entre l'API et l'interface et valident chaque réponse côté serveur
+  puis côté interface ; ils décrivent aujourd'hui les routes de démonstration (commandes,
+  produits, clients, analytics), demain les indicateurs et séries calculés par le serveur. Dans
+  le backend, ils valident les données reçues des plateformes, les requêtes entrantes et la
+  configuration au démarrage. Le domaine du backend n'en dépend pas : ses invariants sont
+  vérifiés par ses value objects, sans bibliothèque (jalon 010, D3).
 - **Pourquoi** :
   - le schéma est écrit une seule fois et les types TypeScript en sont déduits (P7) ;
   - une donnée qui ne respecte pas le contrat est refusée là où elle apparaît (P4). Les
     connecteurs valident ce que renvoie une plateforme avant de le traduire vers le modèle
     commun : une plateforme qui change son format est détectée à la synchronisation, pas dans
     un indicateur faux (P2) ;
-  - le backend valide lui aussi les requêtes et les réponses avec Zod, et les schémas sont
-    partagés entre le backend et l'interface (décidé). Ils vivent dans le paquet
-    `packages/contracts` du monorepo (jalon 006), que l'interface importe sous le nom
-    `@salespulse/contracts` et que le backend importera de la même façon.
+  - les schémas du format d'échange vivent dans le paquet `packages/contracts` (jalon 006),
+    seul code partagé par l'API et l'interface, une application n'important jamais depuis
+    l'autre (jalon 010, D5). Ils portent le format, pas les règles métier : un schéma est nommé
+    par son usage (`RevenueKpi`), jamais d'après une entity du domaine.
 - **Alternatives écartées** :
   - types TypeScript seuls, sans validation : les types disparaissent à la compilation, une
-    réponse hors contrat ne serait pas détectée à l'exécution (P4).
+    réponse hors contrat ne serait pas détectée à l'exécution (P4) ;
+  - schémas dans `apps/web` : l'API ne pourrait pas les importer (jalon 010, D5) ;
+  - spécification OpenAPI générée, avec un client généré : outillage et étape de build utiles
+    surtout entre dépôts séparés (D5) ;
+  - tRPC ou ts-rest : dépendance structurante qui figerait la façon d'appeler l'API (D5).
 - **Principe servi** : P4, P7, P2.
 
 ## Tailwind CSS
@@ -183,8 +191,9 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 - **Rôle** : lanceur de tous les tests : calculs d'indicateurs, filtres, invariants des
   générateurs et routes API en environnement `node`, composants et hooks dans un DOM simulé
-  (jalon 009, avec Testing Library et jsdom) ; avec le backend, tests des connecteurs et de
-  l'isolation entre organisations.
+  (jalon 009, avec Testing Library et jsdom) ; dans le backend, value objects du domaine
+  (`apps/api`, jalon 010), puis use cases avec des adapters en mémoire, connecteurs et isolation
+  entre organisations.
 - **Pourquoi** : fonctionne avec TypeScript sans configuration lourde, se lance en un fichier ou
   en suite complète, et permet d'écrire les tests avant le code. Ses `projects` choisissent
   l'environnement par type de fichier : la logique pure garde la vitesse de `node`.
@@ -233,7 +242,10 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
   - Fastify : plus rapide et avec validation intégrée, mais la performance brute n'est pas un
     besoin, et sa validation repose sur JSON Schema plutôt que sur les schémas Zod partagés ;
   - NestJS : structure imposée (modules, décorateurs, injection de dépendances), plus lourde que
-    ce que demande un développeur seul ; le découpage DDD se fait par dossiers sans framework ;
+    ce que demande un développeur seul ; le découpage DDD se fait par dossiers sans framework.
+    Réexaminé au jalon 010 et laissé écarté : l'architecture hexagonale cantonne le framework
+    HTTP à l'infrastructure, et le branchement des adapters s'écrit dans un seul module, sans
+    conteneur d'injection (D19) ;
   - backend dans les Route Handlers de Next.js : voir l'entrée Next.js.
 - **Principe servi** : P4, P11, P12, P20.
 
@@ -245,7 +257,8 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
   Frankfurt, et une base Docker en local.
 - **Pourquoi** :
   - modèle relationnel adapté aux commandes, à leurs lignes et à leurs agrégats : les indicateurs
-    se calculent côté serveur en SQL (P6) ;
+    s'agrègent côté serveur en SQL (P6), à partir de champs calculés par le domaine à
+    l'écriture, pour qu'aucune règle métier ne s'écrive deux fois (jalon 010, D38) ;
   - transactions et contraintes : une synchronisation s'écrit en entier ou pas du tout, et
     l'organisation propriétaire de chaque ligne peut être imposée par la base, jusqu'à la
     sécurité au niveau des lignes si besoin (P11) ;

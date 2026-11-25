@@ -638,16 +638,16 @@ TDD : test rouge lancé et montré avant chaque code de production.
 - [x] `apps/api/src/shared/domain/localDay.ts` : jour local d'un instant dans un fuseau IANA,
       bornes d'un jour local en instants (jours de 23 h et de 25 h, passage d'année).
 
-## Phase D — Documentation durable ⬜
+## Phase D — Documentation durable ✅
 
-- [ ] `CLAUDE.md` : structure du dépôt (`apps/api`), architecture hexagonale et règle d'imports
+- [x] `CLAUDE.md` : structure du dépôt (`apps/api`), architecture hexagonale et règle d'imports
       (D3), rôle de `@salespulse/contracts`, nommage par usage et règle de test (D5), renvoi
       vers `docs/domain-model.md`, commandes de test (racine et fichier d'`apps/api`), watch
       par paquet (`npm run test:watch -w <paquet>`).
-- [ ] `docs/vision.md` et `docs/stack.md` relus : un principe touché par la phase A (P9, P15) ou
+- [x] `docs/vision.md` et `docs/stack.md` relus : un principe touché par la phase A (P9, P15) ou
       une dépendance nouvelle (fuseaux horaires) les met à jour ; entrée Zod de la stack
       alignée sur D5.
-- [ ] `docs/roadmap.md` : « Serveur API » sans les conventions TDD d'`apps/api`, faites ici ;
+- [x] `docs/roadmap.md` : « Serveur API » sans les conventions TDD d'`apps/api`, faites ici ;
       « Synchronisation » et « Indicateurs côté serveur » complétés par le calendrier de D5 ;
       piste « Découpage des contrats par contexte » ajoutée aux autres pistes, à faire juste
       après ce jalon, avec la répartition du contenu actuel (`shops.ts` : `Shop` ; `sales.ts` :
@@ -768,6 +768,32 @@ TDD : test rouge lancé et montré avant chaque code de production.
   (`TZ=… date`), indépendante d'ICU. Mutations de la dichotomie et du choix du minuit toutes
   détectées. Vérification ponctuelle, non commitée : le début de chaque jour est son premier
   instant sur 265 870 jours autour des changements d'heure de 414 fuseaux, de 1900 à 2040.
+- 2026-11-25 : phase D commencée. `CLAUDE.md` : `apps/api` dans la structure et les commandes,
+  section « Architecture » découpée en Backend, Contrat et Interface ; le Backend résume les
+  règles du quotidien (couches, règle d'imports, value objects, `DomainError`, champs dérivés à
+  l'écriture) et renvoie à `docs/domain-model.md` pour le reste. Spécificités TDD d'`apps/api`
+  ajoutées, dont la vérification des changements d'heure par une seconde base tz, leçon de la
+  revue de `LocalDay`.
+- 2026-11-25 : `docs/vision.md` et `docs/stack.md` relus. Découverte : P7 (« Un seul vocabulaire
+  de types ») contredisait D5, qui sépare le modèle métier du format d'échange ; il devient « Un
+  format d'échange partagé ». P6 reçoit la règle « une période écoulée ne change pas après
+  coup », que D7 lui attribuait sans qu'il la contienne (D9, D11, D43 en dépendent) ; P9 le
+  découpage dans le fuseau de l'organisation (D12) ; P15 l'empreinte seule, propre à chaque
+  organisation (D14). Stack : entrée Zod alignée sur D5 (alternatives de D5 reportées),
+  TypeScript sur le nouveau P7, PostgreSQL sur D38, réexamen de NestJS noté dans l'entrée
+  Express, tests d'`apps/api` dans Vitest. Aucune dépendance ajoutée : les fuseaux passent par
+  `Intl` (D34). Principes de la vision validés par l'utilisateur.
+- 2026-11-25 : `docs/roadmap.md` mis à jour. Les numéros D1 à D25 de l'index renvoient au jalon
+  007 : les décisions du jalon 010 y sont citées « jalon 010, Dxx ». Chaque jalon futur reçoit
+  ce que ce jalon lui a laissé : nom du composition root (« Serveur API ») ; version des UUID,
+  index et sécurité au niveau des lignes (« Base de données ») ; aggregates de Ventes, secret de
+  l'empreinte, écarts **S**, calendrier de D5, journal de synchronisation (« Synchronisation ») ;
+  écarts **I**, sujets à trancher et indicateur de D43 (« Indicateurs côté serveur ») ; points à
+  vérifier et sujets à trancher de chaque connecteur. Pistes ajoutées : « Découpage des contrats
+  par contexte », « Paniers abandonnés réels » ; « Analytics réel » complétée (D15, D17). Sujets
+  tranchés retirés : conventions TDD d'`apps/api` (« Serveur API »), traduction des statuts de
+  WooCommerce, désormais renvoyée à D44. Phase D terminée ; la phrase de l'index qui dit le
+  jalon 010 en cours change à la clôture.
 
 ## Workflow Git
 
