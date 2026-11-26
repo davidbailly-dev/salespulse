@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun.
+- 🔄 [011 — Serveur API](milestones/011-api-server.md)
 
 ## Terminés
 
@@ -33,18 +33,11 @@ ce qui s'en déduit (clients, produits) : l'analytics reste simulé tant qu'il n
 source (piste « Analytics réel »). Chaque jalon laisse `main` déployable.
 
 Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
-relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est terminé.
-Jusqu'au jalon « Déploiement du socle », Render continue de lancer Next.js seul : `apps/api` est
-testé par le CI sans être déployé.
+relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est terminé, le
+deuxième, Serveur API (jalon 011), est en cours. Jusqu'au jalon « Déploiement du socle », Render
+continue de lancer Next.js seul : `apps/api` est testé par le CI sans être déployé.
 
-- ⬜ **Serveur API** : prérequis Modèle de données (jalon 010).
-  - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
-    délègue le reste à Next.js (D22) ; à trancher : l'emplacement du point d'entrée et le nom
-    du composition root (jalon 010, D19) ;
-  - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
-  - `/health` renvoie aussi la version déployée, attendue par le smoke test après release, et
-    sert de health check à Render (comportement sur l'offre gratuite à vérifier).
-- ⬜ **Base de données** : prérequis Serveur API.
+- ⬜ **Base de données** : prérequis Serveur API (jalon 011).
   - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données
     (`docs/domain-model.md`) ; version des UUID à trancher, v7 pressentie (jalon 010, D23) ;
     index sur (organisation, jour local) (jalon 010, D42) ; sécurité au niveau des lignes en
