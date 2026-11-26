@@ -27,8 +27,8 @@ export const CustomerSchema = z.object({
     id: z.string(),
     shopId: z.string(),
     name: z.string(),
-    email: z.string().email(),
-    registeredAt: z.string().datetime(),
+    email: z.email(),
+    registeredAt: z.iso.datetime(),
 });
 export type Customer = z.infer<typeof CustomerSchema>;
 
@@ -48,7 +48,7 @@ export const OrderSchema = z.object({
     id: z.string(),
     shopId: z.string(),
     customerId: z.string(),
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     status: OrderStatusSchema,
     lines: z.array(OrderLineSchema).min(1),
     totalAmount: z.number().nonnegative(),

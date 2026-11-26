@@ -12,7 +12,7 @@ export type Device = z.infer<typeof DeviceSchema>;
 
 export const TrafficRowSchema = z.object({
     // Début du jour (UTC) : la granularité est la journée.
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     channel: ChannelSchema,
     device: DeviceSchema,
@@ -45,7 +45,7 @@ const pageFields = {
 
 // Ligne quotidienne stockée côté serveur.
 export const PageViewRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     ...pageFields,
 });
@@ -65,7 +65,7 @@ const searchFields = {
 };
 
 export const SearchRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     ...searchFields,
 });
@@ -80,7 +80,7 @@ export const SearchTermStatListSchema = z.array(SearchTermStatSchema);
 // canaux qui en génèrent (voir `AD_SPEND_CPC` dans adSpendGenerator.ts). Pas d'appareil : une
 // dépense se rattache à une campagne, pas à un écran.
 export const AdSpendRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     channel: ChannelSchema,
     // En euros, centimes compris.
@@ -98,7 +98,7 @@ export const AdSpendRowListSchema = z.array(AdSpendRowSchema);
 // percentile n'est pas additif : sur plusieurs jours, on les agrège par moyenne pondérée par
 // `samples`, ce qui reste une approximation du vrai p75 de la période.
 export const WebVitalsRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     device: DeviceSchema,
     // Chargements de page mesurés ce jour-là : le poids de la ligne dans une moyenne.
@@ -122,7 +122,7 @@ export type ErrorType = z.infer<typeof ErrorTypeSchema>;
 // Erreurs rencontrées par les visiteurs : un compteur par jour, boutique et type. Les taux se
 // calculent avec les autres jeux (404 / pages vues, échecs / (échecs + commandes completed)).
 export const ErrorRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     type: ErrorTypeSchema,
     count: z.number().int().positive(),
@@ -138,7 +138,7 @@ export type EmailCampaign = z.infer<typeof EmailCampaignSchema>;
 // panier). `opens` est le nombre d'ouvertures (la protection de confidentialité d'Apple Mail les
 // gonfle en pratique) et `clicks` celui de clics sur un lien, avec `clicks <= opens <= sent`.
 export const EmailRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     campaign: EmailCampaignSchema,
     sent: z.number().int().nonnegative(),
