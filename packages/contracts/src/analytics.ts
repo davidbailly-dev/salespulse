@@ -1,92 +1,18 @@
 import { z } from 'zod';
 
-export const CategorySchema = z.enum([
-    'Armes',
-    'Armures',
-    'Potions',
-    'Grimoires',
-    'Artefacts',
-]);
-export type Category = z.infer<typeof CategorySchema>;
+// Calqué sur ce qu'exposerait un connecteur GA4 : le trafic est stocké en
+// lignes agrégées par jour, boutique, canal et appareil, jamais en sessions individuelles.
 
-export const ShopSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-});
-export type Shop = z.infer<typeof ShopSchema>;
-
-export const ShopListSchema = z.array(ShopSchema);
-
-export const ProductSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    name: z.string(),
-    category: CategorySchema,
-    price: z.number().positive(),
-});
-export type Product = z.infer<typeof ProductSchema>;
-
-export const ProductListSchema = z.array(ProductSchema);
-
-export const CustomerSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    name: z.string(),
-    email: z.string().email(),
-    registeredAt: z.string().datetime(),
-});
-export type Customer = z.infer<typeof CustomerSchema>;
-
-export const CustomerListSchema = z.array(CustomerSchema);
-
-export const OrderStatusSchema = z.enum(['completed', 'abandoned', 'refunded']);
-export type OrderStatus = z.infer<typeof OrderStatusSchema>;
-
-export const OrderLineSchema = z.object({
-    productId: z.string(),
-    quantity: z.number().int().positive(),
-    unitPrice: z.number().positive(),
-});
-export type OrderLine = z.infer<typeof OrderLineSchema>;
-
-// Canal d'acquisition et appareil de la session ayant mené à la commande : ils permettent
-// d'attribuer le CA à un canal (ROAS, CAC) et de comparer la conversion mobile/desktop.
+// Canal d'acquisition et appareil d'une session.
 export const ChannelSchema = z.enum(['organic', 'paid', 'direct', 'social', 'email', 'referral']);
 export type Channel = z.infer<typeof ChannelSchema>;
 
 export const DeviceSchema = z.enum(['desktop', 'mobile', 'tablet']);
 export type Device = z.infer<typeof DeviceSchema>;
 
-export const OrderSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    customerId: z.string(),
-    date: z.string().datetime(),
-    status: OrderStatusSchema,
-    lines: z.array(OrderLineSchema).min(1),
-    totalAmount: z.number().nonnegative(),
-    channel: ChannelSchema,
-    device: DeviceSchema,
-});
-export type Order = z.infer<typeof OrderSchema>;
-
-export const OrderListSchema = z.array(OrderSchema);
-
-export const DatasetSchema = z.object({
-    shops: z.array(ShopSchema),
-    products: z.array(ProductSchema),
-    customers: z.array(CustomerSchema),
-    orders: z.array(OrderSchema),
-});
-export type Dataset = z.infer<typeof DatasetSchema>;
-
-// --- Analytics (trafic) ---
-// Calqué sur ce qu'exposerait un connecteur GA4 (voir CLAUDE.md) : le trafic est stocké en
-// lignes agrégées par jour, boutique, canal et appareil, jamais en sessions individuelles.
-
 export const TrafficRowSchema = z.object({
     // Début du jour (UTC) : la granularité est la journée.
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     channel: ChannelSchema,
     device: DeviceSchema,
@@ -119,7 +45,7 @@ const pageFields = {
 
 // Ligne quotidienne stockée côté serveur.
 export const PageViewRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     ...pageFields,
 });
@@ -139,7 +65,7 @@ const searchFields = {
 };
 
 export const SearchRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     ...searchFields,
 });
@@ -154,7 +80,7 @@ export const SearchTermStatListSchema = z.array(SearchTermStatSchema);
 // canaux qui en génèrent (voir `AD_SPEND_CPC` dans adSpendGenerator.ts). Pas d'appareil : une
 // dépense se rattache à une campagne, pas à un écran.
 export const AdSpendRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     channel: ChannelSchema,
     // En euros, centimes compris.
@@ -172,7 +98,7 @@ export const AdSpendRowListSchema = z.array(AdSpendRowSchema);
 // percentile n'est pas additif : sur plusieurs jours, on les agrège par moyenne pondérée par
 // `samples`, ce qui reste une approximation du vrai p75 de la période.
 export const WebVitalsRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     device: DeviceSchema,
     // Chargements de page mesurés ce jour-là : le poids de la ligne dans une moyenne.
@@ -196,7 +122,7 @@ export type ErrorType = z.infer<typeof ErrorTypeSchema>;
 // Erreurs rencontrées par les visiteurs : un compteur par jour, boutique et type. Les taux se
 // calculent avec les autres jeux (404 / pages vues, échecs / (échecs + commandes completed)).
 export const ErrorRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     type: ErrorTypeSchema,
     count: z.number().int().positive(),
@@ -212,7 +138,7 @@ export type EmailCampaign = z.infer<typeof EmailCampaignSchema>;
 // panier). `opens` est le nombre d'ouvertures (la protection de confidentialité d'Apple Mail les
 // gonfle en pratique) et `clicks` celui de clics sur un lien, avec `clicks <= opens <= sent`.
 export const EmailRowSchema = z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     shopId: z.string(),
     campaign: EmailCampaignSchema,
     sent: z.number().int().nonnegative(),
@@ -222,14 +148,3 @@ export const EmailRowSchema = z.object({
 export type EmailRow = z.infer<typeof EmailRowSchema>;
 
 export const EmailRowListSchema = z.array(EmailRowSchema);
-
-export const AnalyticsDatasetSchema = z.object({
-    traffic: TrafficRowListSchema,
-    pageViews: z.array(PageViewRowSchema),
-    searches: z.array(SearchRowSchema),
-    adSpend: AdSpendRowListSchema,
-    webVitals: WebVitalsRowListSchema,
-    errors: ErrorRowListSchema,
-    emails: EmailRowListSchema,
-});
-export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;

@@ -158,14 +158,6 @@ testé par le CI sans être déployé.
 
 ### Autres pistes
 
-Petit changement décidé, sans jalon, à faire juste après le jalon 010 :
-
-- ⬜ **Découpage des contrats par contexte** (jalon 010, D5) : branche `feature/split-contracts`,
-  `packages/contracts/src/schemas.ts` découpé en fichiers réexportés par `index.ts` :
-  `shops.ts` (`Shop`) ; `sales.ts` (commandes, lignes, produits, clients, catégories) ;
-  `analytics.ts` (canal, appareil et lignes analytics) ; `demo.ts` (`Dataset`,
-  `AnalyticsDataset`) ; `shared.ts` créé au premier format commun.
-
 Pistes relevées dans le code et les jalons, à valider et prioriser :
 
 - ⬜ **Paniers abandonnés réels** (jalon 010, D8) : entity distincte des commandes, fournie par
