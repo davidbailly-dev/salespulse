@@ -162,6 +162,7 @@ Le modèle du domaine est décrit dans `docs/domain-model.md` (bounded contexts,
 
 - `@salespulse/contracts` porte le format échangé, pas les règles métier, qui font foi dans le domaine d'`apps/api`. Le web s'adapte au contrat, jamais au domaine.
 - Nommage par usage (`RevenueKpi`, `TopProductItem`…), jamais le nom d'une entity du domaine. Les schémas actuels (`Order`, `Customer`, `Product`) gardent leur nom tant qu'ils servent la démo, et sont remplacés par des agrégats au jalon « Indicateurs côté serveur ».
+- Un fichier par contexte, réexporté par `index.ts` : `shops.ts`, `sales.ts`, `analytics.ts`, et `demo.ts` pour les jeux de données du store mocké ; `shared.ts` naîtra avec le premier format commun à plusieurs contextes. `sales.ts` importe le canal et l'appareil d'`analytics.ts`, dépendance propre à la démo (jalon 010, D15).
 - Tests : aucun tant qu'un schéma reste déclaratif ; un `.test.ts` colocalisé dès qu'il porte un invariant entre champs (`.refine`), une transformation (`.transform`) ou un enjeu de rétrocompatibilité. La correspondance entre les énumérations du contrat et celles du domaine se teste dans `apps/api`.
 
 ### Interface (`apps/web/`)
@@ -178,7 +179,7 @@ mock-data (singleton mémoire) → route API /api/... (filtre + Zod) → hook Ta
 - Deux fenêtres de `WINDOW_DAYS` (90) jours sont générées : la fenêtre actuelle (`generator.ts`) et la fenêtre **N-1** un an plus tôt (`historyGenerator.ts` + `HISTORY_ANALYTICS_TUNING` dans `analyticsTuning.ts`), avec des tendances volontairement mixtes (hausses/baisses) pour la comparaison. Les deux fenêtres sont exposées ensemble ; c'est la plage de dates de la requête qui les distingue.
 - Génération **déterministe** : chaque générateur a son propre seed (`SEED`, `ATTRIBUTION_SEED`, `HISTORY_SEED`, etc.), souvent via une instance `SimpleFaker` dédiée. Ajouter un tirage aléatoire dans un générateur existant décale toute la séquence et change toutes les données (donc tous les KPIs déjà calibrés) : pour un nouveau champ aléatoire, utiliser une instance Faker séparée avec son propre seed, comme `attributionFaker`.
 - Les boutiques et leur poids / tendance N-1 sont dans `SHOP_CONFIGS` (`generator.ts`). Leurs `id` sont des slugs stables car ils apparaissent dans l'URL.
-- Les schémas Zod et types (`Order`, `TrafficRow`, …) vivent dans `packages/contracts/src/schemas.ts` (`@salespulse/contracts`) : format des routes de démonstration, partagé entre serveur et client. Ils diffèrent du modèle commun du backend ; les écarts et le jalon qui comble chacun sont listés dans `docs/domain-model.md`.
+- Les schémas Zod et types (`Order`, `TrafficRow`, …) vivent dans `packages/contracts/src/` (`@salespulse/contracts`) : format des routes de démonstration, partagé entre serveur et client. Ils diffèrent du modèle commun du backend ; les écarts et le jalon qui comble chacun sont listés dans `docs/domain-model.md`.
 - `analyticsReports.ts` filtre/agrège les données analytics côté serveur. Les lignes analytics sont journalières alors que `from`/`to` sont des instants : les jours partiellement couverts sont **proratisés** (voir le commentaire de tête du fichier). Réutiliser ces fonctions pour toute nouvelle route analytics plutôt que de filtrer à la main.
 
 #### Routes API (`apps/web/src/app/api/`)
@@ -209,7 +210,7 @@ Comme ces filtres utilisent `useSearchParams`, `app/dashboard/layout.tsx` appell
 - `KpiDelta` / `lib/comparison/evolution.ts` : prennent une `polarity` (`higher-is-better`, `lower-is-better`, `neutral`) et un `mode` (`relative` en % pour montants/volumes, `points` pour les KPIs qui sont déjà des taux). Les listes, le CAC et le ratio LTV/CAC n'affichent volontairement pas d'évolution.
 - Les pages (`app/dashboard/*/page.tsx`) sont des composants serveur qui assemblent des `CardGroup` > `Card` > `CardTitle` + `CardContent` (`components/ui/Card.tsx`).
 
-Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans `packages/contracts/src/schemas.ts`, un générateur, une route API et un hook.
+Ajouter un KPI = test puis fonction pure dans `lib/kpis/` (TDD), composant dans `components/dashboard/`, puis une `Card` dans la page concernée ; une nouvelle source de données demande en plus un schéma dans le fichier de son contexte de `packages/contracts/src/`, un générateur, une route API et un hook.
 
 #### Style
 

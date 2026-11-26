@@ -1,88 +1,14 @@
 import { z } from 'zod';
 
-export const CategorySchema = z.enum([
-    'Armes',
-    'Armures',
-    'Potions',
-    'Grimoires',
-    'Artefacts',
-]);
-export type Category = z.infer<typeof CategorySchema>;
+// Calqué sur ce qu'exposerait un connecteur GA4 : le trafic est stocké en
+// lignes agrégées par jour, boutique, canal et appareil, jamais en sessions individuelles.
 
-export const ShopSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-});
-export type Shop = z.infer<typeof ShopSchema>;
-
-export const ShopListSchema = z.array(ShopSchema);
-
-export const ProductSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    name: z.string(),
-    category: CategorySchema,
-    price: z.number().positive(),
-});
-export type Product = z.infer<typeof ProductSchema>;
-
-export const ProductListSchema = z.array(ProductSchema);
-
-export const CustomerSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    name: z.string(),
-    email: z.string().email(),
-    registeredAt: z.string().datetime(),
-});
-export type Customer = z.infer<typeof CustomerSchema>;
-
-export const CustomerListSchema = z.array(CustomerSchema);
-
-export const OrderStatusSchema = z.enum(['completed', 'abandoned', 'refunded']);
-export type OrderStatus = z.infer<typeof OrderStatusSchema>;
-
-export const OrderLineSchema = z.object({
-    productId: z.string(),
-    quantity: z.number().int().positive(),
-    unitPrice: z.number().positive(),
-});
-export type OrderLine = z.infer<typeof OrderLineSchema>;
-
-// Canal d'acquisition et appareil de la session ayant mené à la commande : ils permettent
-// d'attribuer le CA à un canal (ROAS, CAC) et de comparer la conversion mobile/desktop.
+// Canal d'acquisition et appareil d'une session.
 export const ChannelSchema = z.enum(['organic', 'paid', 'direct', 'social', 'email', 'referral']);
 export type Channel = z.infer<typeof ChannelSchema>;
 
 export const DeviceSchema = z.enum(['desktop', 'mobile', 'tablet']);
 export type Device = z.infer<typeof DeviceSchema>;
-
-export const OrderSchema = z.object({
-    id: z.string(),
-    shopId: z.string(),
-    customerId: z.string(),
-    date: z.string().datetime(),
-    status: OrderStatusSchema,
-    lines: z.array(OrderLineSchema).min(1),
-    totalAmount: z.number().nonnegative(),
-    channel: ChannelSchema,
-    device: DeviceSchema,
-});
-export type Order = z.infer<typeof OrderSchema>;
-
-export const OrderListSchema = z.array(OrderSchema);
-
-export const DatasetSchema = z.object({
-    shops: z.array(ShopSchema),
-    products: z.array(ProductSchema),
-    customers: z.array(CustomerSchema),
-    orders: z.array(OrderSchema),
-});
-export type Dataset = z.infer<typeof DatasetSchema>;
-
-// --- Analytics (trafic) ---
-// Calqué sur ce qu'exposerait un connecteur GA4 (voir CLAUDE.md) : le trafic est stocké en
-// lignes agrégées par jour, boutique, canal et appareil, jamais en sessions individuelles.
 
 export const TrafficRowSchema = z.object({
     // Début du jour (UTC) : la granularité est la journée.
@@ -222,14 +148,3 @@ export const EmailRowSchema = z.object({
 export type EmailRow = z.infer<typeof EmailRowSchema>;
 
 export const EmailRowListSchema = z.array(EmailRowSchema);
-
-export const AnalyticsDatasetSchema = z.object({
-    traffic: TrafficRowListSchema,
-    pageViews: z.array(PageViewRowSchema),
-    searches: z.array(SearchRowSchema),
-    adSpend: AdSpendRowListSchema,
-    webVitals: WebVitalsRowListSchema,
-    errors: ErrorRowListSchema,
-    emails: EmailRowListSchema,
-});
-export type AnalyticsDataset = z.infer<typeof AnalyticsDatasetSchema>;
