@@ -112,12 +112,17 @@ Spécificités du projet :
 
 ### Relecture du code
 
-L'utilisateur relit et valide chaque partie du code produit : le travail avance par lots humainement relisibles.
+L'utilisateur relit le code selon son risque, comme en équipe professionnelle : le travail avance par lots relisibles, et l'attention se concentre là où une erreur coûte cher.
 
+- Trois niveaux, fixés pour chaque phase dans le fichier du jalon (le plus élevé l'emporte quand une phase en mélange plusieurs) :
+  - **critique** : domaine et shared kernel d'`apps/api`, adapters SQL et migrations, authentification et isolation entre commerçants, contrat `@salespulse/contracts`, règle d'imports. Point d'arrêt à chaque commit : test rouge montré, puis diff du code, validation de l'utilisateur avant de proposer le commit ;
+  - **standard** : use cases, routes API, hooks, composants, générateurs. Point d'arrêt en fin de phase : l'utilisateur relit les tests (la spécification) et survole le code. Le découpage et les messages des commits de la phase sont proposés ensemble, et créés sur une seule confirmation ;
+  - **léger** : styles, libellés, configuration, outillage, documentation interne. Relu à la pull request.
+- Chaque compte rendu de relecture signale les choix non évidents et les points d'hésitation, pour orienter la lecture.
 - Seuils indicatifs : moins de **300 lignes de code de production par commit** et moins de **800 lignes par pull request, tests compris**. La documentation, `package-lock.json` et les fichiers générés ne comptent pas.
 - Un lot qui menace de dépasser se découpe (commit, phase ou jalon) : le signaler avant de continuer, plutôt qu'après.
-- À la fin de chaque lot, présenter le diff (test rouge, puis code) et attendre la validation de l'utilisateur avant de proposer le commit. Chaque phase d'un jalon se termine par un point d'arrêt de relecture.
-- La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge.
+- Avant de passer une pull request en « prête », lancer `/code-review` sur la branche et corriger ce qui en ressort, ou expliquer pourquoi un point est écarté.
+- La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge. Sa description dit ce qui change, pourquoi, comment le vérifier, et où porter l'attention.
 
 ### Roadmap
 
@@ -125,7 +130,11 @@ Les développements sont planifiés en jalons : un fichier par jalon dans `docs/
 
 @docs/roadmap-conventions.md
 
-Spécificités du projet : les critères de validation incluent `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur, comme l'intégration continue.
+Spécificités du projet :
+
+- Les critères de validation incluent `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur, comme l'intégration continue.
+- Chaque phase indique son niveau de relecture (voir « Relecture du code ») : `## Phase A — <nom> ⬜ (relecture critique)`.
+- Le Journal ne note que ce que le reste du jalon ne dit pas : découvertes, surprises, points bloquants, changements de plan. L'avancement se lit dans les cases cochées et dans l'historique Git.
 
 ### Vision et stack
 
