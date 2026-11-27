@@ -138,19 +138,19 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
 - [x] `apps/api/src/server/version.ts` : lit la version du `package.json` racine ; refuse un
   fichier sans version (D7).
 
-## Phase C — Application Express ⬜ (relecture standard)
+## Phase C — Application Express ✅ (relecture standard)
 
 Tests par `supertest` sur `createApp`, sans port fixe ni Next.js (D11).
 
-- [ ] `apps/api/src/server/logger.ts` : logger pino au niveau configuré, en-têtes
+- [x] `apps/api/src/server/logger.ts` : logger pino au niveau configuré, en-têtes
   `authorization` et `cookie` masqués (D5).
-- [ ] `apps/api/src/server/requestLogging.ts` : une ligne par requête, chemin sans query
+- [x] `apps/api/src/server/requestLogging.ts` : une ligne par requête, chemin sans query
   string, identifiant renvoyé dans `X-Request-Id` (D5).
-- [ ] `apps/api/src/server/health.ts` : `GET /health` renvoie `200`, `status` et `version`,
+- [x] `apps/api/src/server/health.ts` : `GET /health` renvoie `200`, `status` et `version`,
   `Cache-Control: no-store` (D7).
-- [ ] `apps/api/src/server/errorHandler.ts` : une erreur non gérée donne un `500` JSON sans pile
+- [x] `apps/api/src/server/errorHandler.ts` : une erreur non gérée donne un `500` JSON sans pile
   d'appels ni message interne, et une ligne de journal qui les contient.
-- [ ] `apps/api/src/app.ts` : `createApp({ version, logger, fallback })` monte ce qui précède,
+- [x] `apps/api/src/app.ts` : `createApp({ version, logger, fallback })` monte ce qui précède,
   désactive `X-Powered-By`, délègue au repli toute requête non prise (y compris sous `/api`),
   et répond 404 JSON sans repli (D1, D2).
 
@@ -212,6 +212,23 @@ tester »), et vérifié par le CI (D10) et à la main.
   lit le fichier et ajoute son chemin au message d'erreur ; le chemin du `package.json` racine
   sera calculé par `main.ts` (phase D). La version doit être au format SemVer `X.Y.Z`,
   préversion admise, sans préfixe `v`.
+- 2026-11-27 : `pino-http` écrit au niveau `info` même une requête en erreur : `customLogLevel`
+  la passe à `error` (erreur ou statut 5xx), sinon un `LOG_LEVEL=error` masquerait les 500.
+  L'erreur passe par `res.err`, ce qui la met sur la ligne de fin de requête : une seule ligne
+  par requête, erreur comprise. La ligne par requête ne journalise aucun en-tête (serializers
+  `req` et `res` réduits à l'identifiant, la méthode, le chemin et le statut) ; le masquage du
+  logger reste en filet de sécurité. L'identifiant de requête est toujours généré (UUID), celui
+  envoyé par le client est ignoré. Deux tests verts sur les squelettes (niveau `silent`, aucun
+  en-tête journalisé) ont été prouvés par mutation, annulée ; le second exige désormais une
+  ligne de journal, pour ne pas passer à vide.
+- 2026-11-27 : la couverture a révélé un défaut d'`errorHandler` : sur une réponse déjà
+  commencée (`headersSent`), il passait la main à Express sans renseigner `res.err`, et l'erreur
+  disparaissait du journal (ligne au niveau `info`, statut 200). Test rouge, puis `res.err`
+  renseigné avant ce test. Branche non couverte restante : `createLogger` sans destination
+  (sortie standard), branchée par `main.ts` et vérifiée par le démarrage du CI (phase D).
+- 2026-11-27 : point pour le jalon « Déploiement du socle » : le health check de Render
+  appellera `/health` toutes les quelques secondes, soit autant de lignes de journal ; à
+  mesurer avant de choisir de les filtrer (`autoLogging.ignore` de `pino-http`).
 
 ## Workflow Git
 
