@@ -129,13 +129,13 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
   gratuite ; noter le résultat au Journal et, s'il change le plan, dans le jalon « Déploiement
   du socle ».
 
-## Phase B — Configuration ⬜ (relecture standard)
+## Phase B — Configuration ✅ (relecture standard)
 
-- [ ] `apps/api/src/server/config.ts` : `loadConfig(env)` applique les valeurs par défaut
+- [x] `apps/api/src/server/config.ts` : `loadConfig(env)` applique les valeurs par défaut
   (`PORT` 3000, `NODE_ENV` `development`, `LOG_LEVEL` `info`), refuse un port non entier ou
   hors de 1 à 65535, un `NODE_ENV` ou un `LOG_LEVEL` inconnu, et nomme chaque variable
   invalide sans recopier sa valeur (D6).
-- [ ] `apps/api/src/server/version.ts` : lit la version du `package.json` racine ; refuse un
+- [x] `apps/api/src/server/version.ts` : lit la version du `package.json` racine ; refuse un
   fichier sans version (D7).
 
 ## Phase C — Application Express ⬜ (relecture standard)
@@ -201,6 +201,17 @@ tester »), et vérifié par le CI (D10) et à la main.
 - 2026-11-27 : `dev:server` passe la sortie par `pino-pretty` dans le script (pipe), ce qui
   garde le logger sans transport ; `start:server` fixe `NODE_ENV=production`, la valeur par
   défaut de `loadConfig` étant `development` (D6).
+- 2026-11-27 : `loadConfig` refuse une variable vide (`PORT=`) plutôt que de lui appliquer sa
+  valeur par défaut, pour qu'une affectation oubliée se voie au démarrage ; `PORT` n'admet que
+  des chiffres, `Number()` acceptant aussi `0x10`, `3e3` ou des espaces. Le message de
+  `ConfigError` cite la valeur attendue de chaque variable, jamais les messages de Zod, et
+  l'erreur ne porte pas de `cause`, pour ne pas recopier la valeur reçue. Le test « ignore les
+  autres variables », vert sur le squelette, a été prouvé par une mutation (`z.strictObject`),
+  annulée.
+- 2026-11-27 : `version.ts` sépare `parseVersion(contenu)`, pure, de `readVersion(chemin)`, qui
+  lit le fichier et ajoute son chemin au message d'erreur ; le chemin du `package.json` racine
+  sera calculé par `main.ts` (phase D). La version doit être au format SemVer `X.Y.Z`,
+  préversion admise, sans préfixe `v`.
 
 ## Workflow Git
 
