@@ -1,8 +1,13 @@
+---
+paths:
+  - "README.md"
+---
+
 # README
 
 Règles de tenue du `README.md`. Ce fichier est **générique** : il peut être copié tel quel dans
 n'importe quel projet. Les spécificités d'un projet (langue, captures d'écran, lien de démo…) se
-documentent dans son `CLAUDE.md`, pas ici.
+documentent dans ses instructions d'agent (`CLAUDE.md`, règles), pas ici.
 
 ---
 

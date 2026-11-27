@@ -1,3 +1,10 @@
+---
+paths:
+  - "docs/vision.md"
+  - "docs/stack.md"
+  - "**/package.json"
+---
+
 # Documents de cadrage : vision et stack
 
 Règles de tenue de `docs/vision.md` (ce que le produit est et n'est pas) et de `docs/stack.md`

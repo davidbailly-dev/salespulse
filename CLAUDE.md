@@ -53,25 +53,9 @@ Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers 
 
 @docs/commits.md
 
-Spécificités du projet :
-
-- La version est portée par le `package.json` **racine** et son `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`, lancé à la racine) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`. Les paquets des workspaces restent à `0.0.0`.
-- Intégration continue : `.github/workflows/ci.yml` (GitHub Actions) lance `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` et `npm run build`, puis démarre le serveur unique (`/health` doit renvoyer la version du `package.json` racine, puis `SIGTERM` l'arrêter proprement) sur chaque pull request vers `develop` ou `main` et chaque push sur ces branches. Son job `checks` est la vérification exigée par le ruleset GitHub « develop et main » : ne pas le renommer sans mettre à jour le ruleset.
-- Render déploie `main` seulement une fois `checks` passé (*After CI Checks Pass*). Les réglages GitHub (ruleset, méthodes de merge, alertes Dependabot) et Render se font dans leurs interfaces, par l'utilisateur, hors dépôt (jalon 008).
-- Pousser une modification de `.github/workflows/` demande le scope `workflow` du jeton de `gh` (remote en HTTPS) : `gh auth refresh -h github.com -s workflow`.
-
 ## Documentation utilisateur
 
-Le `README.md` et le `changelog.txt` s'adressent à l'utilisateur et sont tenus selon des fichiers génériques partagés entre projets :
-
-@docs/readme.md
-
-@docs/changelog.md
-
-Spécificités du projet :
-
-- README et changelog en français, comme l'interface.
-- Le README affiche une capture du Dashboard (`assets/screenshot-dashboard.png`) et le lien de la démo Render : signaler à l'utilisateur quand la capture ne correspond plus à l'interface.
+Le `README.md` et le `changelog.txt` s'adressent à l'utilisateur. Leurs conventions (`docs/readme.md`, `docs/changelog.md`) et les spécificités du projet se chargent avec ces fichiers (`.claude/rules/`).
 
 ## Conventions de développement
 
@@ -110,25 +94,11 @@ L'utilisateur relit le code selon son risque, comme en équipe professionnelle :
 
 ### Roadmap
 
-Les développements sont planifiés en jalons : un fichier par jalon dans `docs/milestones/`, indexés par `docs/roadmap.md`, selon un format générique partagé entre projets :
-
-@docs/roadmap-conventions.md
-
-Spécificités du projet :
-
-- Les critères de validation incluent `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur, comme l'intégration continue.
-- Chaque phase indique son niveau de relecture (voir « Relecture du code ») : `## Phase A — <nom> ⬜ (relecture critique)`.
-- Le Journal ne note que ce que le reste du jalon ne dit pas : découvertes, surprises, points bloquants, changements de plan. L'avancement se lit dans les cases cochées et dans l'historique Git.
+Les développements sont planifiés en jalons : un fichier par jalon dans `docs/milestones/`, indexés par `docs/roadmap.md`. Leur convention (`docs/roadmap-conventions.md`) et les spécificités du projet se chargent avec ces fichiers (`.claude/rules/`).
 
 ### Vision et stack
 
-Le rôle et la tenue de `docs/vision.md` et de `docs/stack.md` sont décrits dans un fichier
-générique partagé entre projets :
-
-@docs/project-docs-conventions.md
-
-`docs/vision.md` et `docs/stack.md` ne sont pas importés (lus à la demande) : lire `docs/stack.md`
-avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
+Le rôle et la tenue de `docs/vision.md` et de `docs/stack.md` (`docs/project-docs-conventions.md`) se chargent avec ces deux fichiers et avec tout `package.json` : lire `docs/stack.md` avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
 
 ## Architecture
 

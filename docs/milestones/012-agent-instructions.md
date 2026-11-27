@@ -117,15 +117,15 @@ perdue en route.
       l'API et l'interface » et l'indépendance du paquet (Zod seul, ni React, ni Next, ni Faker).
 - [x] `CLAUDE.md` : sections déplacées retirées dans le même commit, sans doublon.
 
-## Phase B — Conventions chargées par leurs fichiers ⬜ (relecture légère)
+## Phase B — Conventions chargées par leurs fichiers ✅ (relecture légère)
 
-- [ ] `docs/readme.md`, `docs/changelog.md`, `docs/roadmap-conventions.md`,
+- [x] `docs/readme.md`, `docs/changelog.md`, `docs/roadmap-conventions.md`,
       `docs/project-docs-conventions.md` : en-tête `paths:` (D3) et formule de D8.
-- [ ] `.claude/rules/conventions/` : un lien symbolique relatif par convention.
-- [ ] `.claude/rules/readme.md`, `roadmap.md`, `release.md`, `ci.md` : spécificités du projet
+- [x] `.claude/rules/conventions/` : un lien symbolique relatif par convention.
+- [x] `.claude/rules/readme.md`, `roadmap.md`, `release.md`, `ci.md` : spécificités du projet
       (D4).
-- [ ] `docs/gitflow.md`, `docs/commits.md`, `docs/tdd.md` : formule de D8.
-- [ ] `CLAUDE.md` : imports et « Spécificités du projet » correspondants retirés.
+- [x] `docs/gitflow.md`, `docs/commits.md`, `docs/tdd.md` : formule de D8.
+- [x] `CLAUDE.md` : imports et « Spécificités du projet » correspondants retirés.
 
 ## Phase C — `CLAUDE.md` réduit ⬜ (relecture standard)
 
@@ -150,6 +150,9 @@ perdue en route.
 - 2026-11-27 : plan rédigé.
 - 2026-11-27 : phase A faite. Les sections déplacées sont reprises mot pour mot, titres mis à part ;
   le `CLAUDE.md` passe de 222 à 137 lignes.
+- 2026-11-27 : phase B faite, `CLAUDE.md` à 107 lignes. `render.yaml` n'existe pas encore : gardé
+  dans les `paths:` de `ci.md` pour le jalon « Déploiement du socle ». À garder pour la phase C :
+  le job `checks` exigé avant tout merge, que `ci.md` ne charge qu'avec `.github/`.
 
 ## Workflow Git
 
