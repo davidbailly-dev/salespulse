@@ -7,7 +7,7 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-Aucun.
+- 🔄 [012 — Instructions de l'agent allégées](milestones/012-agent-instructions.md)
 
 ## Terminés
 
@@ -161,15 +161,6 @@ Next.js seul : `apps/api` est testé par le CI, démarrage du serveur compris, s
 
 Pistes relevées dans le code et les jalons, à valider et prioriser :
 
-- ⬜ **Instructions de l'agent allégées** : à traiter avant le jalon « Base de données ». Le
-  `CLAUDE.md` dépasse les 200 lignes que recommande la documentation de Claude Code (222 lignes
-  à la clôture du jalon 011), et ses sept imports de `docs/` sont chargés avec lui à chaque
-  session : environ 24 000 tokens d'instructions avant le premier message.
-  - Règles `.claude/rules/` filtrées par chemin (`paths:`), chargées seulement quand l'agent
-    travaille sur les fichiers concernés : `apps/api/**`, `apps/web/**`, `packages/contracts/**` ;
-  - conventions génériques chargées quand elles servent : README, `changelog.txt`, jalons ;
-  - `CLAUDE.md` réduit à ce que l'agent ne retrouve pas en lisant le dépôt : projet, commandes,
-    structure, résumé du workflow Git et de la relecture.
 - ⬜ **Paniers abandonnés réels** (jalon 010, D8) : entity distincte des commandes, fournie par
   les seuls connecteurs qui en disposent (`AbandonedCheckout` chez Shopify, paniers sans
   commande chez PrestaShop, rien dans le cœur de WooCommerce). D'ici là, l'indicateur « Paniers
