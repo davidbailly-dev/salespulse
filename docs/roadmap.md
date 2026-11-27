@@ -7,10 +7,11 @@ Légende : ⬜ à faire · 🔄 en cours · ✅ terminé
 
 ## En cours
 
-- 🔄 [012 — Instructions de l'agent allégées](milestones/012-agent-instructions.md)
+Aucun.
 
 ## Terminés
 
+- ✅ [012 — Instructions de l'agent allégées](milestones/012-agent-instructions.md) — non publié
 - ✅ [011 — Serveur API](milestones/011-api-server.md) — non publié
 - ✅ [010 — Modèle de données](milestones/010-data-model.md) — non publié
 - ✅ [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md) — non publié

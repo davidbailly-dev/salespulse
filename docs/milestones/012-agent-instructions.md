@@ -1,4 +1,4 @@
-# Jalon 012 — Instructions de l'agent allégées 🔄
+# Jalon 012 — Instructions de l'agent allégées ✅
 
 Branche : `feature/agent-instructions` (depuis `develop`). Livré dans : —
 
@@ -134,18 +134,18 @@ perdue en route.
 - [x] `.claude/skills/security-audit/SKILL.md` : lit aussi les règles de `.claude/rules/`, qu'il
       ne recevait plus par les imports du `CLAUDE.md`.
 
-## Phase D — Vérification ⬜ (relecture légère)
+## Phase D — Vérification ✅ (relecture légère)
 
-- [ ] Table de correspondance, dans la pull request : chaque consigne de l'ancien `CLAUDE.md` et
+- [x] Table de correspondance, dans la pull request : chaque consigne de l'ancien `CLAUDE.md` et
       son nouvel emplacement (`CLAUDE.md`, règle, convention), aucune ligne orpheline.
-- [ ] Chargement vérifié dans une session neuve, par l'utilisateur :
+- [x] Chargement vérifié dans une session neuve, par l'utilisateur :
   - `/context all` ne liste plus que `CLAUDE.md`, `docs/tdd.md`, `docs/commits.md` et la
     mémoire ;
   - un hook `InstructionsLoaded` temporaire dans `.claude/settings.local.json` (non commité)
     journalise les règles chargées : lire un fichier d'`apps/api`, d'`apps/web`, de
     `packages/contracts`, `README.md`, `changelog.txt`, un jalon et un `package.json` charge la
     règle attendue, y compris par les liens symboliques (D3).
-- [ ] Taille mesurée avant et après (lignes et caractères chargés au démarrage), notée au Bilan.
+- [x] Taille mesurée avant et après (lignes et caractères chargés au démarrage), notée au Bilan.
 
 ## Journal
 
@@ -162,6 +162,13 @@ perdue en route.
   jalon 🔄 à la reprise et faire valider un jalon avant de le démarrer, lire `docs/stack.md` avant
   un `npm install` qui ne passe par aucun `package.json` lu. Le skill `security-audit` lisait
   « `CLAUDE.md` et les fichiers qu'il importe » : il lit désormais aussi `.claude/rules/`.
+- 2026-11-27 : phase D faite, dans deux sessions neuves avec un hook `InstructionsLoaded`
+  temporaire. Une règle ne se charge qu'une fois par session : dans le premier essai, le
+  `package.json` racine arrivait après `api.md` et `release.md`, déjà chargés, ce qui ne prouvait
+  rien sur `/package.json` ; un second essai, limité à `apps/web/package.json` puis au
+  `package.json` racine, l'a tranché. Le journal du hook donne pour chaque chargement la règle,
+  ses globs et le fichier déclencheur (`trigger_file_path`), et pour un lien symbolique le chemin
+  de sa cible dans `docs/`.
 
 ## Workflow Git
 
@@ -189,4 +196,45 @@ pour ce jalon. Documentation seulement, hors des seuils de lignes.
 
 ## Bilan
 
-<Rempli à la clôture.>
+**Fait.** Au démarrage d'une session, l'agent charge le `CLAUDE.md` (113 lignes au lieu de 222),
+`docs/tdd.md` et `docs/commits.md` : 16 557 caractères au lieu de 60 665, soit environ
+6 400 tokens d'instructions du projet d'après `/context all` (4 000 pour le `CLAUDE.md`, 1 100
+pour `commits.md`, 1 300 pour `tdd.md`). Le reste vit dans `.claude/rules/` et se charge avec les
+fichiers concernés :
+
+- trois règles par paquet (`api.md`, `web.md`, `contracts.md`), reprises mot pour mot du
+  `CLAUDE.md` ;
+- quatre règles du projet (`readme.md`, `release.md`, `roadmap.md`, `ci.md`) ;
+- quatre conventions génériques de `docs/`, chargées par un lien symbolique et leur propre en-tête
+  `paths:`.
+
+**Vérifications réellement faites.**
+
+- `/context all` dans une session neuve : `~/.claude/CLAUDE.md`, `CLAUDE.md`, `docs/commits.md`,
+  `docs/tdd.md` et `MEMORY.md`, aucune règle.
+- Hook `InstructionsLoaded` : chaque règle s'est chargée sur le fichier attendu, aucune au
+  démarrage ; les liens symboliques sont suivis avec leur `paths:` (D3) ; `/package.json` vise la
+  racine seule (D10) : `apps/web/package.json` charge `web.md` et la convention vision et stack,
+  le `package.json` racine charge `api.md` et `release.md`.
+- Table de correspondance de chaque section de l'ancien `CLAUDE.md`, relue par l'utilisateur au
+  point d'arrêt de la phase C et reprise dans la pull request ; vérification par script, aux
+  phases A et B, que chaque ligne retirée du `CLAUDE.md` se retrouve dans une règle.
+- `npm run lint`, `npm run typecheck`, `npm test` (185 et 685 tests) et `npm run build` sans
+  erreur ; `checks` à constater sur la pull request.
+
+**Écarts avec le plan.**
+
+- D10 : `api.md` se charge aussi avec le `package.json` racine, qui porte les scripts du serveur
+  unique.
+- Le skill `security-audit` lit aussi `.claude/rules/` : sans cela, il ne voyait plus les règles
+  d'`apps/api` et du contrat, zones de relecture critique.
+- Trois consignes dont la convention se charge par un fichier restent aussi dans le `CLAUDE.md`,
+  parce qu'elles s'appliquent avant de l'ouvrir (Journal de la phase C).
+
+**Documentation durable.** La règle de rangement des consignes (ce qui sert à chaque session dans
+le `CLAUDE.md`, ce qui tient à un paquet ou à un fichier dans `.claude/rules/`) est écrite dans la
+section « Règles chargées à la demande » du `CLAUDE.md`. Aucun changement de `docs/vision.md` ni
+de `docs/stack.md`.
+
+**Limites connues.** Une règle disparaît au `/compact` jusqu'au prochain fichier correspondant ;
+sous Windows, les liens symboliques demandent `core.symlinks` (D3).
