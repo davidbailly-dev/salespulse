@@ -183,14 +183,14 @@ tester »), et vérifié par le CI (D10) et à la main.
   démarrage (`instrumentation.ts`), et `SIGTERM` arrête le serveur proprement.
 - [x] Même vérification avec `npm run dev:server` (rechargement de l'interface compris).
 
-## Phase E — Documentation ⬜ (relecture légère)
+## Phase E — Documentation ✅ (relecture légère)
 
-- [ ] `CLAUDE.md` : commandes `dev:server` et `start:server`, structure d'`apps/api`
+- [x] `CLAUDE.md` : commandes `dev:server` et `start:server`, structure d'`apps/api`
   (`app.ts`, `main.ts`, `server/`), serveur lancé dans le CI mais pas par Render.
-- [ ] `docs/domain-model.md` : nom du composition root et point d'entrée (D1), à la place de
+- [x] `docs/domain-model.md` : nom du composition root et point d'entrée (D1), à la place de
   « tranchés au jalon Serveur API ».
-- [ ] `docs/stack.md` : Express passe de « prévu » à « en place, pas encore déployé ».
-- [ ] `docs/roadmap.md` : « Déploiement du socle » reprend le passage de `start` et de Render
+- [x] `docs/stack.md` : Express passe de « prévu » à « en place, pas encore déployé ».
+- [x] `docs/roadmap.md` : « Déploiement du socle » reprend le passage de `start` et de Render
   au serveur unique (D8).
 - [ ] README inchangé : le serveur unique n'est pas encore ce que l'utilisateur lance ni ce que
   la démo sert. À relire à la clôture.

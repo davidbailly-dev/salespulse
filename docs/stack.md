@@ -225,7 +225,9 @@ structurants (icônes, configuration du linter) n'ont pas d'entrée.
 
 ## Express
 
-- **Statut** : prévu (jalon « Serveur API »).
+- **Statut** : en place (jalon 011), pas encore déployé : `apps/api/src/app.ts` monte `/health`
+  et délègue le reste à Next.js ; le CI vérifie que le serveur démarre. Render lance Next.js seul
+  jusqu'au jalon « Déploiement du socle ».
 - **Rôle** : framework HTTP du backend (`apps/api`) : routes de l'API, authentification, rate
   limit, validation des requêtes. En phase gratuite, il est le point d'entrée du service unique
   et délègue à Next.js tout ce qui n'est pas l'API (jalon 007, D22).

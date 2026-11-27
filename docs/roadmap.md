@@ -51,6 +51,11 @@ continue de lancer Next.js seul : `apps/api` est testé par le CI sans être dé
 - ⬜ **Déploiement du socle** : prérequis Base de données.
   - `render.yaml`, serveur unique lancé par Render, base Neon en région Frankfurt, migrations
     appliquées au démarrage.
+  - `start` et Render passent de Next.js seul au serveur unique (`start:server`, jalon 011, D8) ;
+    commande de démarrage qui transmet `SIGTERM` au processus du serveur, sans la commande `tsx`
+    (jalon 011, D12) ; health check sur `/health` (`healthCheckPath`), à confirmer dans
+    l'interface de Render pour l'offre gratuite ; volume des lignes de journal des sondes de
+    `/health` à mesurer avant de les filtrer (Journal du jalon 011).
 - ⬜ **Authentification et organisations** : prérequis Déploiement du socle.
   - connexion par e-mail et mot de passe (D4) : argon2id, cookie de session `HttpOnly` /
     `Secure` / `SameSite`, protection CSRF, CORS limité, en-têtes de sécurité ;

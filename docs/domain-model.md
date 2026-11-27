@@ -138,8 +138,13 @@ l'importe que pour son type.
 
 Un seul module, à la racine d'`apps/api/src/`, importe l'infrastructure de plusieurs contextes
 (D19). Il instancie les adapters, les injecte dans les use cases et monte les routes de chaque
-contexte, sans conteneur d'injection ni framework. Son nom et le point d'entrée du serveur sont
-tranchés au jalon « Serveur API ».
+contexte, sans conteneur d'injection ni framework. C'est `apps/api/src/app.ts`, qui exporte
+`createApp(deps)` : ses dépendances (configuration, logger, gestionnaire de repli) sont reçues en
+paramètre, et il n'a pas d'effet de bord. Le point d'entrée, `apps/api/src/main.ts`, est le seul
+module à effets : il lit la configuration, prépare Next.js, appelle `createApp` et écoute le port
+(jalon 011, D1). L'infrastructure transverse du serveur (configuration, journaux, middlewares
+communs, `/health`) vit dans `apps/api/src/server/`, qui n'est pas un bounded context et n'en
+importe aucun (jalon 011, D3).
 
 ### Règle d'imports
 
@@ -152,6 +157,8 @@ Vérifiée par ESLint (`no-restricted-imports` par chemin, D3) :
 - `<contexte>/infrastructure/` : tout son contexte, `shared/domain/`, l'`index.ts` d'un autre
   contexte, les paquets externes et `@salespulse/contracts` ;
 - composition root : tout ;
+- `server/` : pas de règle propre, faute de `domain/` et d'`application/` ; il n'importe aucun
+  contexte (jalon 011, D3) ;
 - `*.test.ts` : exemptés, `vitest` et adapters en mémoire compris (D21).
 
 Aucun paquet externe dans `domain/` ni dans `application/`. Un contexte n'en importe jamais un
