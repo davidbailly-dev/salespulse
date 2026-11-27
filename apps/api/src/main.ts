@@ -6,6 +6,7 @@ import next from 'next';
 import { createApp } from './app';
 import { ConfigError, loadConfig } from './server/config';
 import { createLogger } from './server/logger';
+import { createShutdown } from './server/shutdown';
 import { readVersion } from './server/version';
 
 // Point d'entrée du serveur unique (jalon 011, D1) : seul module à effets. Il branche la
@@ -31,6 +32,14 @@ async function main(): Promise<void> {
         port: config.port,
         httpServer: server,
     });
+    // Créé dès maintenant pour suivre les WebSocket ouvertes, qui bloqueraient l'arrêt.
+    const shutdown = createShutdown({
+        server,
+        logger,
+        beforeExit: () => nextApp.close(),
+        exit: (code) => process.exit(code),
+        timeoutMs: SHUTDOWN_TIMEOUT_MS,
+    });
     await nextApp.prepare();
     const handle = nextApp.getRequestHandler();
 
@@ -41,23 +50,10 @@ async function main(): Promise<void> {
     });
     logger.info({ port: config.port, version, nodeEnv: config.nodeEnv }, 'serveur démarré');
 
-    // Arrêt propre (D9) : plus de nouvelle connexion, les requêtes en cours se terminent.
-    const shutdown = (signal: NodeJS.Signals) => {
-        logger.info({ signal }, 'arrêt demandé');
-        setTimeout(() => {
-            logger.error('arrêt forcé : requêtes encore en cours');
-            process.exit(1);
-        }, SHUTDOWN_TIMEOUT_MS).unref();
-
-        server.close((error) => {
-            void nextApp.close().finally(() => {
-                logger.info('serveur arrêté');
-                process.exit(error ? 1 : 0);
-            });
-        });
-    };
-    process.once('SIGTERM', shutdown);
-    process.once('SIGINT', shutdown);
+    // Arrêt propre (D9). `on` et non `once` : un signal répété pendant l'arrêt est ignoré par
+    // shutdown, alors qu'avec `once` il tuerait le processus.
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
 }
 
 main().catch((error: unknown) => {
