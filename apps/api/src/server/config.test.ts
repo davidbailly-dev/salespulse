@@ -18,13 +18,17 @@ function configErrorOf(env: Record<string, string | undefined>): ConfigError {
 
 describe('loadConfig', () => {
     it('applique les valeurs par défaut quand aucune variable n’est définie', () => {
-        expect(loadConfig({})).toEqual({ port: 3000, nodeEnv: 'development', logLevel: 'info' });
+        expect(loadConfig({})).toEqual({ port: 3000, nodeEnv: 'production', logLevel: 'info' });
+    });
+
+    it('démarre en production sans NODE_ENV : un oubli ne lance pas Next.js en développement', () => {
+        expect(loadConfig({ PORT: '8080' }).nodeEnv).toBe('production');
     });
 
     it('lit PORT, NODE_ENV et LOG_LEVEL', () => {
-        expect(loadConfig({ PORT: '8080', NODE_ENV: 'production', LOG_LEVEL: 'debug' })).toEqual({
+        expect(loadConfig({ PORT: '8080', NODE_ENV: 'development', LOG_LEVEL: 'debug' })).toEqual({
             port: 8080,
-            nodeEnv: 'production',
+            nodeEnv: 'development',
             logLevel: 'debug',
         });
     });

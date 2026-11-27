@@ -128,6 +128,13 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
     processus du serveur.
   - `tsx watch` garde le relais, mais avec 5 secondes de délai avant `SIGKILL` : suffisant en
     développement.
+- **D13 (2026-11-27) — remplace la valeur par défaut de `NODE_ENV` fixée par D6** : `NODE_ENV`
+  vaut `production` par défaut, et `dev:server` pose `development` lui-même. `PORT` et
+  `LOG_LEVEL` gardent leurs valeurs par défaut.
+  - Raison (relevée par la revue de code, validée par l'utilisateur) : une valeur par défaut doit
+    être la plus sûre. Avec `development`, une commande de démarrage qui oublierait la variable
+    (celle de Render au jalon « Déploiement du socle ») lancerait Next.js en mode développement
+    en production : compilation à la volée, rechargement à chaud, pages d'erreur détaillées.
 
 ## Phase A — Paquet et outillage ✅ (relecture légère)
 

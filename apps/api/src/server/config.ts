@@ -22,10 +22,11 @@ const portSchema = z
     .pipe(z.number().int().min(1).max(65535));
 
 // Une variable vide est refusée, pas remplacée par sa valeur par défaut : une affectation
-// oubliée (`PORT=`) se voit au démarrage.
+// oubliée (`PORT=`) se voit au démarrage. NODE_ENV vaut production par défaut (jalon 011, D13) :
+// une commande de démarrage qui l'oublie ne lance pas Next.js en mode développement.
 const envSchema = z.object({
     PORT: portSchema.default(3000),
-    NODE_ENV: z.enum(NODE_ENVS).default('development'),
+    NODE_ENV: z.enum(NODE_ENVS).default('production'),
     LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
 });
 
