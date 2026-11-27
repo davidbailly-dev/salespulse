@@ -288,6 +288,27 @@ tester »), et vérifié par le CI (D10) et à la main.
   l'avait pas vu : aucune page n'y était modifiée. Correctif : `dev:server` exclut `../web/**`
   de la surveillance, l'interface étant rechargée par Next.js lui-même ; une modification
   d'`apps/api` redémarre toujours le serveur, une seule fois.
+- 2026-11-27 : premier passage du CI sur la pull request : l'étape « Démarrage du serveur »
+  échoue à l'arrêt (code 143, ni « arrêt demandé » ni « serveur arrêté »). Sous Ubuntu, le `sh`
+  des scripts npm est `dash`, qui ne se remplace pas par la commande lancée : il reçoit le
+  `SIGTERM` relayé par npm, meurt, et le serveur reste orphelin. Le `bash` de Fedora, lui,
+  s'efface de lui-même, d'où le succès en local. Reproduit en local avec un shell qui imite
+  `dash` (`npm_config_script_shell`), puis corrigé par `exec` dans les deux scripts
+  `start:server` (`exec env NODE_ENV=production node …`, `env` pour ne pas dépendre de
+  l'export d'une affectation devant `exec`). Même risque sous Render, qui lance aussi `dash`.
+- 2026-11-27 : `/code-review` (niveau high) sur la pull request : 2 constats importants et
+  5 mineurs, tous retenus. Importants, reproduits avant correction : un second `SIGINT` à 2 ms
+  du premier tuait le processus pendant l'arrêt (code 130, `process.once`) ; une WebSocket du
+  rechargement à chaud ouverte bloquait `server.close()` jusqu'à l'arrêt forcé (10 s, code 1).
+  Correction : `server/shutdown.ts`, testé sur un vrai serveur (signaux répétés ignorés,
+  WebSocket suivies et fermées, délai forcé, échec de `beforeExit`), branché par `main.ts` avec
+  `process.on`. Ses tests ont révélé un troisième défaut : une connexion keep-alive dont la
+  requête finit après `server.close()` le retenait jusqu'à son propre délai ; les connexions
+  inactives sont refermées toutes les 100 ms pendant l'arrêt. Mineurs : erreur d'une réponse
+  déjà commencée écrite aussi en texte par Express (`res.destroy()` à la place de
+  `next(error)`) ; requête abandonnée journalisée en `warn`, « request aborted », et non comme
+  un 200 ; écouteur `error` du démarrage retiré une fois à l'écoute ; `NODE_ENV` à
+  `production` par défaut (D13) ; taille de la pull request signalée trop tard (voir Bilan).
 
 ## Workflow Git
 
@@ -328,16 +349,21 @@ Render lance toujours Next.js seul.
 
 **Chiffres.**
 
-- Tests : 177 dans `apps/api` (109 à l'ouverture du jalon, 68 ajoutés : 42 pour la configuration
-  et la version, 26 pour l'application Express), 685 dans `apps/web`, inchangés.
-- Couverture d'`apps/api/src/server/` : 100 % des lignes, 88 % des branches (non couverts :
-  `createLogger` sans destination et le cas `String(error)` de `readVersion`, inatteignable).
+- Tests : 185 dans `apps/api` (109 à l'ouverture du jalon, 76 ajoutés : 43 pour la configuration
+  et la version, 27 pour l'application Express, 6 pour l'arrêt propre), 685 dans `apps/web`,
+  inchangés.
+- Couverture d'`apps/api/src/server/` : 100 % des lignes (non couverts en branches :
+  `createLogger` sans destination, le cas `String(error)` de `readVersion`, inatteignable, et
+  l'échec de `server.close()` dans `shutdown.ts`).
   `main.ts` n'est pas couvert par les tests unitaires, comme prévu (D10) : vérifié par le CI et
   à la main.
-- Taille : 383 lignes de code de production (270 hors lignes vides et commentaires), 429 lignes
-  de tests et de helpers, 28 lignes de CI. Chaque commit reste sous les 300 lignes de production,
-  mais la pull request atteint environ 840 lignes, au-dessus du seuil indicatif de 800 :
-  l'estimation (250 + 350) sous-comptait les commentaires et les tests ajoutés en cours de route.
+- Taille : 473 lignes de code de production, 617 lignes de tests et de helpers, 28 lignes de CI,
+  soit environ 1 120 lignes (846 hors lignes vides et commentaires), bien au-dessus du seuil
+  indicatif de 800 par pull request. Chaque commit reste sous les 300 lignes de production.
+  L'estimation (250 + 350) sous-comptait les commentaires, et les correctifs du CI et de la
+  revue de code ont ajouté environ 280 lignes. Le dépassement n'a été signalé qu'à la clôture,
+  alors que la règle demande de le signaler avant : à surveiller dès le plan des prochains
+  jalons (estimation commentaires et tests compris).
 
 **Écarts avec le plan.**
 
@@ -352,15 +378,21 @@ Render lance toujours Next.js seul.
 - `pino-http` journalisait les requêtes en erreur au niveau `info` : `customLogLevel` ajouté.
 - `loadConfig` refuse une variable vide, et `version.ts` impose le format SemVer, deux précisions
   validées par l'utilisateur.
-- L'étape du CI vérifie aussi l'arrêt par `SIGTERM`, au-delà de D10.
+- L'étape du CI vérifie aussi l'arrêt par `SIGTERM`, au-delà de D10 ; elle a révélé dès son
+  premier passage que `dash` ne transmettait pas le signal (scripts passés à `exec`).
+- `/code-review` : arrêt propre extrait dans `server/shutdown.ts` (signaux répétés, WebSocket,
+  keep-alive), journaux des réponses commencées et des requêtes abandonnées, D13 (`NODE_ENV` à
+  `production` par défaut).
 
 **Vérifications réellement faites.** `npm run lint`, `npm run typecheck`, `npm test` et
 `npm run build` sans erreur en local à chaque commit. `start:server` et `dev:server` vérifiés à
 la main (détail au Journal) : `/health`, dashboard, routes de démonstration, journaux JSON sans
 query string, configuration invalide (code 1, variables nommées sans leurs valeurs), arrêt par
 `SIGTERM` pendant une requête, WebSocket du rechargement à chaud, rechargement de l'interface
-dans Chrome. Étape du CI rejouée en local, succès puis échec attendu. Reste à voir : `checks` au
-vert sur la pull request, étape de démarrage comprise.
+dans Chrome. Étape du CI rejouée en local, succès puis échec attendu, et avec un shell qui
+imite `dash`. Après la revue : deux `SIGINT` rapprochés (code 0), `SIGTERM` avec une WebSocket
+ouverte (arrêt en 0,03 s, code 0), `dev:server` en `development` et démarrage sans `NODE_ENV`
+en `production`. Reste à voir : `checks` au vert sur la pull request après ces correctifs.
 
 **Reporté.** Au jalon « Déploiement du socle » (repris dans `docs/roadmap.md`) : passage de
 Render au serveur unique avec une commande qui transmet `SIGTERM` (D12), health check à
