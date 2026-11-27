@@ -122,6 +122,7 @@ L'utilisateur relit le code selon son risque, comme en équipe professionnelle :
 - Seuils indicatifs : moins de **300 lignes de code de production par commit** et moins de **800 lignes par pull request, tests compris**. La documentation, `package-lock.json` et les fichiers générés ne comptent pas.
 - Un lot qui menace de dépasser se découpe (commit, phase ou jalon) : le signaler avant de continuer, plutôt qu'après.
 - Avant de passer une pull request en « prête », lancer `/code-review` sur la branche et corriger ce qui en ressort, ou expliquer pourquoi un point est écarté.
+- Une pull request qui touche une zone de relecture critique passe aussi par `/security-audit` (skill générique du projet, lecture seule, rapport dans le terminal) : les correctifs sont choisis avec l'utilisateur d'après le rapport. `/security-audit full` audite tout le dépôt, à la clôture d'un jalon de relecture critique. Le skill rattache ses constats aux principes de sécurité de `docs/vision.md` (P11, P12, P15 à P18, P20, et P21 pour les erreurs remontées).
 - La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge. Sa description dit ce qui change, pourquoi, comment le vérifier, et où porter l'attention.
 
 ### Roadmap
