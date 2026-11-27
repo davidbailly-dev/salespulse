@@ -2,7 +2,7 @@
 
 Format et découpage des commits. Ce fichier est **générique** : il peut être copié tel quel dans
 n'importe quel projet. Les spécificités d'un projet (fichiers de version, hooks de commit…) se
-documentent dans son `CLAUDE.md` ou son README, pas ici.
+documentent dans ses instructions d'agent (`CLAUDE.md`, règles) ou son README, pas ici.
 
 ---
 

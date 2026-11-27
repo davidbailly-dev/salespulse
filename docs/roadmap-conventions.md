@@ -1,10 +1,17 @@
+---
+paths:
+  - "docs/roadmap.md"
+  - "docs/milestones/**"
+---
+
 # Conventions de roadmap
 
 Règles de tenue de la roadmap : un plan de travail découpé en **jalons**, écrit avant le code et
 tenu à jour pendant le développement. La roadmap se compose d'un **index** (`docs/roadmap.md`) et
 d'**un fichier par jalon** (`docs/milestones/`). Ce fichier est **générique** : il peut être copié
 tel quel dans n'importe quel projet. Les spécificités d'un projet (commandes de validation, autres
-fichiers où vit la version…) se documentent dans son `CLAUDE.md` ou son README, pas ici.
+fichiers où vit la version…) se documentent dans ses instructions d'agent (`CLAUDE.md`, règles) ou
+son README, pas ici.
 
 ---
 

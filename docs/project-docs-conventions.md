@@ -1,3 +1,9 @@
+---
+paths:
+  - "docs/vision.md"
+  - "docs/stack.md"
+---
+
 # Documents de cadrage : vision et stack
 
 Règles de tenue de `docs/vision.md` (ce que le produit est et n'est pas) et de `docs/stack.md`
@@ -19,8 +25,8 @@ est **en aval** : elle dit quel outil y répond. Remplacer une bibliothèque cha
 la vision.
 
 Ils ne reprennent pas le contenu d'autres documents : le README décrit l'usage (voir
-`docs/readme.md`), la roadmap planifie le travail (voir `docs/roadmap-conventions.md`), le
-`CLAUDE.md` décrit l'architecture et les conventions de code.
+`docs/readme.md`), la roadmap planifie le travail (voir `docs/roadmap-conventions.md`), les
+instructions d'agent (`CLAUDE.md`, règles) décrivent l'architecture et les conventions de code.
 
 ---
 
@@ -125,4 +131,4 @@ ici ; le Bilan du jalon le signale.
   `(à confirmer)` et la faire valider par l'utilisateur.
 - Ne jamais nommer de bibliothèque dans `vision.md`.
 - Ne jamais ajouter de contenu propre à un projet dans ce fichier : le placer dans `vision.md`,
-  `stack.md` ou `CLAUDE.md`.
+  `stack.md` ou les instructions d'agent (`CLAUDE.md`, règles).

@@ -11,6 +11,7 @@ Aucun.
 
 ## Terminés
 
+- ✅ [012 — Instructions de l'agent allégées](milestones/012-agent-instructions.md) — non publié
 - ✅ [011 — Serveur API](milestones/011-api-server.md) — non publié
 - ✅ [010 — Modèle de données](milestones/010-data-model.md) — non publié
 - ✅ [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md) — non publié
@@ -45,7 +46,7 @@ Next.js seul : `apps/api` est testé par le CI, démarrage du serveur compris, s
     option (jalon 010, D28) ;
   - migrations rétrocompatibles (*expand / contract*) : l'ancienne version tourne sur le
     nouveau schéma, pour garder le rollback de Render possible ; convention à reporter dans
-    `CLAUDE.md` ;
+    `.claude/rules/api.md` ;
   - stratégie de tests : base jetable, tests d'isolation (P11), adapters de lecture testés contre
     une vraie PostgreSQL (jalon 010, D42), CI complété par une PostgreSQL de service et, en
     option, par une branche de base Neon par branche Git.
@@ -161,15 +162,6 @@ Next.js seul : `apps/api` est testé par le CI, démarrage du serveur compris, s
 
 Pistes relevées dans le code et les jalons, à valider et prioriser :
 
-- ⬜ **Instructions de l'agent allégées** : à traiter avant le jalon « Base de données ». Le
-  `CLAUDE.md` dépasse les 200 lignes que recommande la documentation de Claude Code (222 lignes
-  à la clôture du jalon 011), et ses sept imports de `docs/` sont chargés avec lui à chaque
-  session : environ 24 000 tokens d'instructions avant le premier message.
-  - Règles `.claude/rules/` filtrées par chemin (`paths:`), chargées seulement quand l'agent
-    travaille sur les fichiers concernés : `apps/api/**`, `apps/web/**`, `packages/contracts/**` ;
-  - conventions génériques chargées quand elles servent : README, `changelog.txt`, jalons ;
-  - `CLAUDE.md` réduit à ce que l'agent ne retrouve pas en lisant le dépôt : projet, commandes,
-    structure, résumé du workflow Git et de la relecture.
 - ⬜ **Paniers abandonnés réels** (jalon 010, D8) : entity distincte des commandes, fournie par
   les seuls connecteurs qui en disposent (`AbandonedCheckout` chez Shopify, paniers sans
   commande chez PrestaShop, rien dans le cœur de WooCommerce). D'ici là, l'indicateur « Paniers
@@ -199,8 +191,8 @@ Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
     GitHub Actions (rien ne tourne chez Render) ; d'abord une étape de réveil, l'instance
     gratuite mettant environ une minute à sortir de veille, puis l'attente de la nouvelle
     version, publiée par une balise `<meta>` du layout puis par `/health` (Serveur API) ;
-  - procédure de release dans `CLAUDE.md` : CI au vert, tag, smoke test au vert, rollback de
-    Render en cas d'échec.
+  - procédure de release dans `.claude/rules/release.md`, citée par le `CLAUDE.md` : CI au
+    vert, tag, smoke test au vert, rollback de Render en cas d'échec.
 - ⬜ **Alertes et notifications** : prévenir l'utilisateur quand un indicateur sort de sa plage
   habituelle.
 - ⬜ **Exports** : exporter les données ou les indicateurs affichés ; servirait aussi la

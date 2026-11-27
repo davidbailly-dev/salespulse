@@ -2,8 +2,8 @@
 
 Règles d'écriture des tests et du code. Ce fichier est **générique** : il peut être copié tel quel
 dans n'importe quel projet. Les spécificités d'un projet (outil de test, commande pour lancer un
-seul fichier, emplacement des fixtures, parties du code pas encore outillées…) se documentent
-dans son `CLAUDE.md` ou son README, pas ici.
+seul fichier, emplacement des fixtures, parties du code pas encore outillées…) se documentent dans
+ses instructions d'agent (`CLAUDE.md`, règles) ou son README, pas ici.
 
 ---
 

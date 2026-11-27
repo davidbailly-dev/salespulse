@@ -1,8 +1,13 @@
+---
+paths:
+  - "changelog.txt"
+---
+
 # Changelog
 
-Règles de tenue du journal des modifications `changelog.txt`. Ce fichier est **générique** : il
-peut être copié tel quel dans n'importe quel projet. Les spécificités d'un projet (fichiers qui
-portent la version, langue…) se documentent dans son `CLAUDE.md`, pas ici.
+Règles de tenue du journal des modifications `changelog.txt`. Ce fichier est **générique** : il peut
+être copié tel quel dans n'importe quel projet. Les spécificités d'un projet (fichiers qui portent
+la version, langue…) se documentent dans ses instructions d'agent (`CLAUDE.md`, règles), pas ici.
 
 ---
 

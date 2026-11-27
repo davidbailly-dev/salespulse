@@ -2,8 +2,8 @@
 
 Règles de gestion des branches, des versions et des livraisons. Ce fichier est **générique** : il
 peut être copié tel quel dans n'importe quel projet. Les spécificités d'un projet (fichiers qui
-portent la version, CI, environnements…) se documentent dans son `CLAUDE.md` ou son README, pas
-ici.
+portent la version, CI, environnements…) se documentent dans ses instructions d'agent (`CLAUDE.md`,
+règles) ou son README, pas ici.
 
 ---
 
@@ -68,7 +68,8 @@ Réglages de la plateforme d'hébergement que ce flux suppose :
     approuver sa propre pull request).
 
 Le nom des vérifications exigées et les autres réglages propres au projet (déploiement,
-environnements) se documentent dans son `CLAUDE.md` ou son README.
+environnements) se documentent dans ses instructions d'agent (`CLAUDE.md`, règles) ou son
+README.
 
 ## Versions et tags
 

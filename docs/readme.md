@@ -1,8 +1,13 @@
+---
+paths:
+  - "README.md"
+---
+
 # README
 
 Règles de tenue du `README.md`. Ce fichier est **générique** : il peut être copié tel quel dans
 n'importe quel projet. Les spécificités d'un projet (langue, captures d'écran, lien de démo…) se
-documentent dans son `CLAUDE.md`, pas ici.
+documentent dans ses instructions d'agent (`CLAUDE.md`, règles), pas ici.
 
 ---
 
@@ -15,7 +20,7 @@ Il ne s'adresse ni aux contributeurs ni à l'agent IA. Ce qui les concerne vit a
 
 | Sujet                                              | Emplacement                       |
 | -------------------------------------------------- | --------------------------------- |
-| Architecture, conventions de code, workflow Git, TDD | `CLAUDE.md` et `docs/`          |
+| Architecture, conventions de code, workflow Git, TDD | instructions d'agent (`CLAUDE.md`, règles) et `docs/` |
 | Plan de travail, jalons                            | `docs/roadmap.md`, `docs/milestones/` |
 | Historique des versions                            | `changelog.txt` (voir `docs/changelog.md`) |
 
@@ -70,6 +75,6 @@ changement s'il reste petit, sinon dans un commit `docs:` dédié juste après.
   les changements de la branche.
 - Signaler dans le compte rendu que le README a été mis à jour, ou qu'il n'avait pas besoin de
   l'être et pourquoi en cas de doute.
-- Ne jamais y ajouter de contenu destiné aux contributeurs ou à l'agent : le placer dans
-  `CLAUDE.md` ou `docs/`.
+- Ne jamais y ajouter de contenu destiné aux contributeurs ou à l'agent : le placer dans les
+  instructions d'agent (`CLAUDE.md`, règles) ou `docs/`.
 - Une capture d'écran devenue fausse se signale à l'utilisateur plutôt que d'être supprimée.
