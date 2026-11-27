@@ -1,6 +1,6 @@
 import express from 'express';
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { captureLogs } from '../testing/logCapture';
 import { createLogger } from './logger';
@@ -69,6 +69,24 @@ describe('requestLogging', () => {
         const second = await request(app).get('/orders');
 
         expect(first.headers['x-request-id']).not.toBe(second.headers['x-request-id']);
+    });
+
+    it('journalise au niveau warn une requête abandonnée par le client, pas comme un 200', async () => {
+        const { destination, lines } = captureLogs();
+        const app = express();
+        app.use(requestLogging(createLogger('info', destination)));
+        app.get('/slow', (_req, res) => {
+            setTimeout(() => res.end('trop tard'), 300);
+        });
+
+        await request(app)
+            .get('/slow')
+            .timeout(50)
+            .catch(() => undefined);
+
+        await vi.waitFor(() => expect(lines).toHaveLength(1));
+        expect(lines[0].level).toBe(40);
+        expect(lines[0].msg).toBe('request aborted');
     });
 
     it('ignore l’identifiant envoyé par le client, qui pourrait brouiller le journal', async () => {

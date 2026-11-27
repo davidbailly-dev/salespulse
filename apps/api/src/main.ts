@@ -46,7 +46,11 @@ async function main(): Promise<void> {
     server.on('request', createApp({ version, logger, fallback: (req, res) => handle(req, res) }));
     await new Promise<void>((resolve, reject) => {
         server.once('error', reject);
-        server.listen(config.port, resolve);
+        server.listen(config.port, () => {
+            // Retiré une fois à l'écoute : il avalerait sans trace les erreurs suivantes.
+            server.off('error', reject);
+            resolve();
+        });
     });
     logger.info({ port: config.port, version, nodeEnv: config.nodeEnv }, 'serveur démarré');
 

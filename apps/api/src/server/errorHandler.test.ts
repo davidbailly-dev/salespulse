@@ -54,6 +54,9 @@ describe('errorHandler', () => {
     it('journalise aussi l’erreur d’une réponse déjà commencée, sans y ajouter de JSON', async () => {
         const { destination, lines } = captureLogs();
         const app = express();
+        // Hors de l'environnement test, Express écrirait la pile en texte sur stderr.
+        app.set('env', 'production');
+        const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
         app.use(requestLogging(createLogger('info', destination)));
         app.get('/partial', (_req, res) => {
             res.status(200).write('début');
@@ -75,6 +78,9 @@ describe('errorHandler', () => {
         expect(lines[0].err).toEqual(
             expect.objectContaining({ message: 'échec en cours de réponse' }),
         );
+        // L'erreur n'existe que sur la ligne JSON, pas une seconde fois en texte.
+        expect(consoleError).not.toHaveBeenCalled();
+        consoleError.mockRestore();
     });
 
     it('traite de même une valeur levée qui n’est pas une Error', async () => {

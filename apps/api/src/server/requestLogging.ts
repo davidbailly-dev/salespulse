@@ -19,9 +19,16 @@ export function requestLogging(logger: Logger): RequestHandler {
             return id;
         },
         // pino-http écrit au niveau info même une requête en erreur : sans cette règle, un
-        // LOG_LEVEL=error masquerait les 500.
-        customLogLevel: (_req, res, error) =>
-            error || res.err || res.statusCode >= 500 ? 'error' : 'info',
+        // LOG_LEVEL=error masquerait les 500. Une requête abandonnée par le client (réponse
+        // jamais terminée) garderait le statut 200 par défaut : elle passe en warn.
+        customLogLevel: (_req, res, error) => {
+            if (error || res.err || res.statusCode >= 500) {
+                return 'error';
+            }
+            return res.writableFinished ? 'info' : 'warn';
+        },
+        customSuccessMessage: (_req, res) =>
+            res.writableFinished ? 'request completed' : 'request aborted',
         serializers: {
             req: (req: { id: string; method: string; url: string }) => ({
                 id: req.id,
