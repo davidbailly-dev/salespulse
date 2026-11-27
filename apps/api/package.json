@@ -9,8 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "dev:server": "tsx watch --clear-screen=false src/main.ts | pino-pretty",
-    "start:server": "NODE_ENV=production tsx src/main.ts"
+    "dev:server": "tsx watch --clear-screen=false --exclude '../web/**' src/main.ts | pino-pretty",
+    "start:server": "NODE_ENV=production node --import tsx src/main.ts"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

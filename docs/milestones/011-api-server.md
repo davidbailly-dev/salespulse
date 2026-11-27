@@ -116,6 +116,18 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
     (port libre, fermeture, connexions keep-alive) ; dépendance de développement seulement.
   - Alternative écartée : `fetch` natif de Node 24 et un helper maison (`app.listen(0)`, lecture
     du port, fermeture), sans dépendance, mais avec ce cycle de vie à écrire et à maintenir.
+- **D12 (2026-11-27) — remplace D4 pour `start:server` : `tsx` en loader, `node --import tsx`** :
+  `start:server` lance `node --import tsx src/main.ts`, un seul processus ; `dev:server` garde
+  `tsx watch`. `tsx` reste l'outil qui exécute TypeScript (D4), seule sa forme change en
+  production.
+  - Raison : la commande `tsx` lance le script dans un processus enfant et lui relaie les
+    signaux ; si l'enfant n'en accuse pas réception en 30 ms, deux fois, elle le tue par
+    `SIGKILL`. Pendant un rendu de Next.js, la boucle d'événements est occupée plus longtemps :
+    un `SIGTERM` pendant une requête coupait la réponse (statut `000` côté client, code 143) sans
+    que l'arrêt propre (D9) ne s'exécute. Avec le loader, le signal arrive directement au
+    processus du serveur.
+  - `tsx watch` garde le relais, mais avec 5 secondes de délai avant `SIGKILL` : suffisant en
+    développement.
 
 ## Phase A — Paquet et outillage ✅ (relecture légère)
 
@@ -154,22 +166,22 @@ Tests par `supertest` sur `createApp`, sans port fixe ni Next.js (D11).
   désactive `X-Powered-By`, délègue au repli toute requête non prise (y compris sous `/api`),
   et répond 404 JSON sans repli (D1, D2).
 
-## Phase D — Serveur unique ⬜ (relecture standard)
+## Phase D — Serveur unique ✅ (relecture standard)
 
 `main.ts` est un branchement, gardé aussi fin que possible (`docs/tdd.md`, « Code difficile à
 tester »), et vérifié par le CI (D10) et à la main.
 
-- [ ] `apps/api/src/main.ts` : configuration et version, logger, Next.js préparé sur
+- [x] `apps/api/src/main.ts` : configuration et version, logger, Next.js préparé sur
   `apps/web` (mode développement selon `NODE_ENV`), `createApp` avec Next.js en repli, écoute
   du port, arrêt propre à `SIGTERM` et `SIGINT` (D1, D9) ; configuration invalide : journal et
   code de sortie 1 (D6).
-- [ ] `.github/workflows/ci.yml` : étape de démarrage après le build, qui attend `/health` et
+- [x] `.github/workflows/ci.yml` : étape de démarrage après le build, qui attend `/health` et
   vérifie la version (D10) ; le job garde son nom `checks`.
-- [ ] Vérification à la main, sortie notée au Journal : `npm run build` puis
+- [x] Vérification à la main, sortie notée au Journal : `npm run build` puis
   `npm run start:server` ; le dashboard s'affiche, `/api/orders` répond (Next.js),
   `/health` renvoie la version, les journaux sont en JSON, le jeu de données mocké est généré au
   démarrage (`instrumentation.ts`), et `SIGTERM` arrête le serveur proprement.
-- [ ] Même vérification avec `npm run dev:server` (rechargement de l'interface compris).
+- [x] Même vérification avec `npm run dev:server` (rechargement de l'interface compris).
 
 ## Phase E — Documentation ⬜ (relecture légère)
 
@@ -229,6 +241,44 @@ tester »), et vérifié par le CI (D10) et à la main.
 - 2026-11-27 : point pour le jalon « Déploiement du socle » : le health check de Render
   appellera `/health` toutes les quelques secondes, soit autant de lignes de journal ; à
   mesurer avant de choisir de les filtrer (`autoLogging.ignore` de `pino-http`).
+- 2026-11-27 : `main.ts` crée le serveur HTTP avant Next.js et le lui passe (`httpServer`) :
+  Next y branche lui-même les WebSockets du rechargement à chaud, dont le chemin est
+  `/_next/hmr` en Next 16 (et non plus `/_next/webpack-hmr`). Toute erreur de démarrage
+  (configuration, version, Next.js, port occupé) donne une ligne `fatal` et le code de sortie 1 ;
+  une configuration invalide nomme ses variables (`"variables":["PORT","LOG_LEVEL"]`), sans les
+  valeurs.
+- 2026-11-27 : vérification à la main de `start:server` après `npm run build` (port 3100) :
+  `/health` renvoie `200`, `{"status":"ok","version":"0.3.3"}`, `X-Request-Id` et
+  `Cache-Control: no-store`, sans `X-Powered-By` ; `/` redirige vers `/dashboard` (307), qui
+  répond 200 ; `/api/orders` et `/api/shops` répondent (Next.js) ; journaux en JSON, une ligne
+  par requête, chemin sans query string (`/api/orders?…&token=s3cr3t` journalisé
+  `/api/orders`) ; jeu de données mocké généré au démarrage (`[mock-data]`, en texte, D5).
+- 2026-11-27 : arrêt par `SIGTERM` envoyé au processus `npm` de tête, comme le fera Render :
+  avec la commande `tsx`, une requête en cours sur `/dashboard/sales` était coupée (voir D12).
+  Avec `node --import tsx`, la requête en cours se termine (200), puis « arrêt demandé » et
+  « serveur arrêté », code 0, aucun processus restant ; vérifié deux fois, ainsi qu'après une
+  page servie et après `/health` seul.
+- 2026-11-27 : vérification de `dev:server` (port 3100) : journaux mis en forme par
+  `pino-pretty` ; dashboard 200 ; poignée de main WebSocket sur `/_next/hmr` : `101`, comme avec
+  `next dev` seul ; une modification d'`apps/api` redémarre le serveur ; Ctrl+C (`SIGINT` au
+  groupe de processus) l'arrête en 0,1 s, sans processus restant. Next.js écrit en
+  développement sa propre ligne par requête, query string comprise : propre au mode
+  développement, Next ne journalise pas les requêtes en production.
+- 2026-11-27 : étape « Démarrage du serveur » du CI rejouée en local avec `bash -eo pipefail` :
+  succès, puis échec attendu avec une version attendue différente. Elle vérifie aussi l'arrêt par
+  `SIGTERM` (code 0), donc le chemin du signal à travers `npm` et `sh` sous Ubuntu (`dash`),
+  comme sous Render. Pour le jalon « Déploiement du socle » : garder une commande de démarrage
+  qui transmet le signal au processus du serveur (pas de `tsx` en ligne de commande, D12).
+- 2026-11-27 : rechargement de l'interface vérifié dans Chrome, sous `dev:server` : un titre de
+  carte modifié puis restauré dans `app/dashboard/page.tsx` s'affiche sans rechargement complet
+  (un marqueur posé dans `window` survit). Ce test a révélé une boucle de redémarrages :
+  `tsx watch` surveille tous les fichiers chargés par le processus, y compris ceux que Next.js
+  génère dans `apps/web/.next/` (`instrumentation.js`, chunks serveur) ; dès la première
+  recompilation, Next les réécrit, `tsx` redémarre le serveur, Next les réécrit au démarrage, et
+  ainsi de suite (35 redémarrages en une trentaine de secondes). La vérification précédente ne
+  l'avait pas vu : aucune page n'y était modifiée. Correctif : `dev:server` exclut `../web/**`
+  de la surveillance, l'interface étant rechargée par Next.js lui-même ; une modification
+  d'`apps/api` redémarre toujours le serveur, une seule fois.
 
 ## Workflow Git
 
