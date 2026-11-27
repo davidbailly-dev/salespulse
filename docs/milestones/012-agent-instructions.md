@@ -100,18 +100,22 @@ perdue en route.
   relecture légère d'après `CLAUDE.md` ; mais une consigne perdue (confirmation avant commit,
   TDD) coûte cher. Point d'arrêt en fin de phase C : l'utilisateur relit le nouveau `CLAUDE.md`
   et la table de correspondance (phase D).
+- **D10 (2026-11-27) — Complète D2 : `package.json` racine dans `api.md`** : `api.md` se charge
+  aussi avec le `package.json` racine (glob `/package.json`, la racine seule), qui porte les
+  scripts `dev:server` et `start:server` décrits par « Serveur unique ». À vérifier en phase D,
+  comme le glob ancré à la racine.
 
-## Phase A — Règles par paquet ⬜ (relecture légère)
+## Phase A — Règles par paquet ✅ (relecture légère)
 
-- [ ] `.claude/rules/api.md` : `paths:` `apps/api/**` et `eslint.config.mjs` ; reprend
-      « Backend (`apps/api/`) », « Serveur unique », les tests d'`apps/api` (commande, couverture,
-      spécificités de TDD) et la règle d'imports.
-- [ ] `.claude/rules/web.md` : `paths:` `apps/web/**` ; reprend « Interface (`apps/web/`) »,
+- [x] `.claude/rules/api.md` : `paths:` `apps/api/**`, `eslint.config.mjs` et `/package.json`
+      (D10) ; reprend « Backend (`apps/api/`) », « Serveur unique », les tests d'`apps/api`
+      (commande, couverture, spécificités de TDD) et la règle d'imports.
+- [x] `.claude/rules/web.md` : `paths:` `apps/web/**` ; reprend « Interface (`apps/web/`) »,
       les tests d'`apps/web` (projects `unit` et `dom`, builders, doubles de test, routes API),
       `agentRules: false` et `transpilePackages`.
-- [ ] `.claude/rules/contracts.md` : `paths:` `packages/contracts/**` ; reprend « Contrat entre
+- [x] `.claude/rules/contracts.md` : `paths:` `packages/contracts/**` ; reprend « Contrat entre
       l'API et l'interface » et l'indépendance du paquet (Zod seul, ni React, ni Next, ni Faker).
-- [ ] `CLAUDE.md` : sections déplacées retirées dans le même commit, sans doublon.
+- [x] `CLAUDE.md` : sections déplacées retirées dans le même commit, sans doublon.
 
 ## Phase B — Conventions chargées par leurs fichiers ⬜ (relecture légère)
 
@@ -144,6 +148,8 @@ perdue en route.
 ## Journal
 
 - 2026-11-27 : plan rédigé.
+- 2026-11-27 : phase A faite. Les sections déplacées sont reprises mot pour mot, titres mis à part ;
+  le `CLAUDE.md` passe de 222 à 137 lignes.
 
 ## Workflow Git
 
