@@ -1,4 +1,4 @@
-# Jalon 011 — Serveur API 🔄
+# Jalon 011 — Serveur API ✅
 
 Branche : `feature/api-server` (depuis `develop`). Livré dans : —
 
@@ -192,8 +192,10 @@ tester »), et vérifié par le CI (D10) et à la main.
 - [x] `docs/stack.md` : Express passe de « prévu » à « en place, pas encore déployé ».
 - [x] `docs/roadmap.md` : « Déploiement du socle » reprend le passage de `start` et de Render
   au serveur unique (D8).
-- [ ] README inchangé : le serveur unique n'est pas encore ce que l'utilisateur lance ni ce que
-  la démo sert. À relire à la clôture.
+- [x] README inchangé : le serveur unique n'est pas encore ce que l'utilisateur lance ni ce que
+  la démo sert. À relire à la clôture. Relu : usage inchangé, mais badge Express ajouté à la
+  stack technique, `docs/stack.md` voulant qu'un badge rejoigne le README quand la technologie
+  est dans le code (validé par l'utilisateur).
 
 ## Journal
 
@@ -309,4 +311,57 @@ seuils de `CLAUDE.md`.
 
 ## Bilan
 
-<Rempli à la clôture.>
+**Fait.** `apps/api` démarre un serveur Express qui sert `/health` et délègue tout le reste à
+Next.js, dans un seul processus (`npm run start:server` après le build, `npm run dev:server` en
+développement). La configuration (`PORT`, `NODE_ENV`, `LOG_LEVEL`) est validée au démarrage, les
+journaux sont des lignes JSON (une par requête, sans query string ni en-tête), une erreur non
+gérée donne un 500 JSON générique, et `SIGTERM` arrête le serveur après les requêtes en cours.
+Le CI démarre le serveur sur le build, vérifie la version renvoyée par `/health`, puis son arrêt.
+Render lance toujours Next.js seul.
+
+**Chiffres.**
+
+- Tests : 177 dans `apps/api` (109 à l'ouverture du jalon, 68 ajoutés : 42 pour la configuration
+  et la version, 26 pour l'application Express), 685 dans `apps/web`, inchangés.
+- Couverture d'`apps/api/src/server/` : 100 % des lignes, 88 % des branches (non couverts :
+  `createLogger` sans destination et le cas `String(error)` de `readVersion`, inatteignable).
+  `main.ts` n'est pas couvert par les tests unitaires, comme prévu (D10) : vérifié par le CI et
+  à la main.
+- Taille : 383 lignes de code de production (270 hors lignes vides et commentaires), 429 lignes
+  de tests et de helpers, 28 lignes de CI. Chaque commit reste sous les 300 lignes de production,
+  mais la pull request atteint environ 840 lignes, au-dessus du seuil indicatif de 800 :
+  l'estimation (250 + 350) sous-comptait les commentaires et les tests ajoutés en cours de route.
+
+**Écarts avec le plan.**
+
+- D11 : `supertest` justifié après coup, à la demande de l'utilisateur ; assertions de Vitest
+  seulement.
+- D12 remplace D4 pour `start:server` : `node --import tsx` au lieu de la commande `tsx`, dont le
+  relais des signaux tuait le serveur par `SIGKILL` pendant une requête.
+- `dev:server` exclut `apps/web` de la surveillance de `tsx watch`, sans quoi les fichiers
+  générés par Next.js le relançaient en boucle ; trouvé par la vérification dans Chrome.
+- `errorHandler` : erreur perdue sur une réponse déjà commencée, révélée par la couverture et
+  corrigée après un test rouge.
+- `pino-http` journalisait les requêtes en erreur au niveau `info` : `customLogLevel` ajouté.
+- `loadConfig` refuse une variable vide, et `version.ts` impose le format SemVer, deux précisions
+  validées par l'utilisateur.
+- L'étape du CI vérifie aussi l'arrêt par `SIGTERM`, au-delà de D10.
+
+**Vérifications réellement faites.** `npm run lint`, `npm run typecheck`, `npm test` et
+`npm run build` sans erreur en local à chaque commit. `start:server` et `dev:server` vérifiés à
+la main (détail au Journal) : `/health`, dashboard, routes de démonstration, journaux JSON sans
+query string, configuration invalide (code 1, variables nommées sans leurs valeurs), arrêt par
+`SIGTERM` pendant une requête, WebSocket du rechargement à chaud, rechargement de l'interface
+dans Chrome. Étape du CI rejouée en local, succès puis échec attendu. Reste à voir : `checks` au
+vert sur la pull request, étape de démarrage comprise.
+
+**Reporté.** Au jalon « Déploiement du socle » (repris dans `docs/roadmap.md`) : passage de
+Render au serveur unique avec une commande qui transmet `SIGTERM` (D12), health check à
+confirmer dans l'interface de Render, volume des journaux de `/health` à mesurer. Au jalon
+« Authentification » : masquage de `set-cookie`, statut des erreurs 4xx portées par les
+erreurs d'Express. Nouvelle piste à l'index : « Instructions de l'agent allégées ».
+
+**Documentation durable.** `CLAUDE.md` (commandes, serveur unique, structure d'`apps/api`, CI),
+`docs/domain-model.md` (composition root et point d'entrée, D1 ; dossier `server/`, D3),
+`docs/stack.md` (Express en place). README : usage inchangé, badge Express ajouté à la stack
+technique (règle de `docs/stack.md`).
