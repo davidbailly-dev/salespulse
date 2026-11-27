@@ -57,10 +57,12 @@ L'architecture de chaque paquet et les conventions liées à un fichier sont dan
 | `readme.md`, `conventions/readme.md`      | `README.md`                                          |
 | `release.md`, `conventions/changelog.md`  | `changelog.txt`, `package.json` racine, `docs/roadmap.md` (`release.md`) |
 | `roadmap.md`, `conventions/roadmap-conventions.md` | `docs/roadmap.md`, `docs/milestones/**`     |
-| `conventions/project-docs-conventions.md` | `docs/vision.md`, `docs/stack.md`, `**/package.json` |
+| `conventions/project-docs-conventions.md` | `docs/vision.md`, `docs/stack.md`                    |
 | `ci.md`                                   | `.github/**`, `render.yaml`                          |
 
 Les fichiers de `conventions/` sont des liens symboliques vers les conventions génériques de `docs/`, qui portent elles-mêmes leur en-tête `paths:`. Une consigne propre à un paquet ou à un fichier s'ajoute dans sa règle, pas ici.
+
+Seuls Read, Write, Edit et un `cat` ou `head` sur un fichier chargent une règle : un Grep, un `sed -i` ou un heredoc n'en chargent aucune. Avant de modifier un fichier par le shell, le lire d'abord avec Read pour charger sa règle.
 
 ## Workflow Git
 
@@ -72,13 +74,13 @@ GitFlow (`docs/gitflow.md`, à lire avant d'ouvrir ou de merger une pull request
 - Confirmation explicite de l'utilisateur avant chaque commit, push, ouverture de pull request ou passage en « prête », merge, tag et suppression de branche.
 - Merge par pull request seulement, une fois le job `checks` du CI au vert (vérification exigée par le ruleset GitHub), avec un commit de merge et le message par défaut de git (`--subject`, `--body ""`).
 - Jamais : merger `main` ou `develop` en local, contourner une protection (`gh pr merge --admin`), réécrire l'historique d'une branche partagée (`rebase`, `reset`, `push --force`).
-- Une release seulement pour un changement visible de l'utilisateur ; son commit de passage de version ajoute l'entrée de `changelog.txt`.
+- Une release seulement pour un changement visible de l'utilisateur. Avant le passage de version, lire `.claude/rules/release.md` : fichiers qui portent la version, `npm version X.Y.Z --no-git-tag-version` (sans l'option, npm commite et pose le tag lui-même), entrée de `changelog.txt` dans le même commit.
 
 ## Documentation
 
-- Après tout changement de comportement visible, vérifier si le `README.md` le décrit et le mettre à jour sans attendre qu'on le demande.
+- Après tout changement de comportement visible, vérifier si le `README.md` le décrit et le mettre à jour sans attendre qu'on le demande ; signaler à l'utilisateur quand la capture du Dashboard (`assets/screenshot-dashboard.png`) ne correspond plus à l'interface. Avant de proposer un merge ou de clore un jalon, relire le README contre les changements de la branche, et dire dans le compte rendu s'il a été mis à jour ou pourquoi il n'en avait pas besoin.
 - Les développements sont planifiés en jalons (`docs/milestones/`, indexés par `docs/roadmap.md`). Avant de reprendre un travail, lire le jalon 🔄 de l'index ; avant d'en démarrer un, rédiger son fichier et le faire valider ; tenir ses cases et son Journal à jour dans les commits de travail.
-- Avant d'ajouter, de remplacer ou de retirer une dépendance structurante : lire `docs/stack.md`, même quand la dépendance s'installe par `npm install` sans ouvrir de `package.json`.
+- Avant d'ajouter, de remplacer ou de retirer une dépendance structurante : lire `docs/stack.md` avec Read, ce qui charge aussi sa convention (`docs/project-docs-conventions.md`).
 
 ## Conventions de développement
 

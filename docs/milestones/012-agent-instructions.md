@@ -104,6 +104,13 @@ perdue en route.
   aussi avec le `package.json` racine (glob `/package.json`, la racine seule), qui porte les
   scripts `dev:server` et `start:server` décrits par « Serveur unique ». À vérifier en phase D,
   comme le glob ancré à la racine.
+- **D11 (2026-11-27) — Remplace D3 pour `docs/project-docs-conventions.md` : sans
+  `**/package.json`** : l'en-tête de la convention ne garde que `docs/vision.md` et
+  `docs/stack.md` ; le `CLAUDE.md` demande de lire `docs/stack.md` avec Read avant de toucher à une
+  dépendance, ce qui charge la convention.
+  - Raisons : `**/package.json` est propre à npm, dans une convention qui se veut copiable dans
+    tout projet (même raison que D5 pour `tdd.md`) ; et un `npm install` modifie le
+    `package.json` sans le lire, donc sans charger la règle (revue de code).
 
 ## Phase A — Règles par paquet ✅ (relecture légère)
 
@@ -169,6 +176,18 @@ perdue en route.
   `package.json` racine, l'a tranché. Le journal du hook donne pour chaque chargement la règle,
   ses globs et le fichier déclencheur (`trigger_file_path`), et pour un lien symbolique le chemin
   de sa cible dans `docs/`.
+- 2026-11-27 : `/code-review` sur la pull request : pas de bug, cinq constats corrigés.
+  - Consignes qui s'appliquent avant d'ouvrir leur fichier, remontées dans le `CLAUDE.md` :
+    capture du Dashboard devenue fausse, relecture du README avant un merge ou une clôture de
+    jalon, mention du README dans le compte rendu ; renvoi à `release.md` et
+    `npm version X.Y.Z --no-git-tag-version` avant un passage de version (sans l'option, npm
+    commite et pose le tag lui-même).
+  - Limite écrite dans le `CLAUDE.md` : un Grep, un `sed -i` ou un heredoc ne chargent aucune
+    règle ; lire le fichier avec Read avant de le modifier par le shell.
+  - Renvois au seul `CLAUDE.md` alignés sur D8 dans `docs/readme.md` et
+    `docs/project-docs-conventions.md` ; la roadmap vise `api.md` pour la convention des
+    migrations et `release.md` pour la procédure de release.
+  - D11 : `**/package.json` retiré de l'en-tête de `docs/project-docs-conventions.md`.
 
 ## Workflow Git
 
@@ -196,17 +215,17 @@ pour ce jalon. Documentation seulement, hors des seuils de lignes.
 
 ## Bilan
 
-**Fait.** Au démarrage d'une session, l'agent charge le `CLAUDE.md` (113 lignes au lieu de 222),
-`docs/tdd.md` et `docs/commits.md` : 16 557 caractères au lieu de 60 665, soit environ
-6 400 tokens d'instructions du projet d'après `/context all` (4 000 pour le `CLAUDE.md`, 1 100
-pour `commits.md`, 1 300 pour `tdd.md`). Le reste vit dans `.claude/rules/` et se charge avec les
+**Fait.** Au démarrage d'une session, l'agent charge le `CLAUDE.md` (115 lignes au lieu de 222),
+`docs/tdd.md` et `docs/commits.md` : 17 280 caractères au lieu de 60 665, soit environ
+6 400 tokens d'instructions du projet d'après `/context all` avant les correctifs de la revue
+(4 000 pour le `CLAUDE.md`, 1 100 pour `commits.md`, 1 300 pour `tdd.md`). Le reste vit dans `.claude/rules/` et se charge avec les
 fichiers concernés :
 
 - trois règles par paquet (`api.md`, `web.md`, `contracts.md`), reprises mot pour mot du
   `CLAUDE.md` ;
 - quatre règles du projet (`readme.md`, `release.md`, `roadmap.md`, `ci.md`) ;
 - quatre conventions génériques de `docs/`, chargées par un lien symbolique et leur propre en-tête
-  `paths:`.
+  `paths:` (D3, D11).
 
 **Vérifications réellement faites.**
 
@@ -214,8 +233,8 @@ fichiers concernés :
   `docs/tdd.md` et `MEMORY.md`, aucune règle.
 - Hook `InstructionsLoaded` : chaque règle s'est chargée sur le fichier attendu, aucune au
   démarrage ; les liens symboliques sont suivis avec leur `paths:` (D3) ; `/package.json` vise la
-  racine seule (D10) : `apps/web/package.json` charge `web.md` et la convention vision et stack,
-  le `package.json` racine charge `api.md` et `release.md`.
+  racine seule (D10) : `apps/web/package.json` charge `web.md` et la convention vision et stack
+  (glob retiré depuis par D11), le `package.json` racine charge `api.md` et `release.md`.
 - Table de correspondance de chaque section de l'ancien `CLAUDE.md`, relue par l'utilisateur au
   point d'arrêt de la phase C et reprise dans la pull request ; vérification par script, aux
   phases A et B, que chaque ligne retirée du `CLAUDE.md` se retrouve dans une règle.
@@ -228,8 +247,11 @@ fichiers concernés :
   unique.
 - Le skill `security-audit` lit aussi `.claude/rules/` : sans cela, il ne voyait plus les règles
   d'`apps/api` et du contrat, zones de relecture critique.
-- Trois consignes dont la convention se charge par un fichier restent aussi dans le `CLAUDE.md`,
-  parce qu'elles s'appliquent avant de l'ouvrir (Journal de la phase C).
+- Des consignes dont la convention se charge par un fichier restent aussi dans le `CLAUDE.md`,
+  parce qu'elles s'appliquent avant de l'ouvrir (Journal de la phase C, complété après la revue
+  de code).
+- D11 : la convention vision et stack ne se charge plus avec les `package.json`.
+- `/code-review` : cinq constats, tous corrigés (Journal).
 
 **Documentation durable.** La règle de rangement des consignes (ce qui sert à chaque session dans
 le `CLAUDE.md`, ce qui tient à un paquet ou à un fichier dans `.claude/rules/`) est écrite dans la
