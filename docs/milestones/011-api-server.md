@@ -1,0 +1,406 @@
+# Jalon 011 — Serveur API ✅
+
+Branche : `feature/api-server` (depuis `develop`). Livré dans : —
+
+## Objectif
+
+`apps/api` démarre un serveur Express qui sert l'API et délègue le reste à Next.js, dans un seul
+processus (jalon 007, D22). Sa configuration est validée au démarrage, il écrit des journaux
+JSON, et `/health` renvoie la version déployée. Le serveur se lance en local et dans le CI, mais
+Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle ».
+
+## Contexte
+
+- Le jalon 010 a posé le cœur hexagonal d'`apps/api` (value objects du shared kernel et de
+  Ventes), sans serveur ni base. Il a laissé à ce jalon le nom du composition root et
+  l'emplacement du point d'entrée (jalon 010, D19).
+- Le jalon 007 a fixé le service unique de la phase gratuite (D22) : une application Express,
+  exportée par `apps/api`, monte les routes de l'API et délègue le reste à Next.js en serveur
+  personnalisé. Il a aussi fixé l'observabilité (D24) : journaux JSON avec un identifiant par
+  requête et sans donnée personnelle, et un `/health` qui sert de health check à Render.
+- La piste « Tests de bout en bout et vérification après déploiement » attend de `/health` la
+  version déployée, pour savoir quand la nouvelle release est en ligne.
+- Aujourd'hui, Next.js sert seul l'interface et les routes de démonstration (`/api/orders`,
+  `/api/analytics/...`), qui restent en place jusqu'au jalon « Indicateurs côté serveur ».
+- `apps/api` est en TypeScript source, avec des imports sans extension (`moduleResolution:
+  bundler`), comme `@salespulse/contracts` : Node ne peut pas l'exécuter tel quel.
+
+## Décisions
+
+- **D1 (2026-11-26) — Composition root `src/app.ts`, point d'entrée `src/main.ts`** :
+  `apps/api/src/app.ts` exporte `createApp(deps)`, qui instancie les middlewares et monte les
+  routes. Ses dépendances (configuration, logger, gestionnaire de repli) sont reçues en
+  paramètre. `apps/api/src/main.ts` est le seul module qui a des effets : il lit la
+  configuration, crée le logger, prépare Next.js, appelle `createApp` et écoute le port.
+  - Raisons : `createApp` se teste sans réseau ni Next.js ; au passage en plan payant, seul
+    `main.ts` change (D22), en ne passant plus Next.js comme repli.
+  - Alternative écartée : un point d'entrée dans `apps/web` ou dans une troisième app, qui
+    importerait `apps/api` alors qu'une app n'en importe jamais une autre.
+- **D2 (2026-11-26) — Next.js en repli, sans partage de préfixe** : `createApp` reçoit un
+  gestionnaire de repli optionnel, appelé pour toute requête qu'aucune route Express ne prend.
+  `main.ts` y passe le gestionnaire de Next.js ; sans repli, la requête reçoit un 404 JSON.
+  - Les routes de démonstration de Next.js sous `/api` continuent de fonctionner : Express ne
+    répond pas 404 sous `/api`, il passe la main. Les futures routes Express sous `/api` ne
+    devront pas reprendre leurs chemins tant qu'elles existent.
+  - Les en-têtes posés par Express (identifiant de requête, en-têtes de sécurité plus tard)
+    le sont avant l'appel à Next.js, qui commence la réponse dès qu'il la reçoit (documentation
+    du serveur personnalisé de Next 16).
+- **D3 (2026-11-26) — Dossier `src/server/` pour l'infrastructure transverse** :
+  configuration, logger, middlewares communs et route `/health` vivent dans
+  `apps/api/src/server/`, qui n'est pas un bounded context et n'en importe aucun. La règle
+  d'imports d'ESLint n'est pas modifiée : `server/` n'a ni `domain/` ni `application/`.
+- **D4 (2026-11-26) — Exécution de TypeScript par `tsx`** : `main.ts` est lancé par `tsx`, en
+  dépendance d'exécution d'`apps/api`, sans étape de build.
+  - Raisons : il exécute aussi `@salespulse/contracts` en source, sans toucher aux imports ;
+    un seul outil pour le lancement et le mode watch.
+  - Alternatives écartées : le retrait des types natif de Node 24, qui demande d'ajouter
+    l'extension `.ts` à tous les imports d'`apps/api` et de `@salespulse/contracts` ; un bundle
+    esbuild, une étape de build de plus pour un démarrage à peine plus rapide.
+  - Pas d'entrée dans `docs/stack.md` : lanceur interchangeable sans toucher au code.
+- **D5 (2026-11-26) — Express 5, journaux par pino** : Express 5, version stable actuelle.
+  Journaux JSON par `pino` et `pino-http`, une ligne par requête : identifiant de requête,
+  méthode, chemin **sans query string**, statut, durée. Liste de masquage (`redact`) dès
+  maintenant : en-têtes `authorization` et `cookie`.
+  - Raisons : la query string portera des jetons (liens de réinitialisation, D21 du
+    jalon 007) ; l'identifiant de requête est renvoyé dans l'en-tête `X-Request-Id` pour
+    relier une erreur signalée à sa ligne de journal.
+  - Raisons du choix de pino (validé par l'utilisateur) : il fait par défaut ce que demande
+    D24 du jalon 007, sans configuration : sortie JSON, niveaux filtrés par `LOG_LEVEL`,
+    loggers enfants qui portent l'identifiant de requête (puis l'organisation) sur toutes les
+    lignes, sérialisation des erreurs, et masquage par chemins déjà éprouvé, la partie où une
+    erreur ferait fuir un secret (P15, P16). `pino-http` fournit la ligne par requête. Sa
+    vitesse, son argument habituel, n'est pas un besoin du projet.
+  - Alternatives écartées : winston, pensé pour plusieurs destinations alors que Render lit la
+    sortie standard, et dont JSON et masquage demandent de la configuration ; un logger maison
+    (`console.log(JSON.stringify(…))`), sans dépendance mais dont le masquage, les loggers
+    enfants et la sérialisation des erreurs seraient à écrire et à tester, et à relire en
+    niveau critique ; bunyan, qui n'évolue plus ; consola, conçu pour les outils en ligne de
+    commande.
+  - `pino-pretty` en dépendance de développement, pour des journaux lisibles avec
+    `dev:server` ; JSON brut partout ailleurs.
+  - Les journaux de Next.js (`console.log` de `instrumentation.ts`) restent en texte : ils
+    disparaîtront avec le store mocké.
+  - Pas d'entrée dans `docs/stack.md` pour `pino` : utilitaire interchangeable, cantonné à
+    `src/server/`.
+- **D6 (2026-11-26) — Configuration validée par Zod au démarrage** : `loadConfig(env)` est une
+  fonction pure qui lit les variables d'environnement (`PORT`, `NODE_ENV`, `LOG_LEVEL`) et
+  renvoie une configuration typée, ou lève une erreur qui nomme chaque variable invalide sans
+  recopier sa valeur (de futurs secrets passeront par là). `main.ts` l'écrit dans le journal et
+  quitte avec le code 1.
+  - Zod est déjà la bibliothèque de validation du projet (`docs/stack.md`) ; il reste hors de
+    `domain/` et d'`application/`.
+- **D7 (2026-11-26) — `/health` à la racine, version du `package.json` racine** : `GET /health`
+  renvoie `200` et `{ "status": "ok", "version": "X.Y.Z" }`, avec `Cache-Control: no-store`.
+  La version est lue une fois au démarrage dans le `package.json` racine, qui porte la version
+  du projet, et passée à `createApp`.
+  - Il ne vérifie que le processus : la vérification de la base arrive avec elle (jalon « Base
+    de données », D24 du jalon 007).
+  - Hors de `/api`, pour ne pas dépendre du préfixe de l'API au passage en service séparé.
+- **D8 (2026-11-26) — Scripts à part, Render inchangé** : `npm run dev:server` et
+  `npm run start:server`, à la racine, lancent le serveur unique (Next.js en mode développement
+  ou à partir de son build). `dev` et `start` restent ceux de Next.js : Render lance `start`, et
+  le passage au serveur unique est le sujet du jalon « Déploiement du socle ».
+- **D9 (2026-11-26) — Arrêt propre** : à `SIGTERM` (envoyé par Render avant de remplacer une
+  instance) et `SIGINT`, le serveur cesse d'accepter des connexions, termine les requêtes en
+  cours, puis quitte.
+- **D10 (2026-11-26) — Démarrage vérifié dans le CI** : après `npm run build`, le job `checks`
+  lance `npm run start:server`, attend que `/health` réponde `200` avec la version du
+  `package.json`, puis arrête le serveur.
+  - Raison : `main.ts` reste hors des tests unitaires (branchement de Next.js et du réseau) ;
+    cette étape prouve à chaque pull request que le point d'entrée démarre.
+- **D11 (2026-11-27) — Tests HTTP par `supertest`, assertions de Vitest** : les tests de la
+  phase C passent l'application à `request(app)`, qui l'écoute sur un port local éphémère,
+  envoie la requête et referme le serveur ; les assertions s'écrivent avec `expect` de Vitest,
+  jamais avec celles de `supertest` (`.expect(200)`), pour garder un seul style.
+  - Raisons : outil habituel des tests d'Express, qui gère seul le cycle de vie du serveur
+    (port libre, fermeture, connexions keep-alive) ; dépendance de développement seulement.
+  - Alternative écartée : `fetch` natif de Node 24 et un helper maison (`app.listen(0)`, lecture
+    du port, fermeture), sans dépendance, mais avec ce cycle de vie à écrire et à maintenir.
+- **D12 (2026-11-27) — remplace D4 pour `start:server` : `tsx` en loader, `node --import tsx`** :
+  `start:server` lance `node --import tsx src/main.ts`, un seul processus ; `dev:server` garde
+  `tsx watch`. `tsx` reste l'outil qui exécute TypeScript (D4), seule sa forme change en
+  production.
+  - Raison : la commande `tsx` lance le script dans un processus enfant et lui relaie les
+    signaux ; si l'enfant n'en accuse pas réception en 30 ms, deux fois, elle le tue par
+    `SIGKILL`. Pendant un rendu de Next.js, la boucle d'événements est occupée plus longtemps :
+    un `SIGTERM` pendant une requête coupait la réponse (statut `000` côté client, code 143) sans
+    que l'arrêt propre (D9) ne s'exécute. Avec le loader, le signal arrive directement au
+    processus du serveur.
+  - `tsx watch` garde le relais, mais avec 5 secondes de délai avant `SIGKILL` : suffisant en
+    développement.
+- **D13 (2026-11-27) — remplace la valeur par défaut de `NODE_ENV` fixée par D6** : `NODE_ENV`
+  vaut `production` par défaut, et `dev:server` pose `development` lui-même. `PORT` et
+  `LOG_LEVEL` gardent leurs valeurs par défaut.
+  - Raison (relevée par la revue de code, validée par l'utilisateur) : une valeur par défaut doit
+    être la plus sûre. Avec `development`, une commande de démarrage qui oublierait la variable
+    (celle de Render au jalon « Déploiement du socle ») lancerait Next.js en mode développement
+    en production : compilation à la volée, rechargement à chaud, pages d'erreur détaillées.
+
+## Phase A — Paquet et outillage ✅ (relecture légère)
+
+- [x] `apps/api/package.json` : dépendances `express`, `pino`, `pino-http`, `zod`, `next`,
+  `tsx` ; développement : `@types/express`, `supertest`, `@types/supertest`, `@types/node`,
+  `pino-pretty` (D5).
+- [x] `apps/api/package.json` et `package.json` racine : scripts `dev:server` et `start:server`
+  (D8).
+- [x] `apps/api/tsconfig.json` : types de Node.
+- [x] Vérifier dans la documentation de Render que le health check est disponible en offre
+  gratuite ; noter le résultat au Journal et, s'il change le plan, dans le jalon « Déploiement
+  du socle ».
+
+## Phase B — Configuration ✅ (relecture standard)
+
+- [x] `apps/api/src/server/config.ts` : `loadConfig(env)` applique les valeurs par défaut
+  (`PORT` 3000, `NODE_ENV` `development`, `LOG_LEVEL` `info`), refuse un port non entier ou
+  hors de 1 à 65535, un `NODE_ENV` ou un `LOG_LEVEL` inconnu, et nomme chaque variable
+  invalide sans recopier sa valeur (D6).
+- [x] `apps/api/src/server/version.ts` : lit la version du `package.json` racine ; refuse un
+  fichier sans version (D7).
+
+## Phase C — Application Express ✅ (relecture standard)
+
+Tests par `supertest` sur `createApp`, sans port fixe ni Next.js (D11).
+
+- [x] `apps/api/src/server/logger.ts` : logger pino au niveau configuré, en-têtes
+  `authorization` et `cookie` masqués (D5).
+- [x] `apps/api/src/server/requestLogging.ts` : une ligne par requête, chemin sans query
+  string, identifiant renvoyé dans `X-Request-Id` (D5).
+- [x] `apps/api/src/server/health.ts` : `GET /health` renvoie `200`, `status` et `version`,
+  `Cache-Control: no-store` (D7).
+- [x] `apps/api/src/server/errorHandler.ts` : une erreur non gérée donne un `500` JSON sans pile
+  d'appels ni message interne, et une ligne de journal qui les contient.
+- [x] `apps/api/src/app.ts` : `createApp({ version, logger, fallback })` monte ce qui précède,
+  désactive `X-Powered-By`, délègue au repli toute requête non prise (y compris sous `/api`),
+  et répond 404 JSON sans repli (D1, D2).
+
+## Phase D — Serveur unique ✅ (relecture standard)
+
+`main.ts` est un branchement, gardé aussi fin que possible (`docs/tdd.md`, « Code difficile à
+tester »), et vérifié par le CI (D10) et à la main.
+
+- [x] `apps/api/src/main.ts` : configuration et version, logger, Next.js préparé sur
+  `apps/web` (mode développement selon `NODE_ENV`), `createApp` avec Next.js en repli, écoute
+  du port, arrêt propre à `SIGTERM` et `SIGINT` (D1, D9) ; configuration invalide : journal et
+  code de sortie 1 (D6).
+- [x] `.github/workflows/ci.yml` : étape de démarrage après le build, qui attend `/health` et
+  vérifie la version (D10) ; le job garde son nom `checks`.
+- [x] Vérification à la main, sortie notée au Journal : `npm run build` puis
+  `npm run start:server` ; le dashboard s'affiche, `/api/orders` répond (Next.js),
+  `/health` renvoie la version, les journaux sont en JSON, le jeu de données mocké est généré au
+  démarrage (`instrumentation.ts`), et `SIGTERM` arrête le serveur proprement.
+- [x] Même vérification avec `npm run dev:server` (rechargement de l'interface compris).
+
+## Phase E — Documentation ✅ (relecture légère)
+
+- [x] `CLAUDE.md` : commandes `dev:server` et `start:server`, structure d'`apps/api`
+  (`app.ts`, `main.ts`, `server/`), serveur lancé dans le CI mais pas par Render.
+- [x] `docs/domain-model.md` : nom du composition root et point d'entrée (D1), à la place de
+  « tranchés au jalon Serveur API ».
+- [x] `docs/stack.md` : Express passe de « prévu » à « en place, pas encore déployé ».
+- [x] `docs/roadmap.md` : « Déploiement du socle » reprend le passage de `start` et de Render
+  au serveur unique (D8).
+- [x] README inchangé : le serveur unique n'est pas encore ce que l'utilisateur lance ni ce que
+  la démo sert. À relire à la clôture. Relu : usage inchangé, mais badge Express ajouté à la
+  stack technique, `docs/stack.md` voulant qu'un badge rejoigne le README quand la technologie
+  est dans le code (validé par l'utilisateur).
+
+## Journal
+
+- 2026-11-26 : plan rédigé.
+- 2026-11-27 : health check de Render : la documentation (`/docs/health-checks`, `/docs/free`)
+  ne le réserve à aucune offre et ne le cite pas parmi les limites de l'offre gratuite, sans
+  pour autant le lister comme inclus. HTTP en `GET`, succès sur un `2xx` ou `3xx` en moins de
+  5 secondes ; au déploiement, le trafic ne bascule qu'une fois les nouvelles instances saines
+  (déploiement annulé après 15 minutes) ; en marche, trafic coupé après 15 secondes d'échecs et
+  redémarrage après 60 secondes ; chemin réglé dans les Settings ou par `healthCheckPath` dans
+  `render.yaml`. Plan inchangé ; à confirmer dans l'interface de Render (section *Health
+  Checks* du service) au jalon « Déploiement du socle ».
+- 2026-11-27 : TypeScript 6 vide `types` par défaut : `apps/api/tsconfig.json` déclare `node`
+  explicitement. npm bloque le script d'installation d'esbuild (dépendance de `tsx`), non
+  couvert par `allowScripts` : `tsx` fonctionne sans, le binaire venant de la dépendance
+  optionnelle de la plateforme (`@esbuild/linux-x64`), donc `allowScripts` n'est pas élargi.
+- 2026-11-27 : `dev:server` passe la sortie par `pino-pretty` dans le script (pipe), ce qui
+  garde le logger sans transport ; `start:server` fixe `NODE_ENV=production`, la valeur par
+  défaut de `loadConfig` étant `development` (D6).
+- 2026-11-27 : `loadConfig` refuse une variable vide (`PORT=`) plutôt que de lui appliquer sa
+  valeur par défaut, pour qu'une affectation oubliée se voie au démarrage ; `PORT` n'admet que
+  des chiffres, `Number()` acceptant aussi `0x10`, `3e3` ou des espaces. Le message de
+  `ConfigError` cite la valeur attendue de chaque variable, jamais les messages de Zod, et
+  l'erreur ne porte pas de `cause`, pour ne pas recopier la valeur reçue. Le test « ignore les
+  autres variables », vert sur le squelette, a été prouvé par une mutation (`z.strictObject`),
+  annulée.
+- 2026-11-27 : `version.ts` sépare `parseVersion(contenu)`, pure, de `readVersion(chemin)`, qui
+  lit le fichier et ajoute son chemin au message d'erreur ; le chemin du `package.json` racine
+  sera calculé par `main.ts` (phase D). La version doit être au format SemVer `X.Y.Z`,
+  préversion admise, sans préfixe `v`.
+- 2026-11-27 : `pino-http` écrit au niveau `info` même une requête en erreur : `customLogLevel`
+  la passe à `error` (erreur ou statut 5xx), sinon un `LOG_LEVEL=error` masquerait les 500.
+  L'erreur passe par `res.err`, ce qui la met sur la ligne de fin de requête : une seule ligne
+  par requête, erreur comprise. La ligne par requête ne journalise aucun en-tête (serializers
+  `req` et `res` réduits à l'identifiant, la méthode, le chemin et le statut) ; le masquage du
+  logger reste en filet de sécurité. L'identifiant de requête est toujours généré (UUID), celui
+  envoyé par le client est ignoré. Deux tests verts sur les squelettes (niveau `silent`, aucun
+  en-tête journalisé) ont été prouvés par mutation, annulée ; le second exige désormais une
+  ligne de journal, pour ne pas passer à vide.
+- 2026-11-27 : la couverture a révélé un défaut d'`errorHandler` : sur une réponse déjà
+  commencée (`headersSent`), il passait la main à Express sans renseigner `res.err`, et l'erreur
+  disparaissait du journal (ligne au niveau `info`, statut 200). Test rouge, puis `res.err`
+  renseigné avant ce test. Branche non couverte restante : `createLogger` sans destination
+  (sortie standard), branchée par `main.ts` et vérifiée par le démarrage du CI (phase D).
+- 2026-11-27 : point pour le jalon « Déploiement du socle » : le health check de Render
+  appellera `/health` toutes les quelques secondes, soit autant de lignes de journal ; à
+  mesurer avant de choisir de les filtrer (`autoLogging.ignore` de `pino-http`).
+- 2026-11-27 : `main.ts` crée le serveur HTTP avant Next.js et le lui passe (`httpServer`) :
+  Next y branche lui-même les WebSockets du rechargement à chaud, dont le chemin est
+  `/_next/hmr` en Next 16 (et non plus `/_next/webpack-hmr`). Toute erreur de démarrage
+  (configuration, version, Next.js, port occupé) donne une ligne `fatal` et le code de sortie 1 ;
+  une configuration invalide nomme ses variables (`"variables":["PORT","LOG_LEVEL"]`), sans les
+  valeurs.
+- 2026-11-27 : vérification à la main de `start:server` après `npm run build` (port 3100) :
+  `/health` renvoie `200`, `{"status":"ok","version":"0.3.3"}`, `X-Request-Id` et
+  `Cache-Control: no-store`, sans `X-Powered-By` ; `/` redirige vers `/dashboard` (307), qui
+  répond 200 ; `/api/orders` et `/api/shops` répondent (Next.js) ; journaux en JSON, une ligne
+  par requête, chemin sans query string (`/api/orders?…&token=s3cr3t` journalisé
+  `/api/orders`) ; jeu de données mocké généré au démarrage (`[mock-data]`, en texte, D5).
+- 2026-11-27 : arrêt par `SIGTERM` envoyé au processus `npm` de tête, comme le fera Render :
+  avec la commande `tsx`, une requête en cours sur `/dashboard/sales` était coupée (voir D12).
+  Avec `node --import tsx`, la requête en cours se termine (200), puis « arrêt demandé » et
+  « serveur arrêté », code 0, aucun processus restant ; vérifié deux fois, ainsi qu'après une
+  page servie et après `/health` seul.
+- 2026-11-27 : vérification de `dev:server` (port 3100) : journaux mis en forme par
+  `pino-pretty` ; dashboard 200 ; poignée de main WebSocket sur `/_next/hmr` : `101`, comme avec
+  `next dev` seul ; une modification d'`apps/api` redémarre le serveur ; Ctrl+C (`SIGINT` au
+  groupe de processus) l'arrête en 0,1 s, sans processus restant. Next.js écrit en
+  développement sa propre ligne par requête, query string comprise : propre au mode
+  développement, Next ne journalise pas les requêtes en production.
+- 2026-11-27 : étape « Démarrage du serveur » du CI rejouée en local avec `bash -eo pipefail` :
+  succès, puis échec attendu avec une version attendue différente. Elle vérifie aussi l'arrêt par
+  `SIGTERM` (code 0), donc le chemin du signal à travers `npm` et `sh` sous Ubuntu (`dash`),
+  comme sous Render. Pour le jalon « Déploiement du socle » : garder une commande de démarrage
+  qui transmet le signal au processus du serveur (pas de `tsx` en ligne de commande, D12).
+- 2026-11-27 : rechargement de l'interface vérifié dans Chrome, sous `dev:server` : un titre de
+  carte modifié puis restauré dans `app/dashboard/page.tsx` s'affiche sans rechargement complet
+  (un marqueur posé dans `window` survit). Ce test a révélé une boucle de redémarrages :
+  `tsx watch` surveille tous les fichiers chargés par le processus, y compris ceux que Next.js
+  génère dans `apps/web/.next/` (`instrumentation.js`, chunks serveur) ; dès la première
+  recompilation, Next les réécrit, `tsx` redémarre le serveur, Next les réécrit au démarrage, et
+  ainsi de suite (35 redémarrages en une trentaine de secondes). La vérification précédente ne
+  l'avait pas vu : aucune page n'y était modifiée. Correctif : `dev:server` exclut `../web/**`
+  de la surveillance, l'interface étant rechargée par Next.js lui-même ; une modification
+  d'`apps/api` redémarre toujours le serveur, une seule fois.
+- 2026-11-27 : premier passage du CI sur la pull request : l'étape « Démarrage du serveur »
+  échoue à l'arrêt (code 143, ni « arrêt demandé » ni « serveur arrêté »). Sous Ubuntu, le `sh`
+  des scripts npm est `dash`, qui ne se remplace pas par la commande lancée : il reçoit le
+  `SIGTERM` relayé par npm, meurt, et le serveur reste orphelin. Le `bash` de Fedora, lui,
+  s'efface de lui-même, d'où le succès en local. Reproduit en local avec un shell qui imite
+  `dash` (`npm_config_script_shell`), puis corrigé par `exec` dans les deux scripts
+  `start:server` (`exec env NODE_ENV=production node …`, `env` pour ne pas dépendre de
+  l'export d'une affectation devant `exec`). Même risque sous Render, qui lance aussi `dash`.
+- 2026-11-27 : `/code-review` (niveau high) sur la pull request : 2 constats importants et
+  5 mineurs, tous retenus. Importants, reproduits avant correction : un second `SIGINT` à 2 ms
+  du premier tuait le processus pendant l'arrêt (code 130, `process.once`) ; une WebSocket du
+  rechargement à chaud ouverte bloquait `server.close()` jusqu'à l'arrêt forcé (10 s, code 1).
+  Correction : `server/shutdown.ts`, testé sur un vrai serveur (signaux répétés ignorés,
+  WebSocket suivies et fermées, délai forcé, échec de `beforeExit`), branché par `main.ts` avec
+  `process.on`. Ses tests ont révélé un troisième défaut : une connexion keep-alive dont la
+  requête finit après `server.close()` le retenait jusqu'à son propre délai ; les connexions
+  inactives sont refermées toutes les 100 ms pendant l'arrêt. Mineurs : erreur d'une réponse
+  déjà commencée écrite aussi en texte par Express (`res.destroy()` à la place de
+  `next(error)`) ; requête abandonnée journalisée en `warn`, « request aborted », et non comme
+  un 200 ; écouteur `error` du démarrage retiré une fois à l'écoute ; `NODE_ENV` à
+  `production` par défaut (D13) ; taille de la pull request signalée trop tard (voir Bilan).
+
+## Workflow Git
+
+- `docs:` pour ce plan (fichier du jalon, index de la roadmap) ;
+- `chore:` pour les dépendances et les scripts (phase A) ;
+- `feat:` pour la configuration et la version (phase B) ;
+- `feat:` pour l'application Express, journaux, `/health` et erreurs (phase C) ;
+- `feat:` pour le point d'entrée du serveur unique (phase D) ;
+- `ci:` pour l'étape de démarrage du CI (phase D) ;
+- `docs:` pour la documentation durable (phase E) ;
+- `docs:` pour clore le jalon.
+
+Point d'arrêt de relecture en fin de phase B, C et D (relecture standard). Merge par pull
+request une fois `checks` au vert. Aucun changement visible pour l'utilisateur, Render lançant
+toujours Next.js seul : pas de release pour ce jalon.
+
+Taille estimée : environ 250 lignes de code de production et 350 lignes de tests, sous les
+seuils de `CLAUDE.md`.
+
+## Critères d'acceptation
+
+- `npm test`, `npm run lint`, `npm run typecheck` et `npm run build` sans erreur en local.
+- `npm run start:server` après le build : le dashboard s'affiche, les routes de démonstration
+  répondent, `GET /health` renvoie `200` et la version du `package.json` racine.
+- Une variable d'environnement invalide empêche le démarrage, avec un message qui la nomme.
+- Les journaux sont des lignes JSON, sans query string ni en-tête `authorization` ou `cookie`.
+- `checks` au vert sur la pull request, étape de démarrage comprise.
+
+## Bilan
+
+**Fait.** `apps/api` démarre un serveur Express qui sert `/health` et délègue tout le reste à
+Next.js, dans un seul processus (`npm run start:server` après le build, `npm run dev:server` en
+développement). La configuration (`PORT`, `NODE_ENV`, `LOG_LEVEL`) est validée au démarrage, les
+journaux sont des lignes JSON (une par requête, sans query string ni en-tête), une erreur non
+gérée donne un 500 JSON générique, et `SIGTERM` arrête le serveur après les requêtes en cours.
+Le CI démarre le serveur sur le build, vérifie la version renvoyée par `/health`, puis son arrêt.
+Render lance toujours Next.js seul.
+
+**Chiffres.**
+
+- Tests : 185 dans `apps/api` (109 à l'ouverture du jalon, 76 ajoutés : 43 pour la configuration
+  et la version, 27 pour l'application Express, 6 pour l'arrêt propre), 685 dans `apps/web`,
+  inchangés.
+- Couverture d'`apps/api/src/server/` : 100 % des lignes (non couverts en branches :
+  `createLogger` sans destination, le cas `String(error)` de `readVersion`, inatteignable, et
+  l'échec de `server.close()` dans `shutdown.ts`).
+  `main.ts` n'est pas couvert par les tests unitaires, comme prévu (D10) : vérifié par le CI et
+  à la main.
+- Taille : 473 lignes de code de production, 617 lignes de tests et de helpers, 28 lignes de CI,
+  soit environ 1 120 lignes (846 hors lignes vides et commentaires), bien au-dessus du seuil
+  indicatif de 800 par pull request. Chaque commit reste sous les 300 lignes de production.
+  L'estimation (250 + 350) sous-comptait les commentaires, et les correctifs du CI et de la
+  revue de code ont ajouté environ 280 lignes. Le dépassement n'a été signalé qu'à la clôture,
+  alors que la règle demande de le signaler avant : à surveiller dès le plan des prochains
+  jalons (estimation commentaires et tests compris).
+
+**Écarts avec le plan.**
+
+- D11 : `supertest` justifié après coup, à la demande de l'utilisateur ; assertions de Vitest
+  seulement.
+- D12 remplace D4 pour `start:server` : `node --import tsx` au lieu de la commande `tsx`, dont le
+  relais des signaux tuait le serveur par `SIGKILL` pendant une requête.
+- `dev:server` exclut `apps/web` de la surveillance de `tsx watch`, sans quoi les fichiers
+  générés par Next.js le relançaient en boucle ; trouvé par la vérification dans Chrome.
+- `errorHandler` : erreur perdue sur une réponse déjà commencée, révélée par la couverture et
+  corrigée après un test rouge.
+- `pino-http` journalisait les requêtes en erreur au niveau `info` : `customLogLevel` ajouté.
+- `loadConfig` refuse une variable vide, et `version.ts` impose le format SemVer, deux précisions
+  validées par l'utilisateur.
+- L'étape du CI vérifie aussi l'arrêt par `SIGTERM`, au-delà de D10 ; elle a révélé dès son
+  premier passage que `dash` ne transmettait pas le signal (scripts passés à `exec`).
+- `/code-review` : arrêt propre extrait dans `server/shutdown.ts` (signaux répétés, WebSocket,
+  keep-alive), journaux des réponses commencées et des requêtes abandonnées, D13 (`NODE_ENV` à
+  `production` par défaut).
+
+**Vérifications réellement faites.** `npm run lint`, `npm run typecheck`, `npm test` et
+`npm run build` sans erreur en local à chaque commit. `start:server` et `dev:server` vérifiés à
+la main (détail au Journal) : `/health`, dashboard, routes de démonstration, journaux JSON sans
+query string, configuration invalide (code 1, variables nommées sans leurs valeurs), arrêt par
+`SIGTERM` pendant une requête, WebSocket du rechargement à chaud, rechargement de l'interface
+dans Chrome. Étape du CI rejouée en local, succès puis échec attendu, et avec un shell qui
+imite `dash`. Après la revue : deux `SIGINT` rapprochés (code 0), `SIGTERM` avec une WebSocket
+ouverte (arrêt en 0,03 s, code 0), `dev:server` en `development` et démarrage sans `NODE_ENV`
+en `production`. Reste à voir : `checks` au vert sur la pull request après ces correctifs.
+
+**Reporté.** Au jalon « Déploiement du socle » (repris dans `docs/roadmap.md`) : passage de
+Render au serveur unique avec une commande qui transmet `SIGTERM` (D12), health check à
+confirmer dans l'interface de Render, volume des journaux de `/health` à mesurer. Au jalon
+« Authentification » : masquage de `set-cookie`, statut des erreurs 4xx portées par les
+erreurs d'Express. Nouvelle piste à l'index : « Instructions de l'agent allégées ».
+
+**Documentation durable.** `CLAUDE.md` (commandes, serveur unique, structure d'`apps/api`, CI),
+`docs/domain-model.md` (composition root et point d'entrée, D1 ; dossier `server/`, D3),
+`docs/stack.md` (Express en place). README : usage inchangé, badge Express ajouté à la stack
+technique (règle de `docs/stack.md`).

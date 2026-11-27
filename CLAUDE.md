@@ -9,12 +9,14 @@ Vision, utilisateurs, non-objectifs et principes techniques : `docs/vision.md` (
 
 ## Commandes
 
-Toutes les commandes se lancent **depuis la racine** du dépôt. `dev`, `build` et `start` sont délégués au paquet `@salespulse/web` ; `typecheck`, `test` et `test:coverage` parcourent chaque workspace qui a le script (`--workspaces --if-present`), donc le CI aussi.
+Toutes les commandes se lancent **depuis la racine** du dépôt. `dev`, `build` et `start` sont délégués au paquet `@salespulse/web`, `dev:server` et `start:server` au paquet `@salespulse/api` ; `typecheck`, `test` et `test:coverage` parcourent chaque workspace qui a le script (`--workspaces --if-present`), donc le CI aussi.
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000 (redirige vers /dashboard)
 npm run build
+npm run dev:server     # serveur unique (Express + Next.js en développement), journaux mis en forme
+npm run start:server   # serveur unique à partir du build (npm run build avant), journaux JSON
 npm run lint       # eslint . sur tout le dépôt (config next core-web-vitals + typescript, règle d'imports d'apps/api)
 npm run typecheck  # tsc --noEmit dans chaque paquet
 npm test           # Vitest, exécution unique, dans chaque paquet qui a des tests
@@ -45,7 +47,8 @@ docs/                documentation du projet (vision, stack, modèle du domaine,
 
 - **Sauf mention contraire, les chemins `src/…` de ce fichier sont relatifs à `apps/web/`** (la section « Architecture » les préfixe explicitement).
 - Imports : relatifs à l'intérieur d'un paquet (pas d'alias `@/`), par nom de paquet entre paquets (`import { OrderSchema } from '@salespulse/contracts'`). Une app n'importe jamais depuis une autre : ce qu'elles partagent passe par un paquet.
-- `apps/api` n'a encore ni serveur ni base : il est testé par le CI sans être déployé, Render lançant Next.js seul jusqu'au jalon « Déploiement du socle » (`docs/roadmap.md`).
+- `apps/api` a un serveur mais pas encore de base : le CI le teste et vérifie qu'il démarre, sans qu'il soit déployé ; Render lance Next.js seul (`npm start`) jusqu'au jalon « Déploiement du socle » (`docs/roadmap.md`).
+- **Serveur unique** (jalon 007, D22 ; jalon 011) : `start:server` lance `node --import tsx` (jamais la commande `tsx`, dont le relais des signaux tue le serveur par `SIGKILL` pendant une requête : jalon 011, D12), précédé d'`exec` à chaque niveau pour que `SIGTERM` traverse le `sh` des scripts npm (`dash` sous Ubuntu et Render ne s'efface pas de lui-même) ; `dev:server` lance `tsx watch` en excluant `apps/web`, rechargée par Next.js lui-même (sinon les fichiers générés dans `.next/` le relancent en boucle). Variables : `PORT` (3000), `NODE_ENV` (`production`, posé à `development` par `dev:server` : jalon 011, D13), `LOG_LEVEL` (`info`), validées au démarrage.
 - `@salespulse/contracts` est publié en TypeScript source, sans étape de build : Next le compile (`transpilePackages`). Il ne dépend que de `zod` ; le garder indépendant de React, de Next et de Faker. Son rôle et ses règles : « Contrat entre l'API et l'interface » ci-dessous.
 - Un seul `package-lock.json`, à la racine.
 
@@ -60,7 +63,7 @@ Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers 
 Spécificités du projet :
 
 - La version est portée par le `package.json` **racine** et son `package-lock.json` (`npm version X.Y.Z --no-git-tag-version`, lancé à la racine) et par la ligne « Version actuelle » de `docs/roadmap.md` : les trois changent dans le commit de passage de version, avec l'ajout de l'entrée de la version dans `changelog.txt`. Les paquets des workspaces restent à `0.0.0`.
-- Intégration continue : `.github/workflows/ci.yml` (GitHub Actions) lance `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` et `npm run build` sur chaque pull request vers `develop` ou `main` et chaque push sur ces branches. Son job `checks` est la vérification exigée par le ruleset GitHub « develop et main » : ne pas le renommer sans mettre à jour le ruleset.
+- Intégration continue : `.github/workflows/ci.yml` (GitHub Actions) lance `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` et `npm run build`, puis démarre le serveur unique (`/health` doit renvoyer la version du `package.json` racine, puis `SIGTERM` l'arrêter proprement) sur chaque pull request vers `develop` ou `main` et chaque push sur ces branches. Son job `checks` est la vérification exigée par le ruleset GitHub « develop et main » : ne pas le renommer sans mettre à jour le ruleset.
 - Render déploie `main` seulement une fois `checks` passé (*After CI Checks Pass*). Les réglages GitHub (ruleset, méthodes de merge, alertes Dependabot) et Render se font dans leurs interfaces, par l'utilisateur, hors dépôt (jalon 008).
 - Pousser une modification de `.github/workflows/` demande le scope `workflow` du jeton de `gh` (remote en HTTPS) : `gh auth refresh -h github.com -s workflow`.
 
@@ -154,6 +157,7 @@ avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
 Le modèle du domaine est décrit dans `docs/domain-model.md` (bounded contexts, entities, value objects, invariants, écriture et lecture, correspondance des statuts des plateformes) : le lire avant de toucher à `apps/api`. Les décisions et leurs raisons sont dans le jalon 010 (`docs/milestones/010-data-model.md`), citées par leur numéro (D3, D31…). L'essentiel au quotidien :
 
 - Architecture hexagonale : `apps/api/src/<contexte>/{domain,application,infrastructure}` et un `index.ts` par contexte (`organizations`, `shops`, `sales`, `analytics`, `billing` à venir), plus un shared kernel `apps/api/src/shared/domain/` (`Money`, `CurrencyCode`, `IanaTimezone`, `LocalDay`, `DomainError`).
+- Serveur (jalon 011) : `apps/api/src/app.ts` est le composition root (`createApp({ version, logger, fallback })`, sans effet de bord, testé par `supertest`) ; `apps/api/src/main.ts`, le point d'entrée, seul module à effets (configuration, Next.js en repli, écoute, arrêt propre), vérifié par le CI. `apps/api/src/server/` porte l'infrastructure transverse (configuration, logger pino, ligne de journal par requête, `/health`, gestionnaire d'erreurs, arrêt propre) et n'importe aucun contexte. Les routes Express sous `/api` ne doivent pas reprendre les chemins des routes de démonstration de Next.js tant qu'elles existent : Express passe la main à Next.js pour tout ce qu'il ne prend pas.
 - Règle d'imports, vérifiée par `eslint.config.mjs` (`apiLayers`) : `domain/` n'importe que son dossier et `shared/domain/`, aucun paquet externe ; `application/` ajoute son domaine et l'`index.ts` d'un autre contexte, aucun paquet externe ; `infrastructure/` importe tout sauf l'intérieur d'un autre contexte. Les `*.test.ts` sont exemptés. Ses expressions régulières supposent `domain/` à plat (un fichier par entity ou value object, nommé en camelCase) : les revoir avec des sous-dossiers par aggregate.
 - `domain/` est pur et déterministe : ni entrée/sortie, ni horloge (`now` en paramètre), ni bibliothèque. Les fuseaux horaires passent par `Intl`.
 - Value objects : types en lecture seule et marqués (branded), produits par une fonction de fabrique qui vérifie l'invariant (`money()` produit un `Money`), sans classes ; une liste fermée de valeurs (`OrderStatus`) est une union de littéraux tirée d'un tableau figé, sans marque. Une valeur invalide lève une `DomainError` avec un code stable (`invalid-money`, `currency-mismatch`…).

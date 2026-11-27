@@ -36,3 +36,31 @@ jobs:
             - run: npm run typecheck
             - run: npm test
             - run: npm run build
+
+            # Serveur unique (jalon 011, D10) : il démarre sur le build, /health renvoie la version
+            # du package.json racine, et SIGTERM l'arrête proprement (D9).
+            - name: Démarrage du serveur
+              run: |
+                  npm run start:server > server.log 2>&1 &
+                  server=$!
+                  trap 'cat server.log' EXIT
+
+                  for attempt in $(seq 1 30); do
+                      body=$(curl -sf http://localhost:3000/health) && break
+                      sleep 1
+                  done
+                  echo "/health : ${body:-sans réponse}"
+                  expected=$(node -p "require('./package.json').version")
+                  version=$(node -p 'JSON.parse(process.argv[1]).version' "${body:-null}")
+                  test "$version" = "$expected"
+
+                  kill -TERM "$server"
+                  for attempt in $(seq 1 15); do
+                      kill -0 "$server" 2>/dev/null || break
+                      sleep 1
+                  done
+                  if kill -0 "$server" 2>/dev/null; then
+                      echo "Le serveur ne s'est pas arrêté dans les 15 secondes"
+                      exit 1
+                  fi
+                  wait "$server"

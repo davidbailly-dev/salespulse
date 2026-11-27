@@ -11,6 +11,7 @@ Aucun.
 
 ## Terminés
 
+- ✅ [011 — Serveur API](milestones/011-api-server.md) — non publié
 - ✅ [010 — Modèle de données](milestones/010-data-model.md) — non publié
 - ✅ [009 — Outillage de tests UI](milestones/009-ui-test-tooling.md) — non publié
 - ✅ [008 — Intégration continue](milestones/008-continuous-integration.md) — non publié
@@ -33,18 +34,11 @@ ce qui s'en déduit (clients, produits) : l'analytics reste simulé tant qu'il n
 source (piste « Analytics réel »). Chaque jalon laisse `main` déployable.
 
 Le socle du backend se découpe en quatre jalons courts, pour que chaque pull request reste
-relisible (seuils dans `CLAUDE.md`) : le premier, Modèle de données (jalon 010), est terminé.
-Jusqu'au jalon « Déploiement du socle », Render continue de lancer Next.js seul : `apps/api` est
-testé par le CI sans être déployé.
+relisible (seuils dans `CLAUDE.md`) : les deux premiers, Modèle de données (jalon 010) et Serveur
+API (jalon 011), sont terminés. Jusqu'au jalon « Déploiement du socle », Render continue de lancer
+Next.js seul : `apps/api` est testé par le CI, démarrage du serveur compris, sans être déployé.
 
-- ⬜ **Serveur API** : prérequis Modèle de données (jalon 010).
-  - `apps/api` en Express, qui exporte son application ; serveur unique qui sert l'API et
-    délègue le reste à Next.js (D22) ; à trancher : l'emplacement du point d'entrée et le nom
-    du composition root (jalon 010, D19) ;
-  - configuration validée au démarrage ; journaux JSON et `/health` (D24) ;
-  - `/health` renvoie aussi la version déployée, attendue par le smoke test après release, et
-    sert de health check à Render (comportement sur l'offre gratuite à vérifier).
-- ⬜ **Base de données** : prérequis Serveur API.
+- ⬜ **Base de données** : prérequis Serveur API (jalon 011).
   - PostgreSQL sous Docker en local ; migrations versionnées des tables du modèle de données
     (`docs/domain-model.md`) ; version des UUID à trancher, v7 pressentie (jalon 010, D23) ;
     index sur (organisation, jour local) (jalon 010, D42) ; sécurité au niveau des lignes en
@@ -58,6 +52,11 @@ testé par le CI sans être déployé.
 - ⬜ **Déploiement du socle** : prérequis Base de données.
   - `render.yaml`, serveur unique lancé par Render, base Neon en région Frankfurt, migrations
     appliquées au démarrage.
+  - `start` et Render passent de Next.js seul au serveur unique (`start:server`, jalon 011, D8) ;
+    commande de démarrage qui transmet `SIGTERM` au processus du serveur, sans la commande `tsx`
+    (jalon 011, D12) ; health check sur `/health` (`healthCheckPath`), à confirmer dans
+    l'interface de Render pour l'offre gratuite ; volume des lignes de journal des sondes de
+    `/health` à mesurer avant de les filtrer (Journal du jalon 011).
 - ⬜ **Authentification et organisations** : prérequis Déploiement du socle.
   - connexion par e-mail et mot de passe (D4) : argon2id, cookie de session `HttpOnly` /
     `Secure` / `SameSite`, protection CSRF, CORS limité, en-têtes de sécurité ;
@@ -66,6 +65,8 @@ testé par le CI sans être déployé.
   - inscription sur invitation (D18), sans e-mail (D21) : back-office minimal pour les codes
     d'invitation et les liens de réinitialisation ;
   - rate limit et anti-spam de la phase de test (D19) ;
+  - journaux et erreurs : masquage de l'en-tête `set-cookie`, erreurs 4xx d'Express (URL
+    malformée, corps invalide) renvoyées avec leur statut plutôt qu'en 500 (jalon 011) ;
   - bouton « Voir la démo » qui ouvre une session lecteur (D5) ;
   - sujet ouvert : cycle de vie des comptes (changement d'e-mail, suppression, transfert de
     propriété, départ du dernier propriétaire).
@@ -160,6 +161,15 @@ testé par le CI sans être déployé.
 
 Pistes relevées dans le code et les jalons, à valider et prioriser :
 
+- ⬜ **Instructions de l'agent allégées** : à traiter avant le jalon « Base de données ». Le
+  `CLAUDE.md` dépasse les 200 lignes que recommande la documentation de Claude Code (222 lignes
+  à la clôture du jalon 011), et ses sept imports de `docs/` sont chargés avec lui à chaque
+  session : environ 24 000 tokens d'instructions avant le premier message.
+  - Règles `.claude/rules/` filtrées par chemin (`paths:`), chargées seulement quand l'agent
+    travaille sur les fichiers concernés : `apps/api/**`, `apps/web/**`, `packages/contracts/**` ;
+  - conventions génériques chargées quand elles servent : README, `changelog.txt`, jalons ;
+  - `CLAUDE.md` réduit à ce que l'agent ne retrouve pas en lisant le dépôt : projet, commandes,
+    structure, résumé du workflow Git et de la relecture.
 - ⬜ **Paniers abandonnés réels** (jalon 010, D8) : entity distincte des commandes, fournie par
   les seuls connecteurs qui en disposent (`AbandonedCheckout` chez Shopify, paniers sans
   commande chez PrestaShop, rien dans le cœur de WooCommerce). D'ici là, l'indicateur « Paniers
@@ -181,7 +191,7 @@ Pistes relevées dans le code et les jalons, à valider et prioriser :
 Pistes issues de `docs/vision.md` et `docs/stack.md`, à valider et prioriser :
 
 - ⬜ **Tests de bout en bout et vérification après déploiement** (P21) : indépendant du
-  backend, peut passer avant le Serveur API.
+  backend.
   - Playwright, entrée à ajouter dans `docs/stack.md` : quelques parcours critiques
     (affichage du dashboard, changement de boutique et de période, données d'une route API),
     lancés dans le CI sur le build de production ;
