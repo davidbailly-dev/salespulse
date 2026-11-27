@@ -108,16 +108,24 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
   `package.json`, puis arrête le serveur.
   - Raison : `main.ts` reste hors des tests unitaires (branchement de Next.js et du réseau) ;
     cette étape prouve à chaque pull request que le point d'entrée démarre.
+- **D11 (2026-11-27) — Tests HTTP par `supertest`, assertions de Vitest** : les tests de la
+  phase C passent l'application à `request(app)`, qui l'écoute sur un port local éphémère,
+  envoie la requête et referme le serveur ; les assertions s'écrivent avec `expect` de Vitest,
+  jamais avec celles de `supertest` (`.expect(200)`), pour garder un seul style.
+  - Raisons : outil habituel des tests d'Express, qui gère seul le cycle de vie du serveur
+    (port libre, fermeture, connexions keep-alive) ; dépendance de développement seulement.
+  - Alternative écartée : `fetch` natif de Node 24 et un helper maison (`app.listen(0)`, lecture
+    du port, fermeture), sans dépendance, mais avec ce cycle de vie à écrire et à maintenir.
 
-## Phase A — Paquet et outillage ⬜ (relecture légère)
+## Phase A — Paquet et outillage ✅ (relecture légère)
 
-- [ ] `apps/api/package.json` : dépendances `express`, `pino`, `pino-http`, `zod`, `next`,
+- [x] `apps/api/package.json` : dépendances `express`, `pino`, `pino-http`, `zod`, `next`,
   `tsx` ; développement : `@types/express`, `supertest`, `@types/supertest`, `@types/node`,
   `pino-pretty` (D5).
-- [ ] `apps/api/package.json` et `package.json` racine : scripts `dev:server` et `start:server`
+- [x] `apps/api/package.json` et `package.json` racine : scripts `dev:server` et `start:server`
   (D8).
-- [ ] `apps/api/tsconfig.json` : types de Node.
-- [ ] Vérifier dans la documentation de Render que le health check est disponible en offre
+- [x] `apps/api/tsconfig.json` : types de Node.
+- [x] Vérifier dans la documentation de Render que le health check est disponible en offre
   gratuite ; noter le résultat au Journal et, s'il change le plan, dans le jalon « Déploiement
   du socle ».
 
@@ -132,7 +140,7 @@ Render continue de lancer Next.js seul jusqu'au jalon « Déploiement du socle �
 
 ## Phase C — Application Express ⬜ (relecture standard)
 
-Tests par `supertest` sur `createApp`, sans réseau ni Next.js.
+Tests par `supertest` sur `createApp`, sans port fixe ni Next.js (D11).
 
 - [ ] `apps/api/src/server/logger.ts` : logger pino au niveau configuré, en-têtes
   `authorization` et `cookie` masqués (D5).
@@ -178,6 +186,21 @@ tester »), et vérifié par le CI (D10) et à la main.
 ## Journal
 
 - 2026-11-26 : plan rédigé.
+- 2026-11-27 : health check de Render : la documentation (`/docs/health-checks`, `/docs/free`)
+  ne le réserve à aucune offre et ne le cite pas parmi les limites de l'offre gratuite, sans
+  pour autant le lister comme inclus. HTTP en `GET`, succès sur un `2xx` ou `3xx` en moins de
+  5 secondes ; au déploiement, le trafic ne bascule qu'une fois les nouvelles instances saines
+  (déploiement annulé après 15 minutes) ; en marche, trafic coupé après 15 secondes d'échecs et
+  redémarrage après 60 secondes ; chemin réglé dans les Settings ou par `healthCheckPath` dans
+  `render.yaml`. Plan inchangé ; à confirmer dans l'interface de Render (section *Health
+  Checks* du service) au jalon « Déploiement du socle ».
+- 2026-11-27 : TypeScript 6 vide `types` par défaut : `apps/api/tsconfig.json` déclare `node`
+  explicitement. npm bloque le script d'installation d'esbuild (dépendance de `tsx`), non
+  couvert par `allowScripts` : `tsx` fonctionne sans, le binaire venant de la dépendance
+  optionnelle de la plateforme (`@esbuild/linux-x64`), donc `allowScripts` n'est pas élargi.
+- 2026-11-27 : `dev:server` passe la sortie par `pino-pretty` dans le script (pipe), ce qui
+  garde le logger sans transport ; `start:server` fixe `NODE_ENV=production`, la valeur par
+  défaut de `loadConfig` étant `development` (D6).
 
 ## Workflow Git
 
