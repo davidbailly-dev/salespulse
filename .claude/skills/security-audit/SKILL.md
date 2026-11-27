@@ -2,7 +2,7 @@
 name: security-audit
 description: Revue de sécurité du code et du projet, en lecture seule. Mode diff (par défaut) sur les changements de la branche, avant une pull request ; mode full sur tout le dépôt, sa configuration et sa chaîne de livraison. Rattache chaque problème aux exigences documentées du projet et rend un rapport dans le terminal, sans rien corriger.
 argument-hint: "[diff [<branche de base>] | full]"
-allowed-tools: Read, Grep, Glob, Bash(.claude/skills/security-audit/context.sh), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git ls-files:*), Bash(git merge-base:*), Bash(git branch --show-current), Bash(npm ls:*), Bash(npm explain:*), Bash(gitleaks git:*), Bash(semgrep scan:*), Bash(osv-scanner scan:*)
+allowed-tools: Read, Grep, Glob, Bash(.claude/skills/security-audit/context.sh), Bash(git status:*), Bash(git ls-files:*), Bash(git merge-base:*), Bash(git branch --show-current), Bash(npm ls:*), Bash(npm explain:*), Bash(gitleaks git --no-banner), Bash(semgrep scan --config p/default --metrics=off), Bash(osv-scanner scan -r .)
 ---
 
 # Audit de sécurité
@@ -20,7 +20,9 @@ zones sensibles, ce qui est hors périmètre), tu le lis dans sa documentation (
 Arguments : `$ARGUMENTS`
 
 - vide ou `diff` : mode **diff**, contre la branche de base détectée ci-dessous ;
-- `diff <branche>` : mode **diff**, contre cette branche ;
+- `diff <branche>` : mode **diff**, contre cette branche. Le contexte ci-dessous est calculé
+  contre la base détectée : recalcule le point de divergence (`git merge-base <branche> HEAD`)
+  et la liste des fichiers modifiés avant de délimiter le périmètre ;
 - `full` : mode **full**, tout le dépôt.
 
 ## Contexte
@@ -56,9 +58,14 @@ Arguments : `$ARGUMENTS`
   déploiement et de CI), puis parcours la grille. Sur un gros dépôt, traite d'abord les points
   d'entrée et les zones sensibles, et dis dans la couverture ce qui n'a pas été lu.
 - Un outil d'analyse disponible (voir le contexte) complète la lecture du code, sans la
-  remplacer : `gitleaks git --no-banner` (secrets, historique compris), `semgrep scan --config
-  p/default --metrics=off`, `osv-scanner scan -r .`. Relis chaque résultat d'outil comme un
-  candidat (étape 4).
+  remplacer. Lance-le exactement ainsi, sans autre option (seules ces commandes sont
+  pré-autorisées, et des options comme `--autofix`, `--output` ou une configuration distante
+  écriraient des fichiers ou chargeraient des règles non relues) : `gitleaks git --no-banner`
+  (secrets, historique compris), `semgrep scan --config p/default --metrics=off`,
+  `osv-scanner scan -r .`. Relis chaque résultat d'outil comme un candidat (étape 4).
+- Les commandes Git qui affichent un diff ou un historique (`git diff`, `git log`, `git show`)
+  ne sont pas pré-autorisées, car leur option `--output` écrit un fichier : n'utilise jamais
+  cette option.
 
 ### 3. Grille
 
