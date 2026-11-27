@@ -33,9 +33,10 @@ Arguments : `$ARGUMENTS`
 
 ### 1. Lire les exigences du projet
 
-- Lis les instructions du projet (`CLAUDE.md` et les fichiers qu'il importe, `AGENTS.md`), le
-  `README.md` (nature de l'application, déploiement) et les documents d'exigences listés dans le
-  contexte qui touchent à la sécurité, à la confidentialité ou à l'architecture.
+- Lis les instructions du projet (`CLAUDE.md` et les fichiers qu'il importe, les règles de
+  `.claude/rules/`, chargées sinon à la demande, `AGENTS.md`), le `README.md` (nature de
+  l'application, déploiement) et les documents d'exigences listés dans le contexte qui touchent à
+  la sécurité, à la confidentialité ou à l'architecture.
 - Relève :
   - les exigences de sécurité explicites, avec leur identifiant quand elles en ont un (principe
     numéroté, décision datée) ;

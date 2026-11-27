@@ -28,7 +28,6 @@ npm test -w @salespulse/api -- src/shared/domain/money.test.ts    # un seul fich
 
 - Node est fixé à `24.22.1` (`.node-version`, `engines: >=24.22.1 <25`), à la racine.
 - La racine n'a pas de `test:watch` : `npm run test:watch --workspaces` lancerait les paquets l'un après l'autre, et le premier watch ne rendrait jamais la main.
-- Les tests s'écrivent **avant** le code : voir « Conventions de développement ».
 - TypeScript est en `strict: true` (options communes dans `tsconfig.base.json`).
 
 ## Structure du dépôt
@@ -44,37 +43,58 @@ docs/                documentation du projet (vision, stack, modèle du domaine,
 
 - Imports : relatifs à l'intérieur d'un paquet (pas d'alias `@/`), par nom de paquet entre paquets (`import { OrderSchema } from '@salespulse/contracts'`). Une app n'importe jamais depuis une autre : ce qu'elles partagent passe par un paquet.
 - Un seul `package-lock.json`, à la racine.
+- Avant de toucher à `apps/api` : lire `docs/domain-model.md` (modèle du domaine) ; les décisions du jalon 010 (`docs/milestones/010-data-model.md`) sont citées par leur numéro (D3, D31…).
+
+## Règles chargées à la demande
+
+L'architecture de chaque paquet et les conventions liées à un fichier sont dans `.claude/rules/`. Claude Code charge une règle quand l'agent lit, crée ou modifie un fichier de ses `paths:`, et la perd au `/compact` jusqu'au fichier suivant.
+
+| Règle                                     | Chargée avec                                         |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `api.md`                                  | `apps/api/**`, `eslint.config.mjs`, `package.json` racine |
+| `web.md`                                  | `apps/web/**`                                        |
+| `contracts.md`                            | `packages/contracts/**`                              |
+| `readme.md`, `conventions/readme.md`      | `README.md`                                          |
+| `release.md`, `conventions/changelog.md`  | `changelog.txt`, `package.json` racine, `docs/roadmap.md` (`release.md`) |
+| `roadmap.md`, `conventions/roadmap-conventions.md` | `docs/roadmap.md`, `docs/milestones/**`     |
+| `conventions/project-docs-conventions.md` | `docs/vision.md`, `docs/stack.md`, `**/package.json` |
+| `ci.md`                                   | `.github/**`, `render.yaml`                          |
+
+Les fichiers de `conventions/` sont des liens symboliques vers les conventions génériques de `docs/`, qui portent elles-mêmes leur en-tête `paths:`. Une consigne propre à un paquet ou à un fichier s'ajoute dans sa règle, pas ici.
 
 ## Workflow Git
 
-Le projet suit GitFlow et des conventions de commit, décrits dans des fichiers génériques partagés entre projets :
-
-@docs/gitflow.md
+GitFlow (`docs/gitflow.md`, à lire avant d'ouvrir ou de merger une pull request, de démarrer une release ou un hotfix, de poser un tag) et conventions de commit :
 
 @docs/commits.md
 
-## Documentation utilisateur
+- Vérifier la branche (`git status`) avant toute modification. Sur `main` ou `develop`, créer d'abord la branche : `feature/<kebab-case>` depuis `develop`, `hotfix/<kebab-case>` depuis `main`, `release/X.Y.Z` depuis `develop`. Jamais de commit direct sur `main` ni sur `develop`.
+- Confirmation explicite de l'utilisateur avant chaque commit, push, ouverture de pull request ou passage en « prête », merge, tag et suppression de branche.
+- Merge par pull request seulement, une fois le job `checks` du CI au vert (vérification exigée par le ruleset GitHub), avec un commit de merge et le message par défaut de git (`--subject`, `--body ""`).
+- Jamais : merger `main` ou `develop` en local, contourner une protection (`gh pr merge --admin`), réécrire l'historique d'une branche partagée (`rebase`, `reset`, `push --force`).
+- Une release seulement pour un changement visible de l'utilisateur ; son commit de passage de version ajoute l'entrée de `changelog.txt`.
 
-Le `README.md` et le `changelog.txt` s'adressent à l'utilisateur. Leurs conventions (`docs/readme.md`, `docs/changelog.md`) et les spécificités du projet se chargent avec ces fichiers (`.claude/rules/`).
+## Documentation
+
+- Après tout changement de comportement visible, vérifier si le `README.md` le décrit et le mettre à jour sans attendre qu'on le demande.
+- Les développements sont planifiés en jalons (`docs/milestones/`, indexés par `docs/roadmap.md`). Avant de reprendre un travail, lire le jalon 🔄 de l'index ; avant d'en démarrer un, rédiger son fichier et le faire valider ; tenir ses cases et son Journal à jour dans les commits de travail.
+- Avant d'ajouter, de remplacer ou de retirer une dépendance structurante : lire `docs/stack.md`, même quand la dépendance s'installe par `npm install` sans ouvrir de `package.json`.
 
 ## Conventions de développement
 
 ### Vocabulaire technique
 
-Dans les échanges avec l'utilisateur et dans la documentation interne (`CLAUDE.md`, `docs/`, jalons), les concepts clés du code se nomment par leur terme anglais, sans traduction : « value object » et non « objet-valeur », de même pour « entity », « aggregate », « bounded context », « repository », « middleware », « hook », « query key », etc. Les phrases restent en français.
+Dans les échanges avec l'utilisateur et dans la documentation interne (`CLAUDE.md`, `.claude/rules/`, `docs/`, jalons), les concepts clés du code se nomment par leur terme anglais, sans traduction : « value object » et non « objet-valeur », de même pour « entity », « aggregate », « bounded context », « repository », « middleware », « hook », « query key », etc. Les phrases restent en français.
 
 - La documentation existante s'aligne au fil de ses modifications, sans réécriture d'ensemble.
 - Le README et le `changelog.txt` ne sont pas concernés : ils s'adressent à l'utilisateur du produit, en français et sans jargon interne (voir `docs/readme.md`).
 
 ### TDD (Test Driven Development)
 
-Tout changement de comportement suit le TDD, décrit dans un fichier générique partagé entre projets :
+Tout changement de comportement suit le TDD, décrit dans un fichier générique partagé entre projets (spécificités de chaque paquet dans sa règle) :
 
 @docs/tdd.md
 
-Spécificités du projet :
-
-- Lancer un seul fichier de test : `npm test -w <paquet> -- <chemin relatif au paquet>`.
 - Test de caractérisation (sur du code existant, donc vert d'emblée) : son rouge se prouve par une mutation temporaire du code testé, lancée et montrée, puis annulée sans être commitée. Une mutation qui survit révèle un test trop faible : le renforcer.
 
 ### Relecture du code
@@ -91,17 +111,3 @@ L'utilisateur relit le code selon son risque, comme en équipe professionnelle :
 - Avant de passer une pull request en « prête », lancer `/code-review` sur la branche et corriger ce qui en ressort, ou expliquer pourquoi un point est écarté.
 - Une pull request qui touche une zone de relecture critique passe aussi par `/security-audit` (skill générique du projet, lecture seule, rapport dans le terminal) : les correctifs sont choisis avec l'utilisateur d'après le rapport. `/security-audit full` audite tout le dépôt, à la clôture d'un jalon de relecture critique. Le skill rattache ses constats aux principes de sécurité de `docs/vision.md` (P11, P12, P15 à P18, P20, et P21 pour les erreurs remontées).
 - La pull request est la relecture d'ensemble, faite par l'utilisateur avant le merge. Sa description dit ce qui change, pourquoi, comment le vérifier, et où porter l'attention.
-
-### Roadmap
-
-Les développements sont planifiés en jalons : un fichier par jalon dans `docs/milestones/`, indexés par `docs/roadmap.md`. Leur convention (`docs/roadmap-conventions.md`) et les spécificités du projet se chargent avec ces fichiers (`.claude/rules/`).
-
-### Vision et stack
-
-Le rôle et la tenue de `docs/vision.md` et de `docs/stack.md` (`docs/project-docs-conventions.md`) se chargent avec ces deux fichiers et avec tout `package.json` : lire `docs/stack.md` avant d'ajouter, de remplacer ou de retirer une dépendance structurante.
-
-## Architecture
-
-Décrite par paquet dans des règles chargées avec les fichiers du paquet : `.claude/rules/api.md`
-(`apps/api/`), `.claude/rules/web.md` (`apps/web/`) et `.claude/rules/contracts.md`
-(`packages/contracts/`).

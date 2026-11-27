@@ -127,10 +127,12 @@ perdue en route.
 - [x] `docs/gitflow.md`, `docs/commits.md`, `docs/tdd.md` : formule de D8.
 - [x] `CLAUDE.md` : imports et « Spécificités du projet » correspondants retirés.
 
-## Phase C — `CLAUDE.md` réduit ⬜ (relecture standard)
+## Phase C — `CLAUDE.md` réduit ✅ (relecture standard)
 
-- [ ] `CLAUDE.md` : contenu de D7, moins de 120 lignes ; résumé du workflow Git (D6) ; table
+- [x] `CLAUDE.md` : contenu de D7, moins de 120 lignes ; résumé du workflow Git (D6) ; table
       des règles et de leurs `paths:`.
+- [x] `.claude/skills/security-audit/SKILL.md` : lit aussi les règles de `.claude/rules/`, qu'il
+      ne recevait plus par les imports du `CLAUDE.md`.
 
 ## Phase D — Vérification ⬜ (relecture légère)
 
@@ -153,6 +155,13 @@ perdue en route.
 - 2026-11-27 : phase B faite, `CLAUDE.md` à 107 lignes. `render.yaml` n'existe pas encore : gardé
   dans les `paths:` de `ci.md` pour le jalon « Déploiement du socle ». À garder pour la phase C :
   le job `checks` exigé avant tout merge, que `ci.md` ne charge qu'avec `.github/`.
+- 2026-11-27 : phase C faite, `CLAUDE.md` à 113 lignes (10 190 caractères) ; avec `tdd.md` et
+  `commits.md`, 16 557 caractères chargés au démarrage au lieu de 60 665. Trois consignes restent
+  dans le `CLAUDE.md` bien que leur convention soit chargée par un fichier, parce qu'elles
+  s'appliquent avant de l'ouvrir : mettre à jour le README après un changement visible, lire le
+  jalon 🔄 à la reprise et faire valider un jalon avant de le démarrer, lire `docs/stack.md` avant
+  un `npm install` qui ne passe par aucun `package.json` lu. Le skill `security-audit` lisait
+  « `CLAUDE.md` et les fichiers qu'il importe » : il lit désormais aussi `.claude/rules/`.
 
 ## Workflow Git
 
